@@ -10,11 +10,11 @@ import {
 
 import { CabildosService } from './cabildo.service';
 
-@Controller('cabildos')
+@Controller('cabildos') // http://localhost:3000/cabildos
 export class CabildoController {
     constructor(private readonly cabildosService: CabildosService) {}
 
-    @Post()
+    @Post() // http://localhost:3000/cabildos
     async addCabildo(
         @Body('name') name: string,
         @Body('members') members: string,
@@ -42,12 +42,12 @@ export class CabildoController {
         return cabildos;
     }
 
-    @Get(':id')
-    getProduct(@Param('id') cabildoId: string) {
+    @Get(':id') // http://localhost:3000/cabildos/:id
+    getCabildoById(@Param('id') cabildoId: string) {
         return this.cabildosService.getCabildoById(cabildoId);
     }
 
-    @Delete(':id')
+    @Delete(':id') // http://localhost:3000/cabildos/:id
     async deleteProduct(@Param('id') cabildoId: string) {
         await this.cabildosService.deleteCabildo(cabildoId);
         return null;
