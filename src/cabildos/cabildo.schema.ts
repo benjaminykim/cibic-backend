@@ -1,7 +1,11 @@
 import * as mongoose from 'mongoose';
 import {UsersModule} from '../users/users.module';
 
-export const MeetingSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const MeetingSchema = new mongoose.Schema({
+    _id: { type: Schema.Types.ObjectId },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'Users' },
     schedule: { type: Date, required: true },
     notes: { type: String, required: true, default: 'No info' },
 });
@@ -12,7 +16,7 @@ export const CabildoSchema = new mongoose.Schema({
     moderators: { type: Number, required: true }, // at least 1
     location: { type: String, required: false },
     issues: { type: String, required: true },
-    meetings: { type: [MeetingSchema], required: false },
+    meetings: [{ type: Schema.Types.ObjectId, ref: 'MeetingSchema'}],
     files: { type: String, required: true },
 });
 
