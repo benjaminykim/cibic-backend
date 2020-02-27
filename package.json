@@ -25,6 +25,7 @@
     "@nestjs/mongoose": "^6.3.0",
     "@nestjs/passport": "^6.1.1",
     "@nestjs/platform-express": "^6.7.2",
+    "bcrypt": "^4.0.0",
     "mongoose": "^5.8.10",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",

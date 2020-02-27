@@ -10,7 +10,13 @@ export class CabildosService {
         @InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>,
     ) {}
 
-    async insertCabildo(name: string, members: string, moderators: string, location: string, issues: string, meetings: object[], files: string) {
+    async insertCabildo(name: string,
+                        members: string,
+                        moderators: string,
+                        location: string,
+                        issues: string,
+                        meetings: object[],
+                        files: string) {
         const newCabildo = new this.cabildoModel({
             name,
             members,

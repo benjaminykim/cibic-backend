@@ -4,7 +4,7 @@ import {UsersModule} from '../users/users.module';
 const Schema = mongoose.Schema;
 
 const MeetingSchema = new mongoose.Schema({
-    _id: { type: Schema.Types.ObjectId },
+    _id: { type: Schema.Types.ObjectId, auto: true },
     createdBy: { type: Schema.Types.ObjectId, ref: 'Users' },
     schedule: { type: Date, required: true },
     notes: { type: String, required: true, default: 'No info' },

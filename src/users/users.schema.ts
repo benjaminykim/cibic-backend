@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import * as cabildo from '../cabildos/cabildo.module';
 
 export const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
@@ -16,9 +17,16 @@ export const UserSchema = new mongoose.Schema({
     files: { type: String, required: true },
 });
 
-export interface User extends mongoose.Document {
+export interface Users extends mongoose.Document {
     id: string;
     username: string;
     email: string;
     password: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    maidenName: string;
+    phone: number;
+    rut: string;
+    cabildos: string;
 }
