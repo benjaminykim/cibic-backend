@@ -1,8 +1,8 @@
 FROM node:12-buster
-WORKDIR /user/src/app
+WORKDIR /app
 
-COPY . .
+COPY . /app
 RUN npm install
 
 EXPOSE 3000
-CMD [ "npm", "run", "start:watch" ]
+CMD [ "npm", "run", "start:dev" ]
