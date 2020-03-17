@@ -32,8 +32,10 @@ const voteSchema = Schema({
 });
 
 export const ActivitySchema = new Schema({
-    idUser: { type: Schema.Types.ObjectId, ref: 'Users' }, // owner of the proposal, poll or opinion.
-    idCabildo: { type: Schema.Types.ObjectId, ref: 'Cabildo' },
+    // idUser: { type: Schema.Types.ObjectId, ref: 'Users' }, // owner of the proposal, poll or opinion.
+    // idCabildo: { type: Schema.Types.ObjectId, ref: 'Cabildo' },
+    idUser: { type: String, required: true }, // owner of the proposal, poll or opinion.
+    idCabildo: { type: String, required: true },
     activityType: { type: String, enum: ['discussion', 'proposal', 'poll'] },
     score: { type: Number, default: 0, required: true },
     pingNumber: { type: Number, default: 0, required: true },
