@@ -9,34 +9,34 @@ import {readConfigurationFile} from 'tslint/lib/configuration';
 export class ActivityService {
     constructor(
         @InjectModel('Activity') private readonly activityModel: Model<Activity>,
-    ) {}
+	) {}
 
     async insertActivity(
-        createdBy: string,
-        cabildo: string,
+        idUser: string,
+        idCabildo: string,
         activityType: string,
         score: number,
         pingNumber: number,
         commentNumber: number,
-        createdAt: string,
+        publishDate: string,
         title: string,
         text: string,
         comments: object[],
-        reaction: object[],
+        reactions: object[],
         votes: string,
     ) {
         const newActivity = new this.activityModel({
-            createdBy,
-            cabildo,
+            idUser,
+            idCabildo,
             activityType,
             score,
             pingNumber,
             commentNumber,
-            createdAt,
+            publishDate,
             title,
             text,
             comments,
-            reaction,
+            reactions,
             votes,
         });
         const result = await newActivity.save();
@@ -45,34 +45,34 @@ export class ActivityService {
 
     async updateActivity(
         activityId: string,
-        createdBy: string,
-        cabildo: object[],
+        idUser: string,
+        idCabildo: string,
         activityType: string,
         score: number,
         pingNumber: number,
         commentNumber: number,
-        createdAt: string,
+        publishDate: string,
         title: string,
         text: string,
         comments: object[],
-        reaction: object[],
+        reactions: object[],
         votes: string,
     ) {}
 
     async getActivity() { // list all activities
         const activity = await this.activityModel.find().exec();
         return activity.map(data => ({
-            createdBy: data.createdBy,
-            cabildo: data.cabildo,
+            idUser: data.idUser,
+            idCabildo: data.idCabildo,
             activityType: data.activityType,
             score: data.score,
             pingNumber: data.pingNumber,
             commentNumber: data.commentNumber,
-            createdAt: data.createdAt,
+            publishDate: data.publishDate,
             title: data.title,
             text: data.text,
             comments: data.comments,
-            reaction: data.reaction,
+            reactions: data.reactions,
             votes: data.votes,
         }));
     }
@@ -80,17 +80,17 @@ export class ActivityService {
     async getActivityById(activityId: string) {
         const activity = await this.findActivity(activityId);
         return activity.map(data => ({
-            createdBy: data.createdBy,
-            cabildo: data.cabildo,
+            idUser: data.idUser,
+            idCabildo: data.idCabildo,
             activityType: data.activityType,
             score: data.score,
             pingNumber: data.pingNumber,
             commentNumber: data.commentNumber,
-            createdAt: data.createdAt,
+            publishDate: data.publishDate,
             title: data.title,
             text: data.text,
             comments: data.comments,
-            reaction: data.reaction,
+            reactions: data.reactions,
             votes: data.votes,
         }));
     }

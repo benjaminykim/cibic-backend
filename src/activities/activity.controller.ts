@@ -16,31 +16,31 @@ export class ActivityController {
 
     @Post()
     async addActivity(
-        @Body('createdBy') createdBy: string,
-        @Body('cabildo') cabildo: string,
+        @Body('idUser') idUser: string,
+        @Body('idCabildo') idCabildo: string,
         @Body('activityType') activityType: string,
         @Body('score') score: number,
         @Body('pingNumber') pingNumber: number,
         @Body('commentNumber') commentNumber: number,
-        @Body('createdAt') createdAt: string,
+        @Body('publishDate') publishDate: string,
         @Body('title') title: string,
         @Body('text') text: string,
         @Body('comments') comments: object[],
-        @Body('reaction') reaction: object[],
+        @Body('reactions') reactions: object[],
         @Body('votes') votes: string,
     ) {
         const generatedId = await this.activityService.insertActivity(
-            createdBy,
-            cabildo,
+            idUser,
+            idCabildo,
             activityType,
             score,
             pingNumber,
             commentNumber,
-            createdAt,
+            publishDate,
             title,
             text,
             comments,
-            reaction,
+            reactions,
             votes,
         );
         return { id: generatedId };
@@ -53,13 +53,13 @@ export class ActivityController {
     }
 
     @Get(':id')
-    getActivityById(@Param('id') activityId: string) {
-        return this.activityService.getActivityById(activityId);
+    getActivityById(@Param('id') idActivity: string) {
+        return this.activityService.getActivityById(idActivity);
     }
 
     @Delete(':id')
-    async deleteActivity(@Param('id') activityId: string) {
-        await this.activityService.deleteActivity(activityId);
+    async deleteActivity(@Param('id') idActivity: string) {
+        await this.activityService.deleteActivity(idActivity);
         return null;
     }
 }
