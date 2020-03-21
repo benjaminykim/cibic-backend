@@ -12,7 +12,8 @@ const ReplySchema = Schema({
 
 const CommentSchema = Schema({
     _id: { type: Schema.Types.ObjectId, auto: true },
-    idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
+    //idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
+    idUser: { type: String },
     publishDate: { type: Date, default: Date.now() },
     content: { type: String, required: true},
     score: { type: Number, required: true, default: 0 },
@@ -43,8 +44,8 @@ export const ActivitySchema = new Schema({
     publishDate: { type: Date, default: Date.now() },
     title: { type: String, required: true },
     text: { type: String, required: true },
-    comments: [{ type: Schema.Types.ObjectId, ref: 'CommentSchema'}],
-    reactions: [{ type: Schema.Types.ObjectId, ref: 'reactionSchema'}],
+    comments: [CommentSchema],
+    reactions: [reactionSchema],
     votes: [{ type: Schema.Types.ObjectId, ref: 'voteSchema'}],
 });
 
