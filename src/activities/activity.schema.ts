@@ -20,13 +20,13 @@ const CommentSchema = Schema({
     reply: [{ type: Schema.Types.ObjectId, ref: 'ReplySchema' }],
 });
 
-const reactionSchema = Schema({
+const ReactionSchema = Schema({
     _id: { type: Schema.Types.ObjectId, auto: true },
     idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
     value: { type: Number, enum: [-2, -1, 0, 1, 2] },
 });
 
-const voteSchema = Schema({
+const VoteSchema = Schema({
     _id: { type: Schema.Types.ObjectId, auto: true },
     idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
     value: { type: Number, enum: [-1, 0, 1] },
@@ -45,8 +45,8 @@ export const ActivitySchema = new Schema({
     title: { type: String, required: true },
     text: { type: String, required: true },
     comments: [CommentSchema],
-    reactions: [reactionSchema],
-    votes: [{ type: Schema.Types.ObjectId, ref: 'voteSchema'}],
+	reactions: [ReactionSchema],
+	votes: [VoteSchema],
 });
 
 export interface Activity extends mongoose.Document {

@@ -14,7 +14,7 @@ export const UserSchema = new mongoose.Schema({
     cabildos: { type: String, required: true },
     activityVotes: { type: String, required: true },
     commentVotes: { type: String, required: true },
-    files: { type: String, required: true },
+	files: { type: String, required: true },
 });
 
 export interface Users extends mongoose.Document {
