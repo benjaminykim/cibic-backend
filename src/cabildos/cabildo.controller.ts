@@ -4,35 +4,21 @@ import {
     Body,
     Get,
     Param,
-    Patch,
+//    Patch,
     Delete,
 } from '@nestjs/common';
 
-import { CabildosService } from './cabildo.service';
+import { Cabildo } from './cabildo.schema';
+import { CabildoService } from './cabildo.service';
 
 @Controller('cabildos') // http://localhost:3000/cabildos
 export class CabildoController {
-    constructor(private readonly cabildosService: CabildosService) {}
+    constructor(private readonly cabildosService: CabildoService) {}
 
     @Post() // http://localhost:3000/cabildos
-    async addCabildo(
-        @Body('name') name: string,
-        @Body('members') members: string,
-        @Body('moderators') moderators: string,
-        @Body('location') location: string,
-        @Body('issues') issues: string,
-        @Body('meetings') meetings: object[],
-        @Body('files') files: string,
+    async addCabildo(@Body() cabildo: Cabildo
     ) {
-        const generatedId = await this.cabildosService.insertCabildo(
-            name,
-            members,
-            moderators,
-            location,
-            issues,
-            meetings,
-            files,
-        );
+        const generatedId = await this.cabildosService.insertCabildo(cabildo);
         return { id: generatedId };
     }
 

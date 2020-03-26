@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 
 import { Activity } from './activity.schema';
 import {readConfigurationFile} from 'tslint/lib/configuration';
+import { callbackify } from 'util';
 
 @Injectable()
 export class ActivityService {
@@ -11,57 +12,32 @@ export class ActivityService {
         @InjectModel('Activity') private readonly activityModel: Model<Activity>,
 	) {}
 
-    async insertActivity(
-        idUser: string,
-        idCabildo: string,
-        activityType: string,
-        score: number,
-        pingNumber: number,
-        commentNumber: number,
-        publishDate: string,
-        title: string,
-        text: string,
-        comments: object[],
-        reactions: object[],
-        votes: string,
+    async insertActivity(activity: Activity
     ) {
-        const newActivity = new this.activityModel({
-            idUser,
-            idCabildo,
-            activityType,
-            score,
-            pingNumber,
-            commentNumber,
-            publishDate,
-            title,
-            text,
-            comments,
-            reactions,
-            votes,
-        });
+        const newActivity = new this.activityModel(activity);
         const result = await newActivity.save();
         return result.id as string;
     }
 
-    async updateActivity(
-        activityId: string,
-        idUser: string,
-        idCabildo: string,
-        activityType: string,
-        score: number,
-        pingNumber: number,
-        commentNumber: number,
-        publishDate: string,
-        title: string,
-        text: string,
-        comments: object[],
-        reactions: object[],
-        votes: string,
-    ) {}
+    async updateActivity(activityId: string, activity: Activity) {
+        function callback(err, data) {
+            if (err) {
+                console.error(`Error updating activity: ${err}`);
+            } else {
+                console.log(`updated activity ${data}`);
+            }
+        }
+        const result = await this.activityModel.findbyIdAndUpdate(
+            activityId,
+            activity,
+            callback
+        );
+        return result;
+    }
 
     async getActivity() { // list all activities
         const activity = await this.activityModel.find().exec();
-        return activity.map(data => ({
+        return activity;/*.map(data => ({
             idUser: data.idUser,
             idCabildo: data.idCabildo,
             activityType: data.activityType,
@@ -74,12 +50,12 @@ export class ActivityService {
             comments: data.comments,
             reactions: data.reactions,
             votes: data.votes,
-        }));
+        }));*/
     }
 
     async getActivityById(activityId: string) {
         const activity = await this.findActivity(activityId);
-        return activity.map(data => ({
+        return activity;/*.map(data => ({
             idUser: data.idUser,
             idCabildo: data.idCabildo,
             activityType: data.activityType,
@@ -92,11 +68,11 @@ export class ActivityService {
             comments: data.comments,
             reactions: data.reactions,
             votes: data.votes,
-        }));
+        }));*/
     }
 
     async deleteActivity(id: string) {
-        const result = await this.activityModel.deleteOne({_id: id}).exec();
+        const result = await this.activityModel.findByIdAndDelete(id).exec(); //callback stuf here TODO SMONROE
         if (result.n === 0) {
             throw new NotFoundException('Could not find activity.');
         }

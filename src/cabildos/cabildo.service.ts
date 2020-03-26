@@ -5,27 +5,13 @@ import { Model } from 'mongoose';
 import { Cabildo } from './cabildo.schema';
 
 @Injectable()
-export class CabildosService {
+export class CabildoService {
     constructor(
         @InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>,
     ) {}
 
-    async insertCabildo(name: string,
-                        members: string,
-                        moderators: string,
-                        location: string,
-                        issues: string,
-                        meetings: object[],
-                        files: string) {
-        const newCabildo = new this.cabildoModel({
-            name,
-            members,
-            moderators,
-            location,
-            issues,
-            meetings,
-            files,
-        });
+    async insertCabildo(cabildo: Cabildo) {
+        const newCabildo = new this.cabildoModel(cabildo)
         const result = await newCabildo.save();
         return result.id as string;
     }
@@ -36,6 +22,7 @@ export class CabildosService {
             name: data.name,
             members: data.members,
             moderators: data.moderators,
+            admin: data.admin,
             location: data.location,
             issues: data.issues,
             meetings: data.meetings,
@@ -49,6 +36,7 @@ export class CabildosService {
             name: data.name,
             members: data.members,
             moderators: data.moderators,
+            admin: data.admin,
             location: data.location,
             issues: data.issues,
             meetings: data.meetings,
@@ -57,7 +45,7 @@ export class CabildosService {
     }
 
     async deleteCabildo(id: string) {
-        const result = await this.cabildoModel.deleteOne({_id: id}).exec();
+        const result = await this.cabildoModel.findByIdAndDelete(id).exec();
         if (result.n === 0) {
             throw new NotFoundException('Could not find cabildo.');
         }

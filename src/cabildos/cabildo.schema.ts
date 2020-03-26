@@ -12,20 +12,22 @@ const MeetingSchema = new mongoose.Schema({
 
 export const CabildoSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    members: { type: String, required: true }, // at least 1
-    moderators: { type: Number, required: true }, // at least 1
+    members: [{ type: Schema.Types.ObjectId, ref: 'UsersSchema' }], // at least 1
+    moderators: [{ type: Schema.Types.ObjectId, ref: 'UsersSchema' }], // at least 1
+    admin: { type: Schema.Types.ObjectId, ref: 'UsersSchema' },
     location: { type: String, required: false },
-    issues: { type: String, required: true },
+    issues: [{ type: String, required: true }],
     meetings: [{ type: Schema.Types.ObjectId, ref: 'MeetingSchema'}],
-    files: { type: String, required: true },
+    files: [{ type: String, required: true }],
 });
 
 export interface Cabildo extends mongoose.Document {
     name: string;
-    members: string;
-    moderators: string;
+    members: object[];
+    moderators: object[];
+    admin: object;
     location: string;
-    issues: string;
+    issues: string[];
     meetings: object[];
-    files: string;
+    files: string[];
 }

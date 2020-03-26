@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { CabildosService } from './cabildo.service';
+import { CabildoService } from './cabildo.service';
 import { CabildoController } from './cabildo.controller';
 import { CabildoSchema } from './cabildo.schema';
 
@@ -10,6 +10,6 @@ import { CabildoSchema } from './cabildo.schema';
         MongooseModule.forFeature([{name: 'Cabildo', schema: CabildoSchema}]),
     ],
     controllers: [CabildoController],
-    providers: [CabildosService],
+    providers: [CabildoService],
 })
 export class CabildoModule {}

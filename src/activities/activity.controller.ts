@@ -6,43 +6,19 @@ import {
     Param,
     Patch,
     Delete,
+    Put,
 } from '@nestjs/common';
 
 import { ActivityService } from './activity.service';
+import { Activity } from './activity.schema';
 
 @Controller('activity') // http://localhost:3000/activity
 export class ActivityController {
     constructor(private readonly activityService: ActivityService) {}
 
     @Post()
-    async addActivity(
-        @Body('idUser') idUser: string,
-        @Body('idCabildo') idCabildo: string,
-        @Body('activityType') activityType: string,
-        @Body('score') score: number,
-        @Body('pingNumber') pingNumber: number,
-        @Body('commentNumber') commentNumber: number,
-        @Body('publishDate') publishDate: string,
-        @Body('title') title: string,
-        @Body('text') text: string,
-        @Body('comments') comments: object[],
-        @Body('reactions') reactions: object[],
-        @Body('votes') votes: string,
-    ) {
-        const generatedId = await this.activityService.insertActivity(
-            idUser,
-            idCabildo,
-            activityType,
-            score,
-            pingNumber,
-            commentNumber,
-            publishDate,
-            title,
-            text,
-            comments,
-            reactions,
-            votes,
-        );
+    async addActivity(@Body() activity: Activity) {
+        const generatedId = await this.activityService.insertActivity(activity);
         return { id: generatedId };
     }
 
@@ -53,9 +29,15 @@ export class ActivityController {
     }
 
     @Get(':id')
-    getActivityById(@Param('id') idActivity: string) {
-        return this.activityService.getActivityById(idActivity);
+    async getActivityById(@Param('id') idActivity: string) {
+        return await this.activityService.getActivityById(idActivity);
     }
+
+    @Put(':update')
+    async updateActivity(activityId: string, activity: Activity) {
+        return await this.activityService.updateActivity(activityId, activity);
+    }
+
 
     @Delete(':id')
     async deleteActivity(@Param('id') idActivity: string) {
