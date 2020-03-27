@@ -34,3 +34,5 @@ lerna-debug.log*
 
 # Others
 package-lock.json
+
+tsconfig*
