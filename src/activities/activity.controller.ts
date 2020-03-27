@@ -17,7 +17,7 @@ export class ActivityController {
     constructor(private readonly activityService: ActivityService) {}
 
     @Post()
-    async addActivity(@Body() activity: Activity) {
+    async addActivity(@Body('activity') activity: Activity) {
         const generatedId = await this.activityService.insertActivity(activity);
         return { id: generatedId };
     }
@@ -33,11 +33,12 @@ export class ActivityController {
         return await this.activityService.getActivityById(idActivity);
     }
 
-    @Put(':update')
-    async updateActivity(activityId: string, activity: Activity) {
+    @Post()
+    async updateActivity(
+        @Body('activityid') activityId: string,
+        @Body('activity') activity: Activity) {
         return await this.activityService.updateActivity(activityId, activity);
     }
-
 
     @Delete(':id')
     async deleteActivity(@Param('id') idActivity: string) {

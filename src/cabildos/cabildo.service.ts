@@ -32,16 +32,7 @@ export class CabildoService {
 
     async getCabildoById(cabildoId: string) {
         const cabildo = await this.findCabildo(cabildoId);
-        return cabildo.map(data => ({
-            name: data.name,
-            members: data.members,
-            moderators: data.moderators,
-            admin: data.admin,
-            location: data.location,
-            issues: data.issues,
-            meetings: data.meetings,
-            files: data.files,
-        }));
+        return cabildo;
     }
 
     async deleteCabildo(id: string) {

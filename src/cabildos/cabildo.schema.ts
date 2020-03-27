@@ -17,8 +17,9 @@ export const CabildoSchema = new mongoose.Schema({
     admin: { type: Schema.Types.ObjectId, ref: 'UsersSchema' },
     location: { type: String, required: false },
     issues: [{ type: String, required: true }],
-    meetings: [{ type: Schema.Types.ObjectId, ref: 'MeetingSchema'}],
+    meetings: [{ type: Schema.Types.ObjectId, ref: 'MeetingSchema' }],
     files: [{ type: String, required: true }],
+    activities: [{ type: Schema.Types.ObjectId, ref: 'ActivitySchema' }],
 });
 
 export interface Cabildo extends mongoose.Document {
@@ -30,4 +31,5 @@ export interface Cabildo extends mongoose.Document {
     issues: string[];
     meetings: object[];
     files: string[];
+    activities: object[];
 }

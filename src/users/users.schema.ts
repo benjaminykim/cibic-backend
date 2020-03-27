@@ -19,6 +19,7 @@ export const UserSchema = new mongoose.Schema({
     files: [{ type: String, required: true }],
     followers: [{ type: Schema.Types.ObjectId, ref: 'UserSchema' }],
     following: [{ type: Schema.Types.ObjectId, ref: 'UserSchema' }],
+    activityFeed: [{ type: Schema.Types.ObjectID, ref: 'ActivitySchema' }],
 });
 
 export interface Users extends mongoose.Document {
@@ -38,4 +39,10 @@ export interface Users extends mongoose.Document {
     files: string[];
     followers: object[];
     following: object[];
+    activityFeed: object[];
+}
+
+export interface Following extends mongoose.Document {
+    follower: string;
+    followed: string;
 }
