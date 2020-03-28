@@ -1,9 +1,11 @@
 #!/bin/sh
-IFS=$'\n' read -d '' -r -a lines < idUser.txt
-for i in ${!lines[@]}; do
-    for j in ${!lines[@]}; do
-        idOne=${lines[$j]}
-        idTwo=${lines[$i]}
+IFS=$'\n' read -d '' -r -a users < ~/idUser.txt
+IFS=$'\n' read -d '' -r -a follow < ~/idUser.txt
+
+for i in ${!users[@]}; do
+    for j in ${!follow[@]}; do
+        idOne=${users[$j]}
+        idTwo=${follow[$i]}
         if [ $idOne != $idTwo ]; then
             data='{"data":{"follower":"'$idOne'","followed":"'$idTwo'"}}'
             echo $data

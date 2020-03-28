@@ -1,6 +1,6 @@
 #!/bin/sh
-IFS=$'\n' read -d '' -r -a cabildos < idCabildo.txt
-IFS=$'\n' read -d '' -r -a users < idUser.txt
+IFS=$'\n' read -d '' -r -a cabildos < ~/idCabildo.txt
+IFS=$'\n' read -d '' -r -a users < ~/idUser.txt
 
 for c_index in ${!cabildos[@]}; do
     for u_index in ${!users[@]}; do
