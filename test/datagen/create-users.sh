@@ -33,10 +33,8 @@ lastnames=( "lname"
             "lname"
             )
 
-temp=curlResponse.log
-output=idUser.txt
-
-rm $output
+temp=~/curlResponse.log
+output=~/idUser.txt
 
 for i in ${!usernames[@]}; do
     curl -H "Content-Type: application/json" -d'{"user":{
@@ -56,6 +54,6 @@ for i in ${!usernames[@]}; do
     "activityFeed": []
     }}' http://localhost:3000/users >> $temp 2>&1
 done
-grep -o ':".*"' curlResponse.log | sed 's/[:"]//g' >> $output
-rm $temp
+grep -o ':".*"' $temp | sed 's/[:"]//g' >> $output
+rm -f $temp
 cat $output
