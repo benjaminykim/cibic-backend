@@ -1,9 +1,8 @@
 #!/bin/sh
-IFS=$'\n' read -d '' -r -a lines < idUser.txt
+IFS=$'\n' read -d '' -r -a lines < ~/idUser.txt
 
-temp=curlResponse.log
-output=idCabildo.txt
-rm $output
+temp=~/curlResponse.log
+output=~/idCabildo.txt
 
 cabildos=("cabildo-uno" "cabildo-dos" "cabildo-tres")
 for i in ${!lines[@]}; do
@@ -22,6 +21,6 @@ for i in ${!lines[@]}; do
         break
     fi
 done
-grep -o ':".*"' curlResponse.log | sed 's/[:"]//g' >> $output
-rm $temp
+grep -o ':".*"' $temp | sed 's/[:"]//g' >> $output
+rm -f $temp
 cat $output
