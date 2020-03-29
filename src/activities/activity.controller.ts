@@ -29,8 +29,8 @@ export class ActivityController {
     }
 
     @Get(':id')
-    async getActivityById(@Param('id') idActivity: string) {
-        return await this.activityService.getActivityById(idActivity);
+    async getActivityById(@Param('id') activityId: string) {
+        return await this.activityService.getActivityById(activityId);
     }
 
     @Post()
@@ -41,8 +41,8 @@ export class ActivityController {
     }
 
     @Delete(':id')
-    async deleteActivity(@Param('id') idActivity: string) {
-        await this.activityService.deleteActivity(idActivity);
+    async deleteActivity(@Param('id') activityId: string) {
+        await this.activityService.deleteActivity(activityId);
         return null;
     }
 }

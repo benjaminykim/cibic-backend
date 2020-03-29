@@ -44,10 +44,10 @@ export class UsersService {
         }));
     }
     
-    async followUser(followerId, followedId) {
-        const userAExists = await this.usersModel.exists({_id: followerId});
-        const userBExists = await this.usersModel.exists({_id: followedId});
-        if (!userAExists || !userBExists) {
+    async followUser(idFollower: string, idFollowed: string) {
+        const followerExists = await this.usersModel.exists({_id: idFollower});
+        const followedBExists = await this.usersModel.exists({_id: idFollowed});
+        if (!followerExists || !followedBExists) {
             return false;
         }
         function callback (err, res) {
@@ -58,13 +58,13 @@ export class UsersService {
             }
         }
         const first = await this.usersModel.findByIdAndUpdate(
-            followerId,
-            { $addToSet: {following: followedId}},
+            idFollower,
+            { $addToSet: {following: idFollowed}},
             callback
         );
         const second = await this.usersModel.findByIdAndUpdate(
-            followedId,
-            { $addToSet: {followers: followerId}},
+            idFollowed,
+            { $addToSet: {followers: idFollower}},
             callback
         );
         if (!first || !second) {
@@ -73,9 +73,9 @@ export class UsersService {
         return true;
     }
 
-    async followCabildo(userId, cabildoId) {
-        const userExists = await this.usersModel.exists({_id: userId});
-        const cabildoExists = await this.cabildoModel.exists({_id: cabildoId});
+    async followCabildo(idUser: string, idCabildo: string) {
+        const userExists = await this.usersModel.exists({_id: idUser});
+        const cabildoExists = await this.cabildoModel.exists({_id: idCabildo});
         if (!userExists || !cabildoExists) {
             return false;
         }
@@ -86,38 +86,37 @@ export class UsersService {
                 console.log(`Success: ${res}`);
             }
         }
-        const first = await this.usersModel.findByIdAndUpdate(
-            userId,
-            { $addToSet: {cabildos: cabildoId}},
+        const user = await this.usersModel.findByIdAndUpdate(
+            idUser,
+            { $addToSet: {cabildos: idCabildo}},
             callback
         );
-        const second = await this.cabildoModel.findByIdAndUpdate(
-            cabildoId,
-            { $addToSet: {members: userId}},
+        const cabildo = await this.cabildoModel.findByIdAndUpdate(
+            idCabildo,
+            { $addToSet: {members: idUser}},
             callback
         );
-        if (first && second) {
+        if (user && cabildo) {
             return true;
         }
         return false;
     }
 
-    async getUserById(UserId: string) {
-        const users = await this.findUser(UserId);
-        return users;
+    async getUserById(userId: string) {
+        const user = await this.findUser(userId);
+        return user;
     }
 
-    private async findUser(id: string) {
-        let result;
+    private async findUser(userId: string) {
+        let user;
         try {
-            result = await this.usersModel.findById(id).exec();
+            user = await this.usersModel.findById(userId).exec();
         } catch (error) {
-            console.log(error);
             throw new NotFoundException('Could not find user.');
         }
-        if (!result) {
+        if (!user) {
             throw new NotFoundException('Could not find user.');
         }
-        return result;
+        return user;
     }
 }

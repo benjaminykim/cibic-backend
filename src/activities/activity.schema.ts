@@ -1,11 +1,8 @@
-import * as mongoose from 'mongoose';
-
-const Schema = mongoose.Schema;
+import { Schema, Document } from 'mongoose';
 
 const ReplySchema = Schema({
     _id: { type: Schema.Types.ObjectId, auto: true },
-    // idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
-    idUser: { type: String },
+    idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
     publishDate: { type: Date, default: Date.now() },
     content: { type: String, required: true},
     score: { type: Number, required: true, default: 0 },
@@ -13,12 +10,10 @@ const ReplySchema = Schema({
 
 const CommentSchema = Schema({
     _id: { type: Schema.Types.ObjectId, auto: true },
-    //idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
-    idUser: { type: String },
+    idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
     publishDate: { type: Date, default: Date.now() },
     content: { type: String, required: true},
     score: { type: Number, required: true, default: 0 },
-	// reply: [{ type: Schema.Types.ObjectId, ref: 'ReplySchema' }],
 	reply: [ReplySchema],
 });
 
@@ -37,8 +32,6 @@ const VoteSchema = Schema({
 export const ActivitySchema = new Schema({
     idUser: { type: Schema.Types.ObjectId, ref: 'Users' }, // owner of the proposal, poll or opinion.
     idCabildo: { type: Schema.Types.ObjectId, ref: 'Cabildo' },
-    //idUser: { type: String, required: true }, // owner of the proposal, poll or opinion.
-    //idCabildo: { type: String, required: true },
     activityType: { type: String, enum: ['discussion', 'proposal', 'poll'] },
     score: { type: Number, default: 0, required: true },
     pingNumber: { type: Number, default: 0, required: true },
@@ -51,9 +44,9 @@ export const ActivitySchema = new Schema({
 	votes: [VoteSchema],
 });
 
-export interface Activity extends mongoose.Document {
-    idUser: string;
-    idCabildo: string;
+export interface Activity extends Document {
+    idUser: object;
+    idCabildo: object;
     activityType: string;
     score: number;
     pingNumber: number;

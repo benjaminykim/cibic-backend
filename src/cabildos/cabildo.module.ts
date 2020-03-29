@@ -11,5 +11,6 @@ import { CabildoSchema } from './cabildo.schema';
     ],
     controllers: [CabildoController],
     providers: [CabildoService],
+    exports: [CabildoService,MongooseModule],
 })
 export class CabildoModule {}

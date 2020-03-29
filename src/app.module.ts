@@ -12,7 +12,6 @@ import {ActivityModule} from './activities/activity.module';
     MongooseModule.forRoot('mongodb://mongo_serve:27017/cibic'),
     UsersModule,
     CabildoModule,
-    UsersModule,
     ActivityModule,
   ],
   controllers: [AppController],

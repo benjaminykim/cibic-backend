@@ -58,7 +58,7 @@ export class ActivityService {
     }
 
     async updateActivity(activityId: string, activity: Activity) {
-        const result = await this.activityModel.findbyIdAndUpdate(
+        const result = await this.activityModel.findByIdAndUpdate(
             activityId,
             activity,
             this.activityCallback
@@ -67,32 +67,32 @@ export class ActivityService {
     }
 
     async getActivity() { // list all activities
-        const activity = await this.activityModel.find().exec();
+        const activities = await this.activityModel.find().exec();
+        return activities;
+    }
+
+    async getActivityById(idActivity: string) {
+        const activity = await this.findActivity(idActivity);
         return activity;
     }
 
-    async getActivityById(activityId: string) {
-        const activity = await this.findActivity(activityId);
-        return activity;
-    }
-
-    async deleteActivity(id: string) {
-        const result = await this.activityModel.findByIdAndDelete(id).exec(); //callback stuf here TODO SMONROE
-        if (result.n === 0) {
+    async deleteActivity(idActivity: string) {
+        const activity = await this.activityModel.findByIdAndDelete(idActivity).exec(); //callback stuf here TODO SMONROE
+        if (activity.n === 0) {
             throw new NotFoundException('Could not find activity.');
         }
     }
 
-    private async findActivity(id: string) {
-        let result;
+    private async findActivity(idActivity: string) {
+        let activity;
         try {
-            result = await this.activityModel.findById(id).exec();
+            activity = await this.activityModel.findById(idActivity).exec();
         } catch (error) {
             throw new NotFoundException('Could not find activity.');
         }
-        if (!result) {
+        if (!activity) {
             throw new NotFoundException('Could not find activity.');
         }
-        return result;
+        return activity;
     }
 }

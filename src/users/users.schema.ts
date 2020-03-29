@@ -1,9 +1,7 @@
-import * as mongoose from 'mongoose';
-import * as cabildo from '../cabildos/cabildo.module';
+import { Schema, Document } from 'mongoose';
 
-const Schema = mongoose.Schema;
 
-export const UserSchema = new mongoose.Schema({
+export const UsersSchema = new Schema({
     username: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
@@ -13,16 +11,16 @@ export const UserSchema = new mongoose.Schema({
     maidenName: { type: String, required: true },
     phone: { type: Number, required: true },
     rut: { type: String, required: true }, /* Chilean dni */
-    cabildos: [{ type: Schema.Types.ObjectId, ref: 'CabildoSchema' }],
+    cabildos: [{ type: Schema.Types.ObjectId, ref: 'Cabildo' }],
     activityVotes: [{ type: String, required: true }],
     commentVotes: [{ type: String, required: true }],
     files: [{ type: String, required: true }],
-    followers: [{ type: Schema.Types.ObjectId, ref: 'UserSchema' }],
-    following: [{ type: Schema.Types.ObjectId, ref: 'UserSchema' }],
-    activityFeed: [{ type: Schema.Types.ObjectID, ref: 'ActivitySchema' }],
+    followers: [{ type: Schema.Types.ObjectId, ref: 'Users' }],
+    following: [{ type: Schema.Types.ObjectId, ref: 'Users' }],
+    activityFeed: [{ type: Schema.Types.ObjectId, ref: 'Activity' }],
 });
 
-export interface Users extends mongoose.Document {
+export interface Users extends Document {
     id: string;
     username: string;
     email: string;
@@ -42,7 +40,7 @@ export interface Users extends mongoose.Document {
     activityFeed: object[];
 }
 
-export interface Following extends mongoose.Document {
+export interface Following extends Document {
     follower: string;
     followed: string;
 }
