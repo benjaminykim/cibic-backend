@@ -15,5 +15,6 @@ import { ActivityService } from './activity.service';
     ],
     controllers: [ActivityController],
     providers: [ActivityService],
+    exports: [ActivityService,MongooseModule],
 })
 export class ActivityModule {}

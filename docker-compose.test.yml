@@ -1,22 +1,8 @@
 version: "3"
 services:
   api:
-    command: npm run start:dev
-    environment:
-      DEPLOY_ENV: development
-  test:
-    build: .
-    container_name: cibic_test
-    volumes:
-     - '.:/app'
-     - '/app/node_modules'
+    command: npm run test:watch
     environment:
       DEPLOY_ENV: testing
-    command: npm run test:watch
     stdin_open: true
     tty: true
-    depends_on:
-     - api
-     - mongo_serve
-    links:
-     - mongo_serve

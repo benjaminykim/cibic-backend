@@ -9,16 +9,24 @@ import {
     Put,
 } from '@nestjs/common';
 
+import { ActivityService } from '../activities/activity.service';
 import { CommentService } from './comment.service';
 import { Comment } from './comment.schema';
 
 @Controller('comment') // http://localhost:3000/comment
 export class CommentController {
-    constructor(private readonly commentService: CommentService) {}
+    constructor(
+        private readonly commentService: CommentService,
+        private readonly activityService: ActivityService,
+    ) {}
 
     @Post()
-    async addComment(@Body('comment') comment: Comment) {
+    async addComment(
+        @Body('comment') comment: Comment,
+        @Body('activity_id') idActivity: string,
+    ) {
         const generatedId = await this.commentService.insertComment(comment);
+        await this.activityService.commentActivity(generatedId, idActivity);
         return { id: generatedId };
     }
 

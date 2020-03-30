@@ -5,8 +5,6 @@ import { Model } from 'mongoose';
 import { Activity } from './activity.schema';
 import { Cabildo } from '../cabildos/cabildo.schema';
 import { Users } from '../users/users.schema';
-//import {readConfigurationFile} from 'tslint/lib/configuration';
-//import { callbackify } from 'util';
 
 @Injectable()
 export class ActivityService {
@@ -66,6 +64,15 @@ export class ActivityService {
         return result;
     }
 
+    async commentActivity(idComment: string, idActivity) {
+        const result = await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            { $addToSet: { comments: idComment }},
+            this.activityCallback
+        );
+        return result;
+    }
+
     async getActivity() { // list all activities
         const activities = await this.activityModel.find().exec();
         return activities;
@@ -94,5 +101,22 @@ export class ActivityService {
             throw new NotFoundException('Could not find activity.');
         }
         return activity;
+    }
+
+    async getActivityList(idUser: string) {
+        let list = await this.usersModel.findById(idUser)
+            .populate({
+                path: 'activityFeed',
+                populate: {
+                    path: 'comments',
+                    slice: 3,
+                    populate: {
+                        path: 'replies',
+                        slice: 10,
+                    },
+                },
+            });
+        console.log(list);
+        return list;
     }
 }

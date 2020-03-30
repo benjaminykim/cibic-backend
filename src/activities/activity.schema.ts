@@ -7,8 +7,8 @@ export const ReactionSchema = Schema({
 });
 
 export interface Reaction extends Document {
-	idUser: object;
-	value: number;
+    idUser: object;
+    value: number;
 }
 
 export const VoteSchema = Schema({
@@ -18,8 +18,8 @@ export const VoteSchema = Schema({
 });
 
 export interface Vote extends Document {
-	idUser: object;
-	value: number;
+    idUser: object;
+    value: number;
 }
 
 export const ActivitySchema = new Schema({
@@ -33,8 +33,8 @@ export const ActivitySchema = new Schema({
     title: { type: String, required: true },
     text: { type: String, required: true },
     comments: [{ type: Schema.Types.ObjectId, ref: 'Comment'}],
-	reactions: [{ type: Schema.Types.ObjectId, ref: 'Reaction'}],
-	votes: [{ type: Schema.Types.ObjectId, ref: 'Vote'}],
+    reactions: [{ type: Schema.Types.ObjectId, ref: 'Reaction'}],
+    votes: [{ type: Schema.Types.ObjectId, ref: 'Vote'}],
 });
 
 export interface Activity extends Document {

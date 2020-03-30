@@ -2,8 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
+const  { setupDB } = require('setupdb');
 
 describe('AppController (e2e)', () => {
+  setupDB('cibic', true)
   let app: INestApplication;
 
   beforeEach(async () => {

@@ -38,7 +38,8 @@ describe('UsersService', () => {
     });
     it('should return empty set', () => {
        return userService.getUsers()
-            .then(data => expect(data).toBe([])).catch(err => console.log(err));
+            .then(data => expect(data).toStrictEqual([]))
+            .catch(err => console.log(err));
     });
   });
 });
