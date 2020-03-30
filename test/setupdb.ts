@@ -23,7 +23,7 @@ async function dropAllCollections() {
         // This error occurs when you use it.todo. You can
         // safely ignore this error too
         if (error.message.includes("a background operation is currently running"))
-          return;
+            return;
         console.log(error.message);
       }
   })
@@ -33,7 +33,7 @@ module.exports = {
   setupDB(databaseName: string, reset: boolean) {
     // Connect to Mongoose
     beforeAll(async () => {
-      const url = `mongodb://127.0.0.1:27018/${databaseName}`;
+      const url = `mongodb://mongo_serve:27017/${databaseName}`;
       await mongoose.connect(url, {
           useNewUrlParser: true,
           useUnifiedTopology: true,

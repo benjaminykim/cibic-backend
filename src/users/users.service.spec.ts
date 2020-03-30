@@ -6,8 +6,10 @@ import { UsersSchema } from './users.schema';
 import { CabildoSchema } from '../cabildos/cabildo.schema';
 
 import * as mongoose from 'mongoose';
+const  { setupDB } = require('../../test/setupdb');
 
 describe('UsersService', () => {
+  setupDB('cibic', true);
   let userService: UsersService;
 
   beforeEach(async () => {
@@ -33,6 +35,10 @@ describe('UsersService', () => {
   describe('root', () => {
     it('should be defined', () => {
       expect(userService).toBeDefined();
+    });
+    it('should return empty set', () => {
+       return userService.getUsers()
+            .then(data => expect(data).toBe([])).catch(err => console.log(err));
     });
   });
 });

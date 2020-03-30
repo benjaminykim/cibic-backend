@@ -19,6 +19,7 @@ export class CabildoService {
     async getCabildos() {
         const cabildos = await this.cabildoModel.find().exec();
         return cabildos.map(data => ({
+			id: data.id,
             name: data.name,
             members: data.members,
             moderators: data.moderators,

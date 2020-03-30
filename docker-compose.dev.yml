@@ -1,0 +1,6 @@
+version: "3"
+services:
+  api:
+    command: npm run start:dev
+    environment:
+      DEPLOY_ENV: development

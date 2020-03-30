@@ -1,17 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
+
 const  { setupDB } = require('../../test/setupdb');
+
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UsersSchema, Users } from './users.schema';
 import { CabildoSchema } from '../cabildos/cabildo.schema';
-import mongoose = require('mongoose');
+
+import * as mongoose from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
 
 describe('UsersController', () => {
   setupDB('cibic', true);
   let controller: UsersController;
-  let mockUser: Users = {
+    let mockUser: Users = {
       id: "",
       username: "smonroe", 
       email: "smonroe@gmail.fake", 
@@ -51,7 +54,7 @@ describe('UsersController', () => {
 
     controller = module.get<UsersController>(UsersController);
   });
-  
+
   describe('root', () => {
     let genId;
     it('should be defined', () => {
@@ -61,15 +64,20 @@ describe('UsersController', () => {
       return controller.getAllUsers().then(data => expect(data).toStrictEqual([]));
     });
     it('shouldn`t find an invalid idUser', () => {
-      return controller.getUser("4c6d7a6a5").catch(err => expect(err).toBeInstanceOf(NotFoundException));
+    return controller.getUser("4c6d7a6a5")
+      .catch(err => expect(err).toBeInstanceOf(NotFoundException));
     })
     it('shouldn`t find a nonexistant user', () => {
-      return controller.getUser("4c6d7a6a5d65aa7acdb65bef").catch(err => expect(err).toBeInstanceOf(NotFoundException));
-    })
+    return controller.getUser("4c6d7a6a5d65aa7acdb65bef")
+      .catch(err => expect(err).toBeInstanceOf(NotFoundException));
+
+    });
     it('should create a user, then find that user', () => {
       controller.addUser(mockUser).then(data => {
-        expect(data.id).toHaveLength(24)
-        return controller.getUser(data.id).then(data => expect(data).toMatchObject(mockUser)).catch(err => expect(1).toBe(2));
+        expect(data.id).toHaveLength(24);
+        return controller.getUser(data.id)
+          .then(data => expect(data).toMatchObject(mockUser))
+          .catch(err => expect(1).toBe(2));
       });
     });
   });
