@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -11,9 +11,16 @@ export class CabildoService {
     ) {}
 
     async insertCabildo(cabildo: Cabildo) {
+        const collision = await this.cabildoModel.exists({name: cabildo.name});
+        if (collision)
+            throw new InternalServerErrorException();
         const newCabildo = new this.cabildoModel(cabildo)
         const result = await newCabildo.save();
         return result.id as string;
+    }
+
+    async checkCabildoName(cabildoName: string) {
+        return await this.cabildoModel.exists({name: cabildoName});
     }
 
     async getCabildos() {

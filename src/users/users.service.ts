@@ -55,7 +55,7 @@ export class UsersService {
             if (err) {
                 console.error(`Error: ${err}`);
             } else {
-                console.log(`Success: ${res}`);
+//                console.log(`Success: ${res}`);
             }
         }
         const first = await this.usersModel.findByIdAndUpdate(
@@ -84,7 +84,7 @@ export class UsersService {
             if (err) {
                 console.error(`Error: ${err}`);
             } else {
-                console.log(`Success: ${res}`);
+//                console.log(`Success: ${res}`);
             }
         }
         const user = await this.usersModel.findByIdAndUpdate(

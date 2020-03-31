@@ -14,7 +14,7 @@ export class CommentService {
         if (err) {
             console.error(`Error with comment: ${err}`);
         } else {
-            console.log(`Success with comment: ${data}`);
+//            console.log(`Success with comment: ${data}`);
         }
     }
 

@@ -9,7 +9,7 @@ import * as mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('UsersService', () => {
-  setupDB('cibic', true);
+  setupDB('test', true);
   let userService: UsersService;
 
   beforeEach(async () => {

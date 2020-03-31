@@ -10,8 +10,8 @@ import { ReplyService } from './reply.service';
 @Module({
     imports: [
         MongooseModule.forFeature([{name: 'Reply', schema: ReplySchema}]),
-        CabildoModule,
-        UsersModule,
+//        CabildoModule,
+//        UsersModule,
     ],
     controllers: [ReplyController],
     providers: [ReplyService],

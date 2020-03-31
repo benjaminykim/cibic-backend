@@ -25,7 +25,7 @@ async function dropAllCollections() {
         if (error.message.includes("a background operation is currently running"))
             return;
 
-          if (error.message.includes("annot use a session that has ended"))
+          if (error.message.includes("Cannot use a session that has ended"))
               return;
         console.log(error.message);
       }

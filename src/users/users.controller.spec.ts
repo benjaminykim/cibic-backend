@@ -12,7 +12,7 @@ import * as mongoose from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
 
 describe('UsersController', () => {
-  setupDB('cibic', true);
+  setupDB('test', true);
   let controller: UsersController;
     let mockUser: Users = {
       id: "",

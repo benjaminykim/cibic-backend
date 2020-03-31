@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -18,11 +18,14 @@ export class ActivityService {
         if (err) {
             console.error(`Error with activity: ${err}`);
         } else {
-            console.log(`Success with activity: ${data}`);
+//            console.log(`Success with activity: ${data}`);
         }
     }
 
     async insertActivity(activity: Activity) {
+        const isUser = await this.usersModel.exists({_id: activity.idUser});
+        if (!isUser)
+            throw new InternalServerErrorException();
         const newActivity = new this.activityModel(activity);
         const result = await newActivity.save();
         const genId = result.id;
@@ -118,6 +121,7 @@ export class ActivityService {
             .populate({
                 path: 'activityFeed',
                 slice: 20,
+                select: '_id activityFeed citizenPoints username', // TODO confirm field set
                 populate: [
                     { // info about cabildo posted to
                         path: 'idCabildo',
@@ -132,18 +136,16 @@ export class ActivityService {
                                 path: 'idUser',
                                 select: 'username _id citizenPoints'
                             },
-                            { // top ten replies
-                                path: 'reply',
-                                slice: 10,
-                                sort: 'score',
-                            },
-                        ],
+                           { // top ten replies
+                               path: 'reply',
+                               slice: 10,
+                               sort: 'score',
+                           },
+                       ],
                     },
                 ],
             })
             .lean() // return plan json object
-            .execPopulate(); // execute query
-        console.log(list);
         return list;
     }
 }
