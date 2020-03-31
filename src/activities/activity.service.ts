@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    InternalServerErrorException,
+    UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Activity } from './activity.schema';
 import { Cabildo } from '../cabildos/cabildo.schema';
 import { Users } from '../users/users.schema';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class ActivityService {
@@ -12,6 +18,7 @@ export class ActivityService {
         @InjectModel('Activity') private readonly activityModel: Model<Activity>,
         @InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>,
         @InjectModel('Users') private readonly usersModel: Model<Users>,
+//        private readonly usersService: UsersService,
 	) {}
 
     private async activityCallback(err: any, data: any) {
@@ -23,9 +30,14 @@ export class ActivityService {
     }
 
     async insertActivity(activity: Activity) {
-        const isUser = await this.usersModel.exists({_id: activity.idUser});
-        if (!isUser)
-            throw new InternalServerErrorException();
+        if (!(await this.usersModel.exists({_id: activity.idUser}))) {
+            throw new UnprocessableEntityException();
+        }
+        if (activity.idCabildo) {
+            if (!(await this.cabildoModel.exists({_id: activity.idCabildo}))) {
+                throw new UnprocessableEntityException();
+            }
+        }
         const newActivity = new this.activityModel(activity);
         const result = await newActivity.save();
         const genId = result.id;
@@ -41,7 +53,7 @@ export class ActivityService {
                 this.activityCallback
             );
         })
-        if (activity.idCabildo && await this.cabildoModel.exists({_id: activity.idCabildo})) {
+        if (activity.idCabildo) {
             const cabildo = await this.cabildoModel.findByIdAndUpdate(
                 activity.idCabildo,
                 {$addToSet: {activities: genId}},

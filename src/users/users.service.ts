@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    UnprocessableEntityException,
+    InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -15,14 +20,26 @@ export class UsersService {
         @InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>,
     ) {}
 
+    private async callback (err, res) {
+            if (err) {
+                console.error(`Error: ${err}`);
+                throw new InternalServerErrorException();
+            } else {
+//                console.log(`Success: ${res}`);
+            }
+    }
+
     async insertUser(user: Users) {
-        const idUser = await bcrypt.hash(user.password, saltRounds).then(async hash => {
-            const newUser = new this.usersModel(Object.assign(user,{
-                password: hash, // hashed password, no plaintext storing
-            }));
-            const result = await newUser.save();
-            return result.id as string;
-        }).catch(err => console.log(err));
+        const collision = await this.usersModel.exists({email: user.email});
+        if (collision)
+            throw new UnprocessableEntityException();
+        const idUser = await bcrypt.hash(user.password, saltRounds)
+            .then(async hash => {
+                user.password = hash;
+                const newUser = new this.usersModel(user);
+                const result = await newUser.save();
+                return result.id as string;
+            }).catch(err => console.log(err));
         return idUser;
     }
 
@@ -51,22 +68,15 @@ export class UsersService {
         if (!followerExists || !followedBExists) {
             return false;
         }
-        function callback (err, res) {
-            if (err) {
-                console.error(`Error: ${err}`);
-            } else {
-//                console.log(`Success: ${res}`);
-            }
-        }
         const first = await this.usersModel.findByIdAndUpdate(
             idFollower,
             { $addToSet: {following: idFollowed}},
-            callback
+            this.callback
         );
         const second = await this.usersModel.findByIdAndUpdate(
             idFollowed,
             { $addToSet: {followers: idFollower}},
-            callback
+            this.callback
         );
         if (!first || !second) {
             return false;
@@ -80,22 +90,15 @@ export class UsersService {
         if (!userExists || !cabildoExists) {
             return false;
         }
-        function callback (err, res) {
-            if (err) {
-                console.error(`Error: ${err}`);
-            } else {
-//                console.log(`Success: ${res}`);
-            }
-        }
         const user = await this.usersModel.findByIdAndUpdate(
             idUser,
             { $addToSet: {cabildos: idCabildo}},
-            callback
+            this.callback
         );
         const cabildo = await this.cabildoModel.findByIdAndUpdate(
             idCabildo,
             { $addToSet: {members: idUser}},
-            callback
+            this.callback
         );
         if (user && cabildo) {
             return true;
@@ -103,10 +106,27 @@ export class UsersService {
         return false;
     }
 
-    async getUserById(userId: string) {
-        const user = await this.findUser(userId);
+    async getUserById(idUser: string) {
+        const user = await this.findUser(idUser);
         return user;
     }
+
+    //// Function to be called from ActivityService.insertActivity()
+    // async pushActivity(idUser: string, idActivity: string) {
+    //     const user = await this.usersModel.findByIdAndUpdate(
+    //         idUser,
+    //         {$addToSet: {activityFeed: idActivity}},
+    //         this.callback
+    //     );
+    //// Is it faster to populate and iterate or to do this?
+    //     user.followers.forEach(async idFollower => {
+    //       await this.usersModel.findByIdAndUpdate(
+    //         idFollower,
+    //         {$addToSet: {activityFeed: idActivity}},
+    //         this.callback
+    //       );
+    //     });
+    // }
 
     private async findUser(userId: string) {
         let user;
