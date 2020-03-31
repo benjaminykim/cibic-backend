@@ -24,8 +24,13 @@ export class ActivityController {
 
     @Get()
     async getAllActivities() {
-        const activities = await this.activityService.getActivity();
+        const activities = await this.activityService.getActivities();
         return activities;
+    }
+
+    @Get('feed/:idUser') // http://localhost:3000/activity/feed/:idUser
+     async getActivityFeed(@Param('idUser') idUser: string) {
+        return await this.activityService.getActivityFeed(idUser);
     }
 
     @Get(':id')

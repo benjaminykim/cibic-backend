@@ -73,13 +73,23 @@ export class ActivityService {
         return result;
     }
 
-    async getActivity() { // list all activities
+    async getActivities() { // list all activities
         const activities = await this.activityModel.find().exec();
+        activities.populate({
+            path: 'idUser',
+            model: 'Users',
+            select: 'username _id citizenPoints',
+        }, this.activityCallback);
         return activities;
     }
 
     async getActivityById(idActivity: string) {
         const activity = await this.findActivity(idActivity);
+        await activity.populate({
+            path: 'idUser',
+            model: 'Users',
+            select: 'username _id citizenPoints'
+        }, this.activityCallback);
         return activity;
     }
 
@@ -103,19 +113,36 @@ export class ActivityService {
         return activity;
     }
 
-    async getActivityList(idUser: string) {
+    async getActivityFeed(idUser: string) {
         let list = await this.usersModel.findById(idUser)
             .populate({
                 path: 'activityFeed',
-                populate: {
-                    path: 'comments',
-                    slice: 3,
-                    populate: {
-                        path: 'replies',
-                        slice: 10,
+                slice: 20,
+                populate: [
+                    { // info about cabildo posted to
+                        path: 'idCabildo',
+                        select: 'name _id',
                     },
-                },
-            });
+                    { // first 100 comments
+                        path: 'comments',
+                        slice: 100,
+                        sort: 'score',
+                        populate: [
+                            { // user info about posters
+                                path: 'idUser',
+                                select: 'username _id citizenPoints'
+                            },
+                            { // top ten replies
+                                path: 'reply',
+                                slice: 10,
+                                sort: 'score',
+                            },
+                        ],
+                    },
+                ],
+            })
+            .lean() // return plan json object
+            .execPopulate(); // execute query
         console.log(list);
         return list;
     }

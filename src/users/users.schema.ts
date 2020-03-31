@@ -18,6 +18,7 @@ export const UsersSchema = new Schema({
     followers: [{ type: Schema.Types.ObjectId, ref: 'Users' }],
     following: [{ type: Schema.Types.ObjectId, ref: 'Users' }],
     activityFeed: [{ type: Schema.Types.ObjectId, ref: 'Activity' }],
+    citizenPoints: {type: Number, default: 0},
 });
 
 export interface Users extends Document {
@@ -38,6 +39,7 @@ export interface Users extends Document {
     followers: object[];
     following: object[];
     activityFeed: object[];
+    citizenPoints: number;
 }
 
 export interface Following extends Document {

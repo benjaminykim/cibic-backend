@@ -32,6 +32,7 @@ describe('UsersController', () => {
       activityFeed: [],
       activityVotes: [],
       commentVotes: [],
+      citizenPoints: 100,
   };
 
   beforeEach(async () => {

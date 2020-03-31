@@ -16,20 +16,20 @@ export class UsersService {
     ) {}
 
     async insertUser(user: Users) {
-        const cryptPass = await bcrypt.hash(user.password, saltRounds).then(async hash => {
+        const idUser = await bcrypt.hash(user.password, saltRounds).then(async hash => {
             const newUser = new this.usersModel(Object.assign(user,{
                 password: hash, // hashed password, no plaintext storing
             }));
             const result = await newUser.save();
             return result.id as string;
         }).catch(err => console.log(err));
-        return cryptPass;
+        return idUser;
     }
 
     async getUsers() {
         const users = await this.usersModel.find().exec();
         return users.map(data => ({
-            id: data.id,
+            id: data._id,
             username: data.username,
             email: data.email,
             firstname: data.firstName,
@@ -40,10 +40,11 @@ export class UsersService {
             rut: data.rut,
             cabildos: data.cabildos,
             followers: data.followers,
-            following: data.following
+            following: data.following,
+            citizenPoints: data.citizenPoints,
         }));
     }
-    
+
     async followUser(idFollower: string, idFollowed: string) {
         const followerExists = await this.usersModel.exists({_id: idFollower});
         const followedBExists = await this.usersModel.exists({_id: idFollowed});
