@@ -1,3 +1,4 @@
+[
 {
 	"idUser": "Blue909birdias",
 	"idCabildo": "libre",
@@ -10,7 +11,7 @@
 	"comments": [	{"idUser":"ffuentes", "content":"Igual tiene que agregar un dato importante que es la cobertura.", "score":47},
 					{"idUser":"NombreGenerico89", "content":"En la pag del Jumbo y del Lider dice que el despacho se puede demorar días por alta demanda.", "score":13},
 					{"idUser":"poli_lla", "content":"Agregada la cobertura.", "score":1}]
-}
+},
 {
 	"idUser": "Blue909birdias",
 	"idCabildo": "libre",
@@ -23,7 +24,7 @@
 	"comments": [	{"idUser":"ffuentes", "content":"Igual tiene que agregar un dato importante que es la cobertura.", "score":47},
 					{"idUser":"NombreGenerico89", "content":"En la pag del Jumbo y del Lider dice que el despacho se puede demorar días por alta demanda.", "score":13},
 					{"idUser":"poli_lla", "content":"Agregada la cobertura.", "score":1}]
-}
+},
 {
 	"idUser": "julloa292",
 	"idCabildo": "libre",
@@ -46,7 +47,7 @@
 			"content":"Me mandan una peguita xfa",
 			"score":3
 		}]
-}
+},
 {
 	"idUser": "julloa292",
 	"idCabildo": "libre",
@@ -69,7 +70,7 @@
 			"content":"Me mandan una peguita xfa",
 			"score":3
 		}]
-}
+},
 {
 	"idUser": "Alejandro Guzman",
 	"idCabildo": "civics",
@@ -93,3 +94,4 @@
 			"score":2
 		}]
 }
+]

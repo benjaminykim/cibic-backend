@@ -13,14 +13,12 @@ import { Users, Following } from './users.schema';
 
 @Controller('users') // http://localhost:3000/users
 export class UsersController {
-    constructor(private readonly userService: UsersService,) {}
+    constructor(private readonly userService: UsersService) {}
     
     @Post() // http://localhost:3000/users
     async addUser(@Body('user') user: Users)
     {
-        console.log(user)
         const generatedId = await this.userService.insertUser(user);
-        console.log(generatedId)
         return {id: generatedId};
     }
     
@@ -32,7 +30,6 @@ export class UsersController {
 
     @Get(':id')
     async getUser(@Param('id') id: string) {
-        console.log(`returning single user for ${id}`)
         return this.userService.getUserById(id);
     }
 

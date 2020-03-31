@@ -17,8 +17,9 @@ export class CabildoService {
     }
 
     async getCabildos() {
-        const cabildo = await this.cabildoModel.find().exec();
-        return cabildo.map(data => ({
+        const cabildos = await this.cabildoModel.find().exec();
+        return cabildos.map(data => ({
+			id: data.id,
             name: data.name,
             members: data.members,
             moderators: data.moderators,
@@ -35,23 +36,23 @@ export class CabildoService {
         return cabildo;
     }
 
-    async deleteCabildo(id: string) {
-        const result = await this.cabildoModel.findByIdAndDelete(id).exec();
-        if (result.n === 0) {
+    async deleteCabildo(cabildoId: string) {
+        const cabildo = await this.cabildoModel.findByIdAndDelete(cabildoId).exec();
+        if (cabildo.n === 0) {
             throw new NotFoundException('Could not find cabildo.');
         }
     }
 
-    private async findCabildo(id: string) {
-        let result;
+    private async findCabildo(cabildoId: string) {
+        let cabildo;
         try {
-            result = await this.cabildoModel.findById(id).exec();
+            cabildo = await this.cabildoModel.findById(cabildoId).exec();
         } catch (error) {
             throw new NotFoundException('Could not find cabildo.');
         }
-        if (!result) {
+        if (!cabildo) {
             throw new NotFoundException('Could not find cabildo.');
         }
-        return result;
+        return cabildo;
     }
 }

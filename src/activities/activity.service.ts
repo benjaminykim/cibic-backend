@@ -5,8 +5,6 @@ import { Model } from 'mongoose';
 import { Activity } from './activity.schema';
 import { Cabildo } from '../cabildos/cabildo.schema';
 import { Users } from '../users/users.schema';
-//import {readConfigurationFile} from 'tslint/lib/configuration';
-//import { callbackify } from 'util';
 
 @Injectable()
 export class ActivityService {
@@ -58,7 +56,7 @@ export class ActivityService {
     }
 
     async updateActivity(activityId: string, activity: Activity) {
-        const result = await this.activityModel.findbyIdAndUpdate(
+        const result = await this.activityModel.findByIdAndUpdate(
             activityId,
             activity,
             this.activityCallback
@@ -66,33 +64,86 @@ export class ActivityService {
         return result;
     }
 
-    async getActivity() { // list all activities
-        const activity = await this.activityModel.find().exec();
+    async commentActivity(idComment: string, idActivity) {
+        const result = await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            { $addToSet: { comments: idComment }},
+            this.activityCallback
+        );
+        return result;
+    }
+
+    async getActivities() { // list all activities
+        const activities = await this.activityModel.find().exec();
+        activities.populate({
+            path: 'idUser',
+            model: 'Users',
+            select: 'username _id citizenPoints',
+        }, this.activityCallback);
+        return activities;
+    }
+
+    async getActivityById(idActivity: string) {
+        const activity = await this.findActivity(idActivity);
+        await activity.populate({
+            path: 'idUser',
+            model: 'Users',
+            select: 'username _id citizenPoints'
+        }, this.activityCallback);
         return activity;
     }
 
-    async getActivityById(activityId: string) {
-        const activity = await this.findActivity(activityId);
-        return activity;
-    }
-
-    async deleteActivity(id: string) {
-        const result = await this.activityModel.findByIdAndDelete(id).exec(); //callback stuf here TODO SMONROE
-        if (result.n === 0) {
+    async deleteActivity(idActivity: string) {
+        const activity = await this.activityModel.findByIdAndDelete(idActivity).exec(); //callback stuf here TODO SMONROE
+        if (activity.n === 0) {
             throw new NotFoundException('Could not find activity.');
         }
     }
 
-    private async findActivity(id: string) {
-        let result;
+    private async findActivity(idActivity: string) {
+        let activity;
         try {
-            result = await this.activityModel.findById(id).exec();
+            activity = await this.activityModel.findById(idActivity).exec();
         } catch (error) {
             throw new NotFoundException('Could not find activity.');
         }
-        if (!result) {
+        if (!activity) {
             throw new NotFoundException('Could not find activity.');
         }
-        return result;
+        return activity;
+    }
+
+    async getActivityFeed(idUser: string) {
+        let list = await this.usersModel.findById(idUser)
+            .populate({
+                path: 'activityFeed',
+                slice: 20,
+                populate: [
+                    { // info about cabildo posted to
+                        path: 'idCabildo',
+                        select: 'name _id',
+                    },
+                    { // first 100 comments
+                        path: 'comments',
+                        slice: 100,
+                        sort: 'score',
+                        populate: [
+                            { // user info about posters
+                                path: 'idUser',
+                                select: 'username _id citizenPoints'
+                            },
+                            { // top ten replies
+                                path: 'reply',
+                                slice: 10,
+                                sort: 'score',
+                            },
+                        ],
+                    },
+                ],
+            })
+            .lean() // return plan json object
+            .execPopulate(); // execute query
+        console.log(list);
+        return list;
     }
 }

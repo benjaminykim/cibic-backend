@@ -24,13 +24,18 @@ export class ActivityController {
 
     @Get()
     async getAllActivities() {
-        const activities = await this.activityService.getActivity();
+        const activities = await this.activityService.getActivities();
         return activities;
     }
 
+    @Get('feed/:idUser') // http://localhost:3000/activity/feed/:idUser
+     async getActivityFeed(@Param('idUser') idUser: string) {
+        return await this.activityService.getActivityFeed(idUser);
+    }
+
     @Get(':id')
-    async getActivityById(@Param('id') idActivity: string) {
-        return await this.activityService.getActivityById(idActivity);
+    async getActivityById(@Param('id') activityId: string) {
+        return await this.activityService.getActivityById(activityId);
     }
 
     @Post()
@@ -41,8 +46,8 @@ export class ActivityController {
     }
 
     @Delete(':id')
-    async deleteActivity(@Param('id') idActivity: string) {
-        await this.activityService.deleteActivity(idActivity);
+    async deleteActivity(@Param('id') activityId: string) {
+        await this.activityService.deleteActivity(activityId);
         return null;
     }
 }
