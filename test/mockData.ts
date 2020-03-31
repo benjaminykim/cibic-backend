@@ -40,6 +40,27 @@ let userB = {
         citizenPoints: 101
     }
 };
+let userC = {
+    user: {
+        username: "mschmidt",
+        email: "mschmidt@gmail.fake",
+        password: "agreatpassword",
+        firstName: "Mikey",
+        middleName: "The",
+        lastName: "Schmidt",
+        maidenName: "Snowflake",
+        phone: 9412346765,
+        rut: "1234567893",
+        cabildos: [],
+        files: [],
+        followers: [],
+        following: [],
+        activityFeed: [],
+        activityVotes: [],
+        commentVotes: [],
+        citizenPoints: 9001
+    }
+};
 let cabA = {
     cabildo: {
         name: "ft_cabildo",
@@ -207,15 +228,17 @@ let comD2 = {
     activity_id: null,
 }
 let actE = {
-    idUser: null,
-    idCabildo: null,
-    activityType: "discussion",
-    score: 204,
-    pingNumber: 415,
-    commentNumber: 44,
-    title: "Post by Alejandro Guzman",
-    text: "Hola. Primero perdonen mis faltas de ortografía. Siempre fui nula en eso en clases. Acabo de crear mi cuenta presisamente para preguntar esto aqui. Quisiera saber lo que pasaron para conseguir la cirugía aqui en chile El lugar en el que la consiguieron. Si les pusieron muchas trabas etc. Pregunto para saber cuanto prepararme. Yo no quiero hijos. Nunca quise y planeo operarme para no tener jamas hijos biológicos. 'Pero y si cambias de opinion?' Pues si cambio de opinión tratare de adoptar. Pero dudo cambiar de opinión. Muchas gracias de ante mano. Por favor comentenme sus historias",
-    comments: []
+    activity: {
+        idUser: null,
+        idCabildo: null,
+        activityType: "discussion",
+        score: 204,
+        pingNumber: 415,
+        commentNumber: 44,
+        title: "Post by Alejandro Guzman",
+        text: "Hola. Primero perdonen mis faltas de ortografía. Siempre fui nula en eso en clases. Acabo de crear mi cuenta presisamente para preguntar esto aqui. Quisiera saber lo que pasaron para conseguir la cirugía aqui en chile El lugar en el que la consiguieron. Si les pusieron muchas trabas etc. Pregunto para saber cuanto prepararme. Yo no quiero hijos. Nunca quise y planeo operarme para no tener jamas hijos biológicos. 'Pero y si cambias de opinion?' Pues si cambio de opinión tratare de adoptar. Pero dudo cambiar de opinión. Muchas gracias de ante mano. Por favor comentenme sus historias",
+        comments: []
+    }
 }
 
 let comE0 = {
@@ -244,7 +267,7 @@ let comE2 = {
 }
 
 export {
-    userA,userB,
+    userA,userB,userC,
     cabA,
     actA,comA0,comA1,comA2,
     actB,comB0,comB1,comB2,

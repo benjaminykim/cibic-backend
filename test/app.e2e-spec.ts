@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 import {
-    userA,userB,cabA,
+    userA,userB,userC,cabA,
     actA,comA0,comA1,comA2,
     actB,comB0,comB1,comB2,
     actC,comC0,comC1,comC2,
@@ -103,25 +103,64 @@ describe('AppController (e2e)', () => {
             .expect(/now follows cabildo/)
         console.log(`BfollowC`);
 
-        // second user posts activity to the cabildo
         actA.activity.idUser = idB;
-        actA.activity.idCabildo = idCab;
-        const idActA = await request(srv)
-            .post('/activity')
-            .send(actA)
-            .expect(201)
-            .then(idCheck);
-        console.log(`idActA: ${idActA}`);
+        actB.activity.idUser = idB;
+        actC.activity.idUser = idA;
+        actD.activity.idUser = idA;
+        actE.activity.idUser = idA;
+        actA.activity.idCabildo =
+        actB.activity.idCabildo =
+        actC.activity.idCabildo =
+        actD.activity.idCabildo =
+        actE.activity.idCabildo =
+            idCab;
+        console.log("prepared activities");
+        const idActA = await request(srv).post('/activity').send(actA).expect(201).then(idCheck).catch(err => done(err));
+        const idActB = await request(srv).post('/activity').send(actB).expect(201).then(idCheck).catch(err => done(err));
+        const idActC = await request(srv).post('/activity').send(actC).expect(201).then(idCheck).catch(err => done(err));
+        const idActD = await request(srv).post('/activity').send(actD).expect(201).then(idCheck).catch(err => done(err));
+        const idActE = await request(srv).post('/activity').send(actE).expect(201).then(idCheck).catch(err => done(err));
+        console.log("posted activities");
+
+        comA0.comment.idUser = idA;
+        comA1.comment.idUser = idB;
+        comA2.comment.idUser = idA;
+        comB0.comment.idUser = idB;
+        comB1.comment.idUser = idA;
+        comB2.comment.idUser = idB;
+        comC0.comment.idUser = idA;
+        comC1.comment.idUser = idB;
+        comC2.comment.idUser = idA;
+        comD0.comment.idUser = idB;
+        comD1.comment.idUser = idA;
+        comD2.comment.idUser = idB;
+        comE0.comment.idUser = idA;
+        comE1.comment.idUser = idB;
+        comE2.comment.idUser = idA;
+        comA0.activity_id = comA1.activity_id = comA2.activity_id = idActA;
+        comB0.activity_id = comB1.activity_id = comB2.activity_id = idActB;
+        comC0.activity_id = comC1.activity_id = comC2.activity_id = idActC;
+        comD0.activity_id = comD1.activity_id = comD2.activity_id = idActD;
+        comE0.activity_id = comE1.activity_id = comE2.activity_id = idActE;
+        console.log("prepared comments");
 
         // first user comments on activity
-        comA0.comment.idUser = idA;
-        comA0.activity_id = idActA;
-        const idComA0 = await request(srv)
-            .post('/comment')
-            .send(comA0)
-            .expect(201)
-            .then(idCheck)
-        console.log(`idComA0: ${idComA0}`);
+        const idComA0 = await request(srv).post('/comment').send(comA0).expect(201).then(idCheck).catch(err => done(err));
+        const idComA1 = await request(srv).post('/comment').send(comA1).expect(201).then(idCheck).catch(err => done(err));
+        const idComA2 = await request(srv).post('/comment').send(comA2).expect(201).then(idCheck).catch(err => done(err));
+        const idComB0 = await request(srv).post('/comment').send(comB0).expect(201).then(idCheck).catch(err => done(err));
+        const idComB1 = await request(srv).post('/comment').send(comB1).expect(201).then(idCheck).catch(err => done(err));
+        const idComB2 = await request(srv).post('/comment').send(comB2).expect(201).then(idCheck).catch(err => done(err));
+        const idComC0 = await request(srv).post('/comment').send(comC0).expect(201).then(idCheck).catch(err => done(err));
+        const idComC1 = await request(srv).post('/comment').send(comC1).expect(201).then(idCheck).catch(err => done(err));
+        const idComC2 = await request(srv).post('/comment').send(comC2).expect(201).then(idCheck).catch(err => done(err));
+        const idComD0 = await request(srv).post('/comment').send(comD0).expect(201).then(idCheck).catch(err => done(err));
+        const idComD1 = await request(srv).post('/comment').send(comD1).expect(201).then(idCheck).catch(err => done(err));
+        const idComD2 = await request(srv).post('/comment').send(comD2).expect(201).then(idCheck).catch(err => done(err));
+        const idComE0 = await request(srv).post('/comment').send(comE0).expect(201).then(idCheck).catch(err => done(err));
+        const idComE1 = await request(srv).post('/comment').send(comE1).expect(201).then(idCheck).catch(err => done(err));
+        const idComE2 = await request(srv).post('/comment').send(comE2).expect(201).then(idCheck).catch(err => done(err));
+        console.log("posted comments");
 
         // get activity feed for first user
         const feedA = await request(srv)
@@ -135,11 +174,36 @@ describe('AppController (e2e)', () => {
 
         // both are the same currently
         expect(feedA.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
+        // make a new user
+        const idC = await request(srv)
+            .post('/users')
+            .send(userC)
+            .expect(201)
+            .then(idCheck);
+        console.log(`idC: ${idC}`);
+
+        const feedC = await request(srv)
+            .get(`/activity/feed/${idC}`)
+            .expect(200)
+
+        expect(feedC.body.activityFeed).toStrictEqual([]);
+
+        // third user follows a cabildo
+        const CfollowC = await request(srv)
+            .post('/users/followcabildo')
+            .send({data:{follower: idC, followed: idCab}})
+            .expect(/now follows cabildo/)
+        console.log(`CfollowC`);
+
+        const feedC2 = await request(srv)
+            .get(`/activity/feed/${idC}`)
+            .expect(200)
+
+//Need to add activityFeed update when a user follows a cabildo or another user, to include the activities from that entity
+//        expect(feedC2.body.activityFeed).toMatchObject(feedB.body.activityFeed)
 
         // Positive Tests Needed:
 
-        // add more acitivites
-        // add more comments
         // add replies to comments
         // test for full population of nested object refs
         // add a user who's follows exclude them from an activity

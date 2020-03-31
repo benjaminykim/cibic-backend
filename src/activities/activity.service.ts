@@ -133,7 +133,7 @@ export class ActivityService {
             .populate({
                 path: 'activityFeed',
                 slice: 20,
-                select: '_id activityFeed citizenPoints username', // TODO confirm field set
+//                select: '_id activityFeed citizenPoints username' // TODO confirm field set
                 populate: [
                     { // info about cabildo posted to
                         path: 'idCabildo',
