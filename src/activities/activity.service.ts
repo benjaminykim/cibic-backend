@@ -49,7 +49,7 @@ export class ActivityService {
         //     activity.idUser,
         //     {$addToSet: {activityFeed: genId}},
         //     this.activityCallback
-        // );
+        // );alabama shakes
         // user.followers.forEach(async id => {
         //     await this.usersModel.findByIdAndUpdate(
         //         id,
@@ -94,8 +94,7 @@ export class ActivityService {
     }
 
     async getActivities() { // list all activities
-        const activities = await this.activityModel.find().exec();
-        activities.populate({
+        const activities = await this.activityModel.find().populate({
             path: 'idUser',
             model: 'Users',
             select: 'username _id citizenPoints',
