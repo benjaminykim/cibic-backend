@@ -14,14 +14,14 @@ import { Users, Following } from './users.schema';
 @Controller('users') // http://localhost:3000/users
 export class UsersController {
     constructor(private readonly userService: UsersService) {}
-    
+
     @Post() // http://localhost:3000/users
     async addUser(@Body('user') user: Users)
     {
         const generatedId = await this.userService.insertUser(user);
         return {id: generatedId};
     }
-    
+
     @Get() // http://localhost:3000/users
     async getAllUsers()
     {

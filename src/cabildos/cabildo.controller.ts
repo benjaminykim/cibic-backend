@@ -15,16 +15,20 @@ export class CabildoController {
     constructor(private readonly cabildosService: CabildoService) {}
 
     @Post() // http://localhost:3000/cabildos
-    async addCabildo(@Body() cabildo: Cabildo
+    async addCabildo(@Body('cabildo') cabildo: Cabildo
     ) {
         const generatedId = await this.cabildosService.insertCabildo(cabildo);
         return { id: generatedId };
     }
 
+    @Get('check/:name') //http://localhost:3000/cabildos/check/:name
+    async checkCabildoName(@Param('name') cabildoName: string) {
+        return await this.cabildosService.checkCabildoName(cabildoName);
+    }
+
     @Get()
     async getAllCabildos() {
-        const cabildos = await this.cabildosService.getCabildos();
-        return cabildos;
+        return await this.cabildosService.getCabildos();
     }
 
     @Get(':id') // http://localhost:3000/cabildos/:id

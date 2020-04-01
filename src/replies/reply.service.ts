@@ -14,7 +14,7 @@ export class ReplyService {
         if (err) {
             console.error(`Error with reply: ${err}`);
         } else {
-            console.log(`Success with reply: ${data}`);
+//            console.log(`Success with reply: ${data}`);
         }
     }
 

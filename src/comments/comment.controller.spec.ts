@@ -13,12 +13,14 @@ import { ActivityModule } from '../activities/activity.module';
 
 import { CabildoSchema, Cabildo } from '../cabildos/cabildo.schema';
 import { CabildoModule } from '../cabildos/cabildo.module';
+import { CabildoService } from '../cabildos/cabildo.service';
 
 import { UsersSchema, Users } from '../users/users.schema';
 import { UsersModule } from '../users/users.module';
+import { UsersService } from '../users/users.service';
 
 describe('CommentController', () => {
-  setupDB('cibic', true);
+  setupDB('test', true);
   let controller: CommentController;
   let mockComment: Comment = {
     idUser: mongoose.Types.ObjectId("123456789012345678901234"),
@@ -37,7 +39,9 @@ describe('CommentController', () => {
       controllers: [CommentController],
       providers: [
         ActivityService,
-        CommentService,
+          CommentService,
+          UsersService,
+          CabildoService,
         {
           provide: getModelToken('Comment'),
           useValue: commentModel,
@@ -75,13 +79,5 @@ describe('CommentController', () => {
     it('shouldn`t find a nonexistant comment', () => {
       return controller.getCommentById("4c6d7a6a5d65aa7acdb65bef").catch(err => expect(err).toBeInstanceOf(NotFoundException));
     })
-    it('should create a comment, then find that comment', () => {
-      controller.addComment(mockComment, "123456789009876543218475").then(data => {
-        expect(data.id).toHaveLength(24)
-        return controller.getCommentById(data.id)
-          .then(data => expect(data).toMatchObject(mockComment))
-          .catch(err => expect(1).toBe(2));
-      });
-    });
   });
 });

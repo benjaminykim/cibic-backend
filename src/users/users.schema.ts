@@ -22,7 +22,6 @@ export const UsersSchema = new Schema({
 });
 
 export interface Users extends Document {
-    id: string;
     username: string;
     email: string;
     password: string;
