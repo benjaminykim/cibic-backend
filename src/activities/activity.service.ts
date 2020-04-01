@@ -94,12 +94,13 @@ export class ActivityService {
     }
 
     async getActivities() { // list all activities
-        const activities = await this.activityModel.find().populate({
+        const activities = await this.activityModel.find().exec()
+        const popped = activities.map(a => a.populate({
             path: 'idUser',
             model: 'Users',
             select: 'username _id citizenPoints',
-        }, this.activityCallback);
-        return activities;
+        }, this.activityCallback));
+        return popped;//activities;
     }
 
     async getActivityById(idActivity: string) {
