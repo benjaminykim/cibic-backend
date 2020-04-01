@@ -45,7 +45,7 @@ export class UsersController {
         }
         return "that user cannot follow that cabildo"
     }
-    
+
     @Post('followuser') // http://localhost:3000/users/followuser
     async followUser(@Body('data') user: Following) {
         if (!user || !user.follower || !user.followed) {

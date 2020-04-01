@@ -12,7 +12,6 @@ import { UsersService } from '../users/users.service';
     imports: [
         MongooseModule.forFeature([{name: 'Cabildo', schema: CabildoSchema}]),
         forwardRef(() => UsersModule),
-//        UsersService,
     ],
     controllers: [CabildoController],
     providers: [CabildoService],

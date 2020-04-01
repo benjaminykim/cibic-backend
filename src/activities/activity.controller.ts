@@ -29,7 +29,7 @@ export class ActivityController {
     }
 
     @Get('feed/:idUser') // http://localhost:3000/activity/feed/:idUser
-     async getActivityFeed(@Param('idUser') idUser: string) {
+    async getActivityFeed(@Param('idUser') idUser: string) {
         return await this.activityService.getActivityFeed(idUser);
     }
 

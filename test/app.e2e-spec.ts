@@ -84,24 +84,24 @@ describe('AppController (e2e)', () => {
         actD.activity.idUser = idA;
         actE.activity.idUser = idA;
         actA.activity.idCabildo =
-        actB.activity.idCabildo =
-        actC.activity.idCabildo =
-        actD.activity.idCabildo =
-        actE.activity.idCabildo =
+            actB.activity.idCabildo =
+            actC.activity.idCabildo =
+            actD.activity.idCabildo =
+            actE.activity.idCabildo =
             idCab;
         console.log("prepared activities");
 
         // post activites
         const idActA = await request(srv).post('/activity').send(actA)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idActB = await request(srv).post('/activity').send(actB)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idActC = await request(srv).post('/activity').send(actC)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idActD = await request(srv).post('/activity').send(actD)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idActE = await request(srv).post('/activity').send(actE)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         console.log("posted activities");
 
         // prapare comments with user and activity ids
@@ -129,35 +129,35 @@ describe('AppController (e2e)', () => {
 
         // post comments
         const idComA0 = await request(srv).post('/comment').send(comA0)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComA1 = await request(srv).post('/comment').send(comA1)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComA2 = await request(srv).post('/comment').send(comA2)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComB0 = await request(srv).post('/comment').send(comB0)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComB1 = await request(srv).post('/comment').send(comB1)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComB2 = await request(srv).post('/comment').send(comB2)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComC0 = await request(srv).post('/comment').send(comC0)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComC1 = await request(srv).post('/comment').send(comC1)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComC2 = await request(srv).post('/comment').send(comC2)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComD0 = await request(srv).post('/comment').send(comD0)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComD1 = await request(srv).post('/comment').send(comD1)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComD2 = await request(srv).post('/comment').send(comD2)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComE0 = await request(srv).post('/comment').send(comE0)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComE1 = await request(srv).post('/comment').send(comE1)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         const idComE2 = await request(srv).post('/comment').send(comE2)
-              .expect(201).then(idCheck).catch(err => done(err));
+            .expect(201).then(idCheck).catch(err => done(err));
         console.log("posted comments");
 
         // get activity feed for first user
