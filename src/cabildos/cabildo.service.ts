@@ -1,7 +1,5 @@
 import {
-    Inject,
     Injectable,
-    forwardRef,
     NotFoundException,
     InternalServerErrorException,
 } from '@nestjs/common';
@@ -9,14 +7,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Cabildo } from './cabildo.schema';
-import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class CabildoService {
-    constructor(
-        @InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>,
-        @Inject(forwardRef(() => 'UsersService')) private readonly usersService: UsersService,
-    ) {}
+    constructor(@InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>) {}
 
     private async callback(err: any, data: any) {
         if (err) {
@@ -84,13 +78,6 @@ export class CabildoService {
             {$addToSet: {activities: idActivity}},
             this.callback
         );
-    }
-
-    async pushToFeedAndFollowers(idCabildo: string, idActivity: string) {
-        const cabildo = await this.pushToFeed(idCabildo, idActivity);
-        cabildo.members.forEach(async idUser => {
-            await this.usersService.pushToFeed(idUser, idActivity)
-        });
     }
 
     private async findCabildo(cabildoId: string) {

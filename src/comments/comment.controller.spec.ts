@@ -4,20 +4,17 @@ const  { setupDB } = require('../../test/setupdb');
 import mongoose = require('mongoose');
 import { NotFoundException } from '@nestjs/common';
 
-import { CommentController } from './comment.controller';
-import { CommentService } from './comment.service';
 import { CommentSchema, Comment } from './comment.schema';
+import { CommentService } from './comment.service';
+import { CommentController } from './comment.controller';
 
-import { ActivityService } from '../activities/activity.service';
 import { ActivitySchema, Activity } from '../activities/activity.schema';
-import { ActivityModule } from '../activities/activity.module';
+import { ActivityService } from '../activities/activity.service';
 
 import { CabildoSchema, Cabildo } from '../cabildos/cabildo.schema';
-import { CabildoModule } from '../cabildos/cabildo.module';
 import { CabildoService } from '../cabildos/cabildo.service';
 
 import { UsersSchema, Users } from '../users/users.schema';
-import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
 
 describe('CommentController', () => {

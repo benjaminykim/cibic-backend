@@ -10,6 +10,7 @@ import {
     actC,comC0,comC1,comC2,
     actD,comD0,comD1,comD2,
     actE,comE0,comE1,comE2,
+    reply
 } from './mockData';
 
 describe('AppController (e2e)', () => {
@@ -160,11 +161,25 @@ describe('AppController (e2e)', () => {
             .expect(201).then(idCheck).catch(err => done(err));
         console.log("posted comments");
 
+        // post 100 replies
+        for (let i = 0; i < 100; i++) {
+            await request(srv).post('/reply').send(
+                {
+                    reply: {
+                        idUser: idA,
+                        content: `This is reply ${i}`,
+                        score: i,
+                    },
+                    comment: idComE2
+                }
+            ).expect(201).then(idCheck).catch(err => done(err));
+        }
+
         // get activity feed for first user
-        const feedA = await request(srv).get(`/activity/feed/${idA}`).expect(200);
+        const feedA = await request(srv).get(`/users/feed/${idA}`).expect(200);
 
         // get activity feed for second user
-        const feedB = await request(srv).get(`/activity/feed/${idB}`).expect(200);
+        const feedB = await request(srv).get(`/users/feed/${idB}`).expect(200);
 
         // both are the same currently
         expect(feedA.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
@@ -174,7 +189,7 @@ describe('AppController (e2e)', () => {
         console.log(`idC: ${idC}`);
 
         // get a blank activity feed
-        const feedC = await request(srv).get(`/activity/feed/${idC}`).expect(200)
+        const feedC = await request(srv).get(`/users/feed/${idC}`).expect(200)
         expect(feedC.body.activityFeed).toStrictEqual([]);
 
         // third user follows a cabildo
@@ -183,11 +198,11 @@ describe('AppController (e2e)', () => {
         console.log(`CfollowC`);
 
         // get a populated activity feed
-        const feedC2 = await request(srv).get(`/activity/feed/${idC}`).expect(200)
+        const feedC2 = await request(srv).get(`/users/feed/${idC}`).expect(200)
 
         // Need to add activityFeed update when a user follows a cabildo or another user
         // to include the activities from that entity
-        // expect(feedC2.body.activityFeed).toMatchObject(feedB.body.activityFeed)
+        //expect(feedC2.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
 
         ////// Positive Tests Needed:
 
