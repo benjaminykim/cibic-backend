@@ -13,9 +13,11 @@ import { ActivityModule } from '../activities/activity.module';
 
 import { CabildoSchema, Cabildo } from '../cabildos/cabildo.schema';
 import { CabildoModule } from '../cabildos/cabildo.module';
+import { CabildoService } from '../cabildos/cabildo.service';
 
 import { UsersSchema, Users } from '../users/users.schema';
 import { UsersModule } from '../users/users.module';
+import { UsersService } from '../users/users.service';
 
 describe('CommentController', () => {
   setupDB('test', true);
@@ -37,7 +39,9 @@ describe('CommentController', () => {
       controllers: [CommentController],
       providers: [
         ActivityService,
-        CommentService,
+          CommentService,
+          UsersService,
+          CabildoService,
         {
           provide: getModelToken('Comment'),
           useValue: commentModel,

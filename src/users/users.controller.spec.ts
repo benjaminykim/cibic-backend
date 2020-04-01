@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
+import { forwardRef } from '@nestjs/common';
 
 const  { setupDB } = require('../../test/setupdb');
 
@@ -7,6 +8,8 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UsersSchema, Users } from './users.schema';
 import { CabildoSchema } from '../cabildos/cabildo.schema';
+import { CabildoService } from '../cabildos/cabildo.service';
+import { CabildoModule } from '../cabildos/cabildo.module';
 
 import * as mongoose from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
@@ -37,10 +40,12 @@ describe('UsersController', () => {
   beforeEach(async () => {
     let userModel = mongoose.model('Users', UsersSchema);
     let cabildoModel = mongoose.model('Cabildo', CabildoSchema);
-    const module: TestingModule = await Test.createTestingModule({
+      const module: TestingModule = await Test.createTestingModule({
+          imports: [forwardRef(()=>CabildoModule)],
       controllers: [UsersController],
       providers: [
-        UsersService,
+          UsersService,
+          forwardRef(()=>CabildoService),
         {
           provide: getModelToken('Users'),
           useValue: userModel,
