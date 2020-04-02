@@ -4,6 +4,7 @@ import {
     UnprocessableEntityException,
     InternalServerErrorException,
 } from '@nestjs/common';
+import { feedPopulate } from '../constants'
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -146,31 +147,7 @@ export class UsersService {
                 options: {
                     limit: 20
                 },
-                populate: [
-                    userPop,
-                    { // info about cabildo posted to
-                        path: 'idCabildo',
-                        select: 'name _id',
-                    },
-                    { // first 100 comments
-                        path: 'comments',
-                        options: {
-                            limit: 100,
-                            sort: 'field -score'
-                        },
-                        populate: [
-                            userPop,
-                            { // top ten replies
-                                path: 'reply',
-                                options: {
-                                    limit: 10,
-                                    sort: 'field -score',
-                                },
-                                populate: userPop,
-                            },
-                        ],
-                    },
-                ],
+                populate: feedPopulate,
             })
             .lean() // return plan json object
     }

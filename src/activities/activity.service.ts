@@ -3,7 +3,7 @@ import {
     NotFoundException,
     InternalServerErrorException,
 } from '@nestjs/common';
-
+import { feedPopulate } from '../constants'
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -13,18 +13,8 @@ import { Activity } from './activity.schema';
 export class ActivityService {
     constructor(
         @InjectModel('Activity') private readonly activityModel: Model<Activity>,
-           ) {
-                         }
-activityPopulate =  [{
-                path: 'idUser',
-                model: 'Users',
-                select: 'username _id citizenPoints'
-            },
-            {
-                path: 'idCabildo',
-                model: 'Cabildo',
-                select: 'name _id'
-            }];
+    ) {
+    }
 
     private async activityCallback(err: any, data: any) {
         if (err) {
@@ -59,19 +49,20 @@ activityPopulate =  [{
         return result;
     }
 
-   async getActivities() { // list all activities
+    async getActivities() { // list all activities
         let activities = await this.activityModel.find();
-	return this.activityModel.populate(activities,  this.activityPopulate);
+        return this.activityModel.populate(activities, feedPopulate);
     }
 
     async getActivityById(idActivity: string) {
         const activity = await this.activityModel.findById(idActivity);
 
-        return activity.populate(this.activityPopulate).execPopulate();
-        }
+        return activity.populate(feedPopulate).execPopulate();
+    }
 
     async deleteActivity(idActivity: string) {
-        const activity = await this.activityModel.findByIdAndDelete(idActivity).exec(); //callback stuf here TODO SMONROE
+        const activity = await this.activityModel.findByIdAndDelete(idActivity).exec();
+        //callback stuf here TODO SMONROE
         if (activity.n === 0) {
             throw new NotFoundException('Could not find activity.');
         }
