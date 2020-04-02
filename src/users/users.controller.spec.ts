@@ -73,13 +73,13 @@ describe('UsersController', () => {
                 .catch(err => expect(err).toBeInstanceOf(NotFoundException));
 
         });
-        it('should create a user, then find that user', () => {
-            controller.addUser(mockUser).then(data => {
-                expect(data.id).toHaveLength(24);
-                return controller.getUser(data.id)
-                    .then(data => expect(data).toMatchObject(mockUser))
-                    .catch(err => expect(1).toBe(2));
-            });
+        it('should create a user, then find that user', async (done) => {
+            const data = await controller.addUser(mockUser);//.then(data => {
+            expect(data.id).toHaveLength(24);
+            const again = await controller.getUser(data.id);
+            again._id = again._id.toString();
+            expect(again).toMatchObject(Object.assign({},{_id:data.id,__v:0},mockUser));
+            done();
         });
     });
 });

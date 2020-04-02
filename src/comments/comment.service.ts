@@ -40,7 +40,7 @@ export class CommentService {
         );
     }
 
-    async getComments() { // list all comments
+    async getAllComments() { // list all comments
         return await this.commentModel.find().exec();
     }
 

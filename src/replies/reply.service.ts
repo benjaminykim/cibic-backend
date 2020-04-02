@@ -34,7 +34,7 @@ export class ReplyService {
         return result;
     }
 
-    async getReply() { // list all replies
+    async getAllReplies() { // list all replies
         const replies = await this.replyModel.find().exec();
         return replies;
     }

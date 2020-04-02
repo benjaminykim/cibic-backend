@@ -46,7 +46,7 @@ export class ActivityController {
 
     @Get()
     async getAllActivities() {
-        const activities = await this.activityService.getActivities();
+        const activities = await this.activityService.getAllActivities();
         return activities;
     }
 

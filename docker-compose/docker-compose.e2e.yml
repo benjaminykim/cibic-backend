@@ -4,5 +4,5 @@ services:
     command: npm run test:e2e
     environment:
       DEPLOY_ENV: testing
-    tty: true
     stdin_open: true
+    tty: true

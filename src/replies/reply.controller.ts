@@ -35,7 +35,7 @@ export class ReplyController {
 
     @Get()
     async getAllReplies() {
-        const replies = await this.replyService.getReply();
+        const replies = await this.replyService.getAllReplies();
         return replies;
     }
 

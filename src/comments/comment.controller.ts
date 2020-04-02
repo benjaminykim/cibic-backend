@@ -32,7 +32,7 @@ export class CommentController {
 
     @Get()
     async getAllComments() {
-        const comments = await this.commentService.getComments();
+        const comments = await this.commentService.getAllComments();
         return comments;
     }
 

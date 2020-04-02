@@ -33,8 +33,8 @@ export class CabildoService {
         return await this.cabildoModel.exists({name: cabildoName});
     }
 
-    async getCabildos() {
-        const cabildos = await this.cabildoModel.find().exec();
+    async getAllCabildos() {
+        const cabildos = await this.cabildoModel.find().lean().exec();
         return cabildos.map(data => ({
             id: data.id,
             name: data.name,
@@ -83,7 +83,7 @@ export class CabildoService {
     private async findCabildo(cabildoId: string) {
         let cabildo;
         try {
-            cabildo = await this.cabildoModel.findById(cabildoId).exec();
+            cabildo = await this.cabildoModel.findById(cabildoId).lean().exec();
         } catch (error) {
             throw new NotFoundException('Could not find cabildo.');
         }

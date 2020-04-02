@@ -49,7 +49,7 @@ export class ActivityService {
         return result;
     }
 
-    async getActivities() { // list all activities
+    async getAllActivities() { // list all activities
         let activities = await this.activityModel.find();
         return this.activityModel.populate(activities, feedPopulate);
     }

@@ -43,7 +43,7 @@ export class UsersService {
     }
 
     async getUsers() {
-        const users = await this.usersModel.find().exec();
+        const users = await this.usersModel.find().lean().exec();
         return users.map(data => ({
             id: data._id,
             username: data.username,
@@ -98,8 +98,7 @@ export class UsersService {
     }
 
     async getUserById(idUser: string) {
-        const user = await this.findUser(idUser);
-        return user;
+        return await this.findUser(idUser);
     }
 
     async pushToFeed(idUser: string, idActivity: string) {
@@ -130,7 +129,7 @@ export class UsersService {
     private async findUser(userId: string) {
         let user;
         try {
-            user = await this.usersModel.findById(userId).exec();
+            user = await this.usersModel.findById(userId).lean().exec();
         } catch (error) {
             throw new NotFoundException('Could not find user.');
         }

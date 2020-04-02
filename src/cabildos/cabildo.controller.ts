@@ -21,14 +21,14 @@ export class CabildoController {
         return { id: generatedId };
     }
 
-    @Get('check/:name') //http://localhost:3000/cabildos/check/:name
+    @Get('check/:name') // http://localhost:3000/cabildos/check/:name
     async checkCabildoName(@Param('name') cabildoName: string) {
         return await this.cabildosService.checkCabildoName(cabildoName);
     }
 
-    @Get()
+    @Get() // http://localhost:3000/cabildos
     async getAllCabildos() {
-        return await this.cabildosService.getCabildos();
+        return await this.cabildosService.getAllCabildos();
     }
 
     @Get(':id') // http://localhost:3000/cabildos/:id
@@ -37,7 +37,7 @@ export class CabildoController {
     }
 
     @Delete(':id') // http://localhost:3000/cabildos/:id
-    async deleteProduct(@Param('id') cabildoId: string) {
+    async deleteCabildo(@Param('id') cabildoId: string) {
         await this.cabildosService.deleteCabildo(cabildoId);
         return null;
     }
