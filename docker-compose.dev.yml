@@ -1,6 +1,6 @@
 version: "3"
 services:
   api:
-    command: npm run start:dev
+    command: npm run start:populate
     environment:
       DEPLOY_ENV: development
