@@ -13,7 +13,18 @@ import { Activity } from './activity.schema';
 export class ActivityService {
     constructor(
         @InjectModel('Activity') private readonly activityModel: Model<Activity>,
-    ) {}
+           ) {
+                         }
+activityPopulate =  [{
+                path: 'idUser',
+                model: 'Users',
+                select: 'username _id citizenPoints'
+            },
+            {
+                path: 'idCabildo',
+                model: 'Cabildo',
+                select: 'name _id'
+            }];
 
     private async activityCallback(err: any, data: any) {
         if (err) {
@@ -48,25 +59,16 @@ export class ActivityService {
         return result;
     }
 
-    async getActivities() { // list all activities
-        const activities = await this.activityModel.find().exec()
-        const popped = activities.map(a => a.populate({
-            path: 'idUser',
-            model: 'Users',
-            select: 'username _id citizenPoints',
-        }, this.activityCallback));
-        return popped;//activities;
+   async getActivities() { // list all activities
+        let activities = await this.activityModel.find();
+	return this.activityModel.populate(activities,  this.activityPopulate);
     }
 
     async getActivityById(idActivity: string) {
-        const activity = await this.findActivity(idActivity);
-        await activity.populate({
-            path: 'idUser',
-            model: 'Users',
-            select: 'username _id citizenPoints'
-        }, this.activityCallback);
-        return activity;
-    }
+        const activity = await this.activityModel.findById(idActivity);
+
+        return activity.populate(this.activityPopulate).execPopulate();
+        }
 
     async deleteActivity(idActivity: string) {
         const activity = await this.activityModel.findByIdAndDelete(idActivity).exec(); //callback stuf here TODO SMONROE
