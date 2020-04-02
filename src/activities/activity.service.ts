@@ -75,11 +75,11 @@ export class ActivityService {
 
     async getActivities() { // list all activities
         const activities = await this.activityModel.find().exec();
-        activities.populate({
-            path: 'idUser',
-            model: 'Users',
-            select: 'username _id citizenPoints',
-        }, this.activityCallback);
+        // activities.populate({
+        //     path: 'idUser',
+        //     model: 'Users',
+        //     select: 'username _id citizenPoints',
+        // }, this.activityCallback);
         return activities;
     }
 

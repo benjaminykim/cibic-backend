@@ -13,6 +13,6 @@ import { CabildoModule } from '../cabildos/cabildo.module';
   ],
   providers: [UsersService],
   controllers: [UsersController],
-  exports: [UsersService,MongooseModule],
+  exports: [UsersService, MongooseModule],
 })
 export class UsersModule {}

@@ -120,4 +120,9 @@ export class UsersService {
         }
         return user;
     }
+
+    async getUserByEmail(email: string) {
+        const user = await this.usersModel.findOne({ email });
+        return user;
+    }
 }

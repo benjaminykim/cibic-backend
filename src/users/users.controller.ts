@@ -5,11 +5,12 @@ import {
     Put,
     Delete,
     Body,
-    Param,
+    Param, UseGuards,
 } from '@nestjs/common';
 
 import { UsersService } from './users.service';
 import { Users, Following } from './users.schema';
+import {JwtAuthGuard} from '../auth/jwt-auth.guard';
 
 @Controller('users') // http://localhost:3000/users
 export class UsersController {
@@ -18,10 +19,12 @@ export class UsersController {
     @Post() // http://localhost:3000/users
     async addUser(@Body('user') user: Users)
     {
+        console.log(user);
         const generatedId = await this.userService.insertUser(user);
         return {id: generatedId};
     }
-    
+
+    @UseGuards(JwtAuthGuard)
     @Get() // http://localhost:3000/users
     async getAllUsers()
     {

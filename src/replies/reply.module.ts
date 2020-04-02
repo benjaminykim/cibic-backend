@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-//import { UsersModule } from '../users/users.module';
-//import { CabildoModule } from '../cabildos/cabildo.module';
+import { UsersModule } from '../users/users.module';
+import { CabildoModule } from '../cabildos/cabildo.module';
 import { ReplySchema } from './reply.schema';
 import { ReplyController } from './reply.controller';
 import { ReplyService } from './reply.service';
@@ -15,6 +15,6 @@ import { ReplyService } from './reply.service';
     ],
     controllers: [ReplyController],
     providers: [ReplyService],
-    exports: [ReplyService,MongooseModule],
+    exports: [ReplyService, MongooseModule],
 })
 export class ReplyModule {}
