@@ -1,7 +1,5 @@
 import {
-    Inject,
     Injectable,
-    forwardRef,
     NotFoundException,
     UnprocessableEntityException,
     InternalServerErrorException,
@@ -14,14 +12,9 @@ const saltRounds = 10;
 
 import { Users } from './users.schema';
 
-import { CabildoService } from '../cabildos/cabildo.service';
-
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectModel('Users') private readonly usersModel: Model<Users>,
-        @Inject(forwardRef(() => 'CabildoService')) private readonly cabildoService: CabildoService,
-    ) {}
+    constructor(@InjectModel('Users') private readonly usersModel: Model<Users>) {}
 
     private async callback (err, res) {
         if (err) {
@@ -87,25 +80,16 @@ export class UsersService {
         if (!first || !second) {
             return false;
         }
+        // populate feed
         return true;
     }
 
     async followCabildo(idUser: string, idCabildo: string) {
-        const userExists = await this.exists(idUser);
-        const cabildoExists = await this.cabildoService.exists(idCabildo);
-        if (!userExists || !cabildoExists) {
-            return false;
-        }
-        const user = await this.usersModel.findByIdAndUpdate(
+        return await this.usersModel.findByIdAndUpdate(
             idUser,
             { $addToSet: {cabildos: idCabildo}},
             this.callback
         );
-        const cabildo = await this.cabildoService.addUser(idCabildo, idUser);
-        if (user && cabildo) {
-            return true;
-        }
-        return false;
     }
 
     async exists(idUser: string) {
@@ -155,38 +139,34 @@ export class UsersService {
         return user;
     }
     async getFeed(idUser: string) {
+        const userPop = {path:'idUser',select:'_id username citizenPoints'};
         return await this.usersModel.findById(idUser)
             .populate({ // get activities from user's feed list
                 path: 'activityFeed',
-                slice: 20,
+                options: {
+                    limit: 20
+                },
                 populate: [
-                    { // info about user that created activity
-                        path: 'idUser',
-                        select: '_id username citizenPoints',
-                    },
+                    userPop,
                     { // info about cabildo posted to
                         path: 'idCabildo',
                         select: 'name _id',
                     },
                     { // first 100 comments
                         path: 'comments',
-                        slice: 100,
-                        sort: 'score',
+                        options: {
+                            limit: 100,
+                            sort: 'field -score'
+                        },
                         populate: [
-                            { // user info about posters
-                                path: 'idUser',
-                                select: 'username _id citizenPoints'
-                            },
+                            userPop,
                             { // top ten replies
                                 path: 'reply',
-                                slice: 10,
-                                sort: 'score',
-                                populate: [
-                                    {
-                                        path: 'idUser',
-                                        select: '_id username citizenPoints',
-                                    },
-                                ],
+                                options: {
+                                    limit: 10,
+                                    sort: 'field -score',
+                                },
+                                populate: userPop,
                             },
                         ],
                     },

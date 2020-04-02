@@ -32,7 +32,7 @@ export class CabildoController {
     }
 
     @Get(':id') // http://localhost:3000/cabildos/:id
-    getCabildoById(@Param('id') cabildoId: string) {
+    async getCabildoById(@Param('id') cabildoId: string) {
         return this.cabildosService.getCabildoById(cabildoId);
     }
 

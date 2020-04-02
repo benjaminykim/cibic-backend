@@ -266,6 +266,15 @@ let comE2 = {
     activity_id: null,
 }
 
+let reply = {
+    reply: {
+        idUser: null,
+        content: "REPLYTIME",
+        score: 0
+    },
+    comment: null
+};
+
 export {
     userA,userB,userC,
     cabA,
@@ -274,4 +283,5 @@ export {
     actC,comC0,comC1,comC2,
     actD,comD0,comD1,comD2,
     actE,comE0,comE1,comE2,
+    reply
 };

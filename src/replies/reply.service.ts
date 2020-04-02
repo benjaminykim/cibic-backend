@@ -21,13 +21,13 @@ export class ReplyService {
     async insertReply(reply: Reply) {
         const newReply = new this.replyModel(reply);
         const result = await newReply.save();
-        const genId = result.id;
-        return genId as string;
+        const idReply = result.id;
+        return idReply as string;
     }
 
-    async updateReply(replyId: string, reply: Reply) {
+    async updateReply(idReply: string, reply: Reply) {
         const result = await this.replyModel.findByIdAndUpdate(
-            replyId,
+            idReply,
             reply,
             this.replyCallback
         );
