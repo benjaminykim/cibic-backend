@@ -11,7 +11,7 @@ import {AuthModule} from './auth/auth.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://172.18.0.3:27017/cibic'),
+    MongooseModule.forRoot('mongodb://mongo_serve:27017/cibic'),
     UsersModule,
     CabildoModule,
     ActivityModule,
