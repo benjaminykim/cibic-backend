@@ -3,6 +3,7 @@ import {
     NotFoundException,
     InternalServerErrorException,
 } from '@nestjs/common';
+import { cabildoProfilePopulate, feedPopulate } from '../constants';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -42,6 +43,7 @@ export class CabildoService {
             moderators: data.moderators,
             admin: data.admin,
             location: data.location,
+            desc: data.desc,
             issues: data.issues,
             meetings: data.meetings,
             files: data.files,
@@ -52,13 +54,21 @@ export class CabildoService {
         return await this.cabildoModel.exists({_id: idCabildo});
     }
 
-    async getCabildoById(cabildoId: string) {
-        const cabildo = await this.findCabildo(cabildoId);
-        return cabildo;
+    async getCabildoProfile(idCabildo: string) {
+        const cabildo = await this.findCabildo(idCabildo);
+        return cabildo.populate(cabildoProfilePopulate).execPopulate;
     }
 
-    async deleteCabildo(cabildoId: string) {
-        const cabildo = await this.cabildoModel.findByIdAndDelete(cabildoId).exec();
+    async getCabildoFeed(idCabildo: string) {
+        let cabildo =  await this.cabildoModel
+            .findById(idCabildo)
+            .populate(feedPopulate('activities', 20, 0))
+            .lean();
+        return cabildo.activities;
+    }
+
+    async deleteCabildo(idCabildo: string) {
+        const cabildo = await this.cabildoModel.findByIdAndDelete(idCabildo).exec();
         if (cabildo.n === 0) {
             throw new NotFoundException('Could not find cabildo.');
         }
@@ -80,10 +90,10 @@ export class CabildoService {
         );
     }
 
-    private async findCabildo(cabildoId: string) {
+    private async findCabildo(idCabildo: string) {
         let cabildo;
         try {
-            cabildo = await this.cabildoModel.findById(cabildoId).lean().exec();
+            cabildo = await this.cabildoModel.findById(idCabildo).lean().exec();
         } catch (error) {
             throw new NotFoundException('Could not find cabildo.');
         }

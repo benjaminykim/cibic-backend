@@ -7,7 +7,7 @@ import { CommentService } from './comment.service';
 import * as mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UsersService', () => {
+describe('CommentService', () => {
     setupDB('cibic', true);
     let service: CommentService;
 

@@ -14,8 +14,8 @@ import { ActivityService } from '../activities/activity.service';
 import { CabildoSchema, Cabildo } from '../cabildos/cabildo.schema';
 import { CabildoService } from '../cabildos/cabildo.service';
 
-import { UsersSchema, Users } from '../users/users.schema';
-import { UsersService } from '../users/users.service';
+import { UserSchema, User } from '../users/users.schema';
+import { UserService } from '../users/users.service';
 
 describe('CommentController', () => {
     setupDB('cibic', true);
@@ -31,14 +31,14 @@ describe('CommentController', () => {
     beforeEach(async () => {
         let commentModel = mongoose.model('Comment', CommentSchema);
         let activityModel = mongoose.model('Activity', ActivitySchema);
-        let usersModel = mongoose.model('Users', UsersSchema);
+        let userModel = mongoose.model('User', UserSchema);
         let cabildoModel = mongoose.model('Cabildo', CabildoSchema);
         const module: TestingModule = await Test.createTestingModule({
             controllers: [CommentController],
             providers: [
                 ActivityService,
                 CommentService,
-                UsersService,
+                UserService,
                 CabildoService,
                 {
                     provide: getModelToken('Comment'),
@@ -49,8 +49,8 @@ describe('CommentController', () => {
                     useValue: activityModel,
                 },
                 {
-                    provide: getModelToken('Users'),
-                    useValue: usersModel,
+                    provide: getModelToken('User'),
+                    useValue: userModel,
                 },
                 {
                     provide: getModelToken('Cabildo'),

@@ -7,7 +7,7 @@ import { ReplyService } from './reply.service';
 import * as mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UsersService', () => {
+describe('ReplyService', () => {
     setupDB('cibic', true);
     let service: ReplyService;
 

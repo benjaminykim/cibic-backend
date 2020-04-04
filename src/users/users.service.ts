@@ -4,18 +4,18 @@ import {
     UnprocessableEntityException,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { feedPopulate } from '../constants'
+import { userProfilePopulate, feedPopulate } from '../constants'
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
 const saltRounds = 10;
 
-import { Users } from './users.schema';
+import { User } from './users.schema';
 
 @Injectable()
-export class UsersService {
-    constructor(@InjectModel('Users') private readonly usersModel: Model<Users>) {}
+export class UserService {
+    constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
     private async callback (err, res) {
         if (err) {
@@ -26,54 +26,60 @@ export class UsersService {
         }
     }
 
-    async insertUser(user: Users) {
-        let collision = await this.usersModel.exists({email: user.email})
-            || await this.usersModel.exists({rut: user.rut})
-            || await this.usersModel.exists({username: user.username});
+    private async validateId(id: string) {
+        if (id.length == 24)
+            return;
+        throw new NotFoundException();
+    }
+
+    private userView = data => ({
+        id: data._id,
+        username: data.username,
+        email: data.email,
+        firstname: data.firstName,
+        middleName: data. middleName,
+        lastName: data.lastName,
+        maidenName: data.maidenName,
+        phone: data.phone,
+        rut: data.rut,
+        desc: data.desc,
+        cabildos: data.cabildos,
+        followers: data.followers,
+        following: data.following,
+        citizenPoints: data.citizenPoints,
+    });
+
+    async insertUser(user: User) {
+        let collision = await this.userModel.exists({email: user.email})
+            || await this.userModel.exists({rut: user.rut})
+            || await this.userModel.exists({username: user.username});
         if (collision)
             throw new UnprocessableEntityException();
         const idUser = await bcrypt.hash(user.password, saltRounds)
             .then(async hash => {
                 user.password = hash;
-                const newUser = new this.usersModel(user);
+                const newUser = new this.userModel(user);
                 const result = await newUser.save();
                 return result.id as string;
             }).catch(err => console.log(err));
         return idUser;
     }
 
-    async getUsers() {
-        const users = await this.usersModel.find().lean().exec();
-        return users.map(data => ({
-            id: data._id,
-            username: data.username,
-            email: data.email,
-            firstname: data.firstName,
-            middleName: data. middleName,
-            lastName: data.lastName,
-            maidenName: data.maidenName,
-            phone: data.phone,
-            rut: data.rut,
-            cabildos: data.cabildos,
-            followers: data.followers,
-            following: data.following,
-            citizenPoints: data.citizenPoints,
-        }));
+    async getUsers() { // only useful in testing
+        const users = await this.userModel.find().lean().exec();
+        return users.map(this.userView);
     }
 
     // update idFollower's activityFeed with query of idFollowed
     async followUser(idFollower: string, idFollowed: string) {
-        const followerExists = await this.usersModel.exists({_id: idFollower});
-        const followedBExists = await this.usersModel.exists({_id: idFollowed});
-        if (!followerExists || !followedBExists) {
-            return false;
-        }
-        const first = await this.usersModel.findByIdAndUpdate(
+        await this.exists(idFollower);
+        await this.exists(idFollowed);
+        const first = await this.userModel.findByIdAndUpdate(
             idFollower,
             { $addToSet: {following: idFollowed}},
             this.callback
         );
-        const second = await this.usersModel.findByIdAndUpdate(
+        const second = await this.userModel.findByIdAndUpdate(
             idFollowed,
             { $addToSet: {followers: idFollower}},
             this.callback
@@ -86,7 +92,7 @@ export class UsersService {
     }
 
     async followCabildo(idUser: string, idCabildo: string) {
-        return await this.usersModel.findByIdAndUpdate(
+        return await this.userModel.findByIdAndUpdate(
             idUser,
             { $addToSet: {cabildos: idCabildo}},
             this.callback
@@ -94,42 +100,32 @@ export class UsersService {
     }
 
     async exists(idUser: string) {
-        return await this.usersModel.exists({_id: idUser});
+        await this.validateId(idUser);
+        let it = await this.userModel.exists({_id: idUser});
+        if (!it)
+            throw new NotFoundException('Could not find user.');
     }
 
-    async getUserById(idUser: string) {
-        return await this.findUser(idUser);
-    }
-
-    async pushToFeed(idUser: string, idActivity: string) {
-        await this.usersModel.findByIdAndUpdate(
+    async pushToFeed(idUser: string, idActivity: string) {//unused
+        return await this.userModel.findByIdAndUpdate(
             idUser,
             {$addToSet: {activityFeed: idActivity}},
             this.callback
         );
     }
 
-    // Function to be called from ActivityService.insertActivity()
-    async pushToFeedAndFollowers(idUser: string, idActivity: string) {
-        const user = await this.usersModel.findByIdAndUpdate(
-            idUser,
-            {$addToSet: {activityFeed: idActivity}},
+    async pushToFollow(idFollower: string, idActivity: string) {
+        return await this.userModel.findByIdAndUpdate(
+            idFollower,
+            {$addToSet: {followFeed: idActivity}},
             this.callback
         );
-        // Is it faster to populate and iterate or to do this?
-        user.followers.forEach(async idFollower => {
-            await this.usersModel.findByIdAndUpdate(
-                idFollower,
-                {$addToSet: {activityFeed: idActivity}},
-                this.callback
-            );
-        });
     }
 
     private async findUser(userId: string) {
         let user;
         try {
-            user = await this.usersModel.findById(userId).lean().exec();
+            user = await this.userModel.findById(userId).lean().exec();
         } catch (error) {
             throw new NotFoundException('Could not find user.');
         }
@@ -138,16 +134,27 @@ export class UsersService {
         }
         return user;
     }
-    async getFeed(idUser: string) {
-        const userPop = {path:'idUser',select:'_id username citizenPoints'};
-        return await this.usersModel.findById(idUser)
-            .populate({ // get activities from user's feed list
-                path: 'activityFeed',
-                options: {
-                    limit: 20
-                },
-                populate: feedPopulate,
-            })
+
+    async getProfile(idUser: string) {
+        await this.exists(idUser);
+        return await this.userModel.findById(idUser)
+            .populate(userProfilePopulate)// get activities from user's feed list
             .lean() // return plan json object
+    }
+
+    async getFeed(idUser: string, limit: number = 20, offset: number = 0) {
+        await this.exists(idUser);
+        let feed = await this.userModel.findById(idUser)
+            .populate(feedPopulate('activityFeed', limit, offset))
+            .lean() // return plain json object
+        return feed && feed.activityFeed;
+    }
+
+    async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
+        await this.exists(idUser);
+        let feed = await this.userModel.findById(idUser)
+            .populate(feedPopulate('followFeed', limit, offset))
+            .lean() // return plain json object
+        return feed && feed.followFeed;
     }
 }

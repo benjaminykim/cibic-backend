@@ -1,27 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { UsersService } from './users.service';
+import { UserService } from './users.service';
 
-import { UsersSchema } from './users.schema';
+import { UserSchema } from './users.schema';
 import { CabildoSchema } from '../cabildos/cabildo.schema';
 import { CabildoService } from '../cabildos/cabildo.service';
 
 import * as mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UsersService', () => {
+describe('UserService', () => {
     setupDB('cibic', true);
-    let userService: UsersService;
+    let userService: UserService;
 
     beforeEach(async () => {
-        let userModel = mongoose.model('Users', UsersSchema);
+        let userModel = mongoose.model('User', UserSchema);
         let cabildoModel = mongoose.model('Cabildo', CabildoSchema);
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                UsersService,
+                UserService,
                 CabildoService,
                 {
-                    provide: getModelToken('Users'),
+                    provide: getModelToken('User'),
                     useValue: userModel,
                 },
                 {
@@ -31,7 +31,7 @@ describe('UsersService', () => {
             ],
         }).compile();
 
-        userService = module.get<UsersService>(UsersService);
+        userService = module.get<UserService>(UserService);
     });
 
     describe('root', () => {
@@ -40,6 +40,7 @@ describe('UsersService', () => {
         });
         it('should return empty set', () => {
             return userService.getUsers()
+
                 .then(data => expect(data).toStrictEqual([]))
                 .catch(err => console.log(err));
         });

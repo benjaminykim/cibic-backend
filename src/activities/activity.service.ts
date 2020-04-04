@@ -3,7 +3,7 @@ import {
     NotFoundException,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { feedPopulate } from '../constants'
+import { feedPopulate, activityPopulate } from '../constants'
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -43,20 +43,22 @@ export class ActivityService {
     async commentActivity(idComment: string, idActivity) {
         const result = await this.activityModel.findByIdAndUpdate(
             idActivity,
-            { $addToSet: { comments: idComment }},
+            {
+                $inc: {ping: 1},
+                $addToSet: { comments: idComment }
+            },
             this.activityCallback
         );
         return result;
     }
 
-    async getAllActivities() { // list all activities
-        let activities = await this.activityModel.find();
-        return this.activityModel.populate(activities, feedPopulate);
+    async getPublicFeed(limit: number = 20, offset: number = 0) { // list all activities
+        let activities = await this.activityModel.find().skip(offset).limit(limit);
+        return await this.activityModel.populate(activities, activityPopulate);
     }
 
     async getActivityById(idActivity: string) {
         const activity = await this.activityModel.findById(idActivity);
-
         return activity.populate(feedPopulate).execPopulate();
     }
 

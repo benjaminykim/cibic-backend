@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 
 import { CabildoService } from '../cabildos/cabildo.service';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../users/users.service';
 import { ActivityService } from './activity.service';
 import { Activity } from './activity.schema';
 
@@ -19,34 +19,32 @@ import { Activity } from './activity.schema';
 export class ActivityController {
     constructor(
         private readonly activityService: ActivityService,
-        private readonly usersService: UsersService,
+        private readonly usersService: UserService,
         private readonly cabildoService: CabildoService,
     ) {}
 
     @Post()
     async addActivity(@Body('activity') activity: Activity) {
-        if (!(await this.usersService.exists(activity.idUser.toString()))) {
-            throw new UnprocessableEntityException();
-        }
+        await this.usersService.exists(activity.idUser.toString());
         if (activity.idCabildo) {
             if (!(await this.cabildoService.exists(activity.idCabildo.toString()))) {
                 throw new UnprocessableEntityException();
             }
         }
         const idActivity = await this.activityService.insertActivity(activity);
-        await this.usersService.pushToFeedAndFollowers(activity.idUser.toString(), idActivity);
+        const user = await this.usersService.pushToFeed(activity.idUser.toString(), idActivity);
+        user.followers.forEach(async idFollower => await this.usersService.pushToFollow(idFollower, idActivity));
         if (activity.idCabildo) {
             const cabildo = await this.cabildoService.pushToFeed(activity.idCabildo.toString(), idActivity);
-            cabildo.members.forEach(async idUser => {
-                await this.usersService.pushToFeed(idUser, idActivity)
-            });
+            cabildo.members.forEach(async idUser => await this.usersService.pushToFollow(idUser, idActivity));
         }
         return { id: idActivity };
     }
 
-    @Get()
-    async getAllActivities() {
-        const activities = await this.activityService.getAllActivities();
+    @Get('feed/public')
+    async getPublicFeed() {
+        const activities = await this.activityService.getPublicFeed();
+//        console.error(activities);
         return activities;
     }
 

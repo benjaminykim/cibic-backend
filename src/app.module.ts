@@ -3,7 +3,7 @@ import { MongooseModule} from '@nestjs/mongoose';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
+import { UserModule } from './users/users.module';
 import { CabildoModule } from './cabildos/cabildo.module';
 import { ActivityModule } from './activities/activity.module';
 import { CommentModule } from './comments/comment.module';
@@ -19,7 +19,7 @@ import { ReplyModule } from './replies/reply.module';
                 useFindAndModify: false,
             },
         ),
-        UsersModule,
+        UserModule,
         CabildoModule,
         ActivityModule,
         CommentModule,

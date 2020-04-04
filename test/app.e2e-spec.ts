@@ -35,56 +35,56 @@ describe('AppController (e2e)', () => {
         const srv = app.getHttpServer();
 
         // get an empty user list
-        const emptyUsers = await request(srv).get('/users').expect(200)
+        const emptyUsers = await request(srv).get('/user').expect(200)
         expect(emptyUsers.body).toStrictEqual([]);
 
         // make a user
-        const idA = await request(srv).post('/users').send(userA).expect(201).then(idCheck);
+        const idA = await request(srv).post('/user').send(userA).expect(201).then(idCheck);
         console.log(`idA: ${idA}`);
 
         // make a user
-        const idB = await request(srv).post('/users').send(userB).expect(201).then(idCheck);
+        const idB = await request(srv).post('/user').send(userB).expect(201).then(idCheck);
         console.log(`idB: ${idB}`);
 
         // get both users back
-        const twoUsers = await request(srv).get('/users').expect(200)
+        const twoUsers = await request(srv).get('/user').expect(200)
         expect(twoUsers.body).toHaveLength(2);
 
         // git an empty cabildo list
-        const emptyCabildos = await request(srv).get('/cabildos').expect(200)
+        const emptyCabildos = await request(srv).get('/cabildo').expect(200)
         expect(emptyCabildos.body).toStrictEqual([]);
 
         // make a cabildo
         cabA.cabildo.admin = idA;
-        const idCab = await request(srv).post('/cabildos').send(cabA).expect(201).then(idCheck);
+        const idCab = await request(srv).post('/cabildo').send(cabA).expect(201).then(idCheck);
         console.log(`idCab: ${idCab}`);
 
         // get a cabildo back
-        const oneCabildo = await request(srv).get('/cabildos').expect(200)
+        const oneCabildo = await request(srv).get('/cabildo').expect(200)
         expect(oneCabildo.body).toHaveLength(1);
 
         // first user follows second user
-        const AfollowB = await request(srv).post('/users/followuser')
+        const AfollowB = await request(srv).post('/user/followuser')
             .send({data:{follower: idA, followed: idB}}).expect(/now follows user/)
         console.log(`AfollowB`);
 
         // first user follows a cabildo
-        const AfollowC = await request(srv).post('/users/followcabildo')
+        const AfollowC = await request(srv).post('/user/followcabildo')
             .send({data:{follower: idA, followed: idCab}}).expect(/now follows cabildo/)
         console.log(`AfollowC`);
 
         // second user follows a cabildo
-        const BfollowC = await request(srv).post('/users/followcabildo')
+        const BfollowC = await request(srv).post('/user/followcabildo')
             .send({data:{follower: idB, followed: idCab}}).expect(/now follows cabildo/)
         console.log(`BfollowC`);
 
         // prepare activities with user and cabildo ids
-        actA.activity.idUser = idB;
+        actA.activity.idUser = idA;
         actB.activity.idUser = idB;
         actC.activity.idUser = idA;
-        actD.activity.idUser = idA;
+        actD.activity.idUser = idB;
         actE.activity.idUser = idA;
-        actA.activity.idCabildo =
+        //actA.activity.idCabildo =
             actB.activity.idCabildo =
             actC.activity.idCabildo =
             actD.activity.idCabildo =
@@ -107,19 +107,19 @@ describe('AppController (e2e)', () => {
 
         // prapare comments with user and activity ids
         comA0.comment.idUser = idA;
-        comA1.comment.idUser = idB;
+        comA1.comment.idUser = idA;
         comA2.comment.idUser = idA;
-        comB0.comment.idUser = idB;
+        comB0.comment.idUser = idA;
         comB1.comment.idUser = idA;
-        comB2.comment.idUser = idB;
+        comB2.comment.idUser = idA;
         comC0.comment.idUser = idA;
-        comC1.comment.idUser = idB;
+        comC1.comment.idUser = idA;
         comC2.comment.idUser = idA;
-        comD0.comment.idUser = idB;
+        comD0.comment.idUser = idA;
         comD1.comment.idUser = idA;
-        comD2.comment.idUser = idB;
+        comD2.comment.idUser = idA;
         comE0.comment.idUser = idA;
-        comE1.comment.idUser = idB;
+        comE1.comment.idUser = idA;
         comE2.comment.idUser = idA;
         comA0.activity_id = comA1.activity_id = comA2.activity_id = idActA;
         comB0.activity_id = comB1.activity_id = comB2.activity_id = idActB;
@@ -166,7 +166,7 @@ describe('AppController (e2e)', () => {
             await request(srv).post('/reply').send(
                 {
                     reply: {
-                        idUser: idA,
+                        idUser: idB,
                         content: `This is reply ${i}`,
                         score: i,
                     },
@@ -176,36 +176,61 @@ describe('AppController (e2e)', () => {
         }
 
         // get activity feed for first user
-        const feedA = await request(srv).get(`/users/feed/${idA}`).expect(200);
+        const feedA = await request(srv).get(`/user/feed/${idA}`).expect(200);
 
         // get activity feed for second user
-        const feedB = await request(srv).get(`/users/feed/${idB}`).expect(200);
+        const feedB = await request(srv).get(`/user/feed/${idB}`).expect(200);
 
         // both are the same currently
         expect(feedA.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
 
         // make a new user
-        const idC = await request(srv).post('/users').send(userC).expect(201).then(idCheck);
+        const idC = await request(srv).post('/user').send(userC).expect(201).then(idCheck);
         console.log(`idC: ${idC}`);
 
         // get a blank activity feed
-        const feedC = await request(srv).get(`/users/feed/${idC}`).expect(200)
-        expect(feedC.body.activityFeed).toStrictEqual([]);
+        const feedC = await request(srv).get(`/user/feed/${idC}`).expect(200)
+       // expect(feedC.body.activityFeed).toStrictEqual([]);
 
         // third user follows a cabildo
-        const CfollowC = await request(srv).post('/users/followcabildo')
+        const CfollowC = await request(srv).post('/user/followcabildo')
             .send({data:{follower: idC, followed: idCab}}).expect(/now follows cabildo/)
         console.log(`CfollowC`);
 
         // get a populated activity feed
-        const feedC2 = await request(srv).get(`/users/feed/${idC}`).expect(200)
+        const feedC2 = await request(srv).get(`/user/feed/${idC}`).expect(200)
+        console.log("feedC");
+        console.log(feedC.body);
 
         // Need to add activityFeed update when a user follows a cabildo or another user
         // to include the activities from that entity
         //expect(feedC2.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
+        const userFeedA = await request(srv).get(`/user/feed/${idA}`).expect(200);
+        console.log("userFeedA:");
+        console.log(userFeedA.body);
+        const userFeedB = await request(srv).get(`/user/feed/${idB}`).expect(200);
+        console.log("userFeedB:");
+        console.log(userFeedB.body);
+        const userHomeA = await request(srv).get(`/user/home/${idA}`).expect(200);
+        console.log("userHomeA:");
+        console.log(userHomeA.body);
+        const userHomeB = await request(srv).get(`/user/home/${idB}`).expect(200);
+        console.log("userHomeB:");
+        console.log(userHomeB.body);
+        const cabildoFeed = await request(srv).get(`/cabildo/feed/${idCab}`).expect(200);
+        console.log("cabildoFeed:");
+        console.log(cabildoFeed.body);
+        const publicFeed = await request(srv).get(`/activity/feed/public`).expect(200);
+        console.log("publicFeed:");
+        console.error(publicFeed);
+
+        console.log("BlahB;adfafdsfsaF");
+//        expect(userFeed.body).toStrictEqual(cabildoFeed.body)
+//        expect(userFeed.body).toStrictEqual(publicFeed.body)
+//        expect(feedC2.body).toStrictEqual(publicFeed.body)
 
         ////// Positive Tests Needed:
-
+//expect(feedC2.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
         // add replies to comments
         // react to all things
         // vote on poll
@@ -228,7 +253,6 @@ describe('AppController (e2e)', () => {
         // add a reply with bad fields -- model level
         // new user follows cabildo check if feed updates
         // add things with id's that reference the wrong kind of object
-
         done();
     });
 });

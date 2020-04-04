@@ -7,7 +7,7 @@ import { ActivityService } from './activity.service';
 import * as mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UsersService', () => {
+describe('UserService', () => {
     setupDB('cibic', true);
     let service: ActivityService;
 
@@ -31,7 +31,7 @@ describe('UsersService', () => {
             expect(service).toBeDefined();
         });
         it('should return empty set', () => {
-            return service.getAllActivities()
+            return service.getPublicFeed()
                 .then(data => expect(data).toStrictEqual([]))
                 .catch(err => console.log(err));
         });

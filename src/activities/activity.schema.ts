@@ -2,7 +2,7 @@ import { Schema, Document } from 'mongoose';
 
 export const ReactionSchema = Schema({
     _id: { type: Schema.Types.ObjectId, auto: true },
-    idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
+    idUser: { type: Schema.Types.ObjectId, ref: 'User' },
     value: { type: Number, enum: [-2, -1, 0, 1, 2] },
 });
 
@@ -13,7 +13,7 @@ export interface Reaction extends Document {
 
 export const VoteSchema = Schema({
     _id: { type: Schema.Types.ObjectId, auto: true },
-    idUser: { type: Schema.Types.ObjectId, ref: 'Users' },
+    idUser: { type: Schema.Types.ObjectId, ref: 'User' },
     value: { type: Number, enum: [-1, 0, 1] },
 });
 
@@ -23,7 +23,7 @@ export interface Vote extends Document {
 }
 
 export const ActivitySchema = new Schema({
-    idUser: { type: Schema.Types.ObjectId, ref: 'Users' }, // owner of the proposal, poll or opinion.
+    idUser: { type: Schema.Types.ObjectId, ref: 'User' }, // owner of the proposal, poll or opinion.
     idCabildo: { type: Schema.Types.ObjectId, ref: 'Cabildo' },
     activityType: { type: String, enum: ['discussion', 'proposal', 'poll'] },
     score: { type: Number, default: 0, required: true },
