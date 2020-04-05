@@ -7,6 +7,8 @@ import { UserModule } from './users/users.module';
 import { CabildoModule } from './cabildos/cabildo.module';
 import { ActivityModule } from './activities/activity.module';
 import { CommentModule } from './comments/comment.module';
+import {AuthModule} from './auth/auth.module';
+
 import { ReplyModule } from './replies/reply.module';
 
 @Module({
@@ -24,6 +26,7 @@ import { ReplyModule } from './replies/reply.module';
         ActivityModule,
         CommentModule,
         ReplyModule,
+    AuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],

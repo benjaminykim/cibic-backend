@@ -18,3 +18,8 @@ services:
     image: mongo
     ports:
       - "27018:27017"
+  node_router:
+    build: node_router
+    container_name: node_router
+    ports:
+      - "80:80"

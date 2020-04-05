@@ -1,5 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import {Controller, Get, UseGuards, Post, Request } from '@nestjs/common';
 import { AppService } from './app.service';
+import {AuthGuard} from '@nestjs/passport';
+import { LocalAuthGuard } from './auth/local-auth.guard';
 
 @Controller() // Route root your-domain.com/
 export class AppController {
@@ -9,4 +11,6 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+
 }

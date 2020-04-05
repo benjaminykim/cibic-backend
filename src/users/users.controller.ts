@@ -5,13 +5,15 @@ import {
     Put,
     Delete,
     Body,
-    Param,
+	Param,
+	UseGuards,
     NotFoundException
 } from '@nestjs/common';
 
 import { CabildoService } from '../cabildos/cabildo.service';
 import { UserService } from './users.service';
 import { User, Following } from './users.schema';
+import {JwtAuthGuard} from '../auth/jwt-auth.guard';
 
 @Controller('user') // http://localhost:3000/user
 export class UserController {
@@ -23,10 +25,12 @@ export class UserController {
     @Post() // http://localhost:3000/user
     async addUser(@Body('user') user: User)
     {
+        console.log(user);
         const generatedId = await this.userService.insertUser(user);
         return {id: generatedId};
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get() // http://localhost:3000/user
     async getAllUsers()
     {

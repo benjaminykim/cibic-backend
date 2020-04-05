@@ -135,6 +135,11 @@ export class UserService {
         return user;
     }
 
+    async getUserByEmail(email: string) {
+        const user = await this.userModel.findOne({ email });
+		return user;
+	}
+
     async getProfile(idUser: string) {
         await this.exists(idUser);
         return await this.userModel.findById(idUser)
