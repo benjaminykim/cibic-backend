@@ -1,0 +1,8 @@
+version: "3"
+services:
+  api:
+    command: npm run test:watche2e
+    environment:
+      DEPLOY_ENV: testing
+    stdin_open: true
+    tty: true

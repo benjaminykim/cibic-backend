@@ -1,29 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { UserService } from './users.service';
 
-import { UserSchema } from './users.schema';
-import { CabildoSchema } from '../cabildos/cabildo.schema';
-import { CabildoService } from '../cabildos/cabildo.service';
+import { CabildoController } from './cabildo.controller';
+import { CabildoSchema } from './cabildo.schema';
+import { CabildoService } from './cabildo.service';
 
 import * as mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UserService', () => {
+describe('UsersService', () => {
     setupDB('cibic', true);
-    let userService: UserService;
+    let controller: CabildoController;
 
     beforeEach(async () => {
-        let userModel = mongoose.model('User', UserSchema);
         let cabildoModel = mongoose.model('Cabildo', CabildoSchema);
         const module: TestingModule = await Test.createTestingModule({
+            controllers: [CabildoController],
             providers: [
-                UserService,
                 CabildoService,
-                {
-                    provide: getModelToken('User'),
-                    useValue: userModel,
-                },
                 {
                     provide: getModelToken('Cabildo'),
                     useValue: cabildoModel,
@@ -31,16 +25,15 @@ describe('UserService', () => {
             ],
         }).compile();
 
-        userService = module.get<UserService>(UserService);
+        controller = module.get<CabildoController>(CabildoController);
     });
 
     describe('root', () => {
         it('should be defined', () => {
-            expect(userService).toBeDefined();
+            expect(controller).toBeDefined();
         });
         it('should return empty set', () => {
-            return userService.getUsers()
-
+            return controller.getAllCabildos()
                 .then(data => expect(data).toStrictEqual([]))
                 .catch(err => console.log(err));
         });

@@ -7,30 +7,45 @@ import {
     Patch,
     Delete,
     Put,
+    UnprocessableEntityException,
 } from '@nestjs/common';
 
+import { CabildoService } from '../cabildos/cabildo.service';
+import { UserService } from '../users/users.service';
 import { ActivityService } from './activity.service';
 import { Activity } from './activity.schema';
 
 @Controller('activity') // http://localhost:3000/activity
 export class ActivityController {
-    constructor(private readonly activityService: ActivityService) {}
+    constructor(
+        private readonly activityService: ActivityService,
+        private readonly usersService: UserService,
+        private readonly cabildoService: CabildoService,
+    ) {}
 
     @Post()
     async addActivity(@Body('activity') activity: Activity) {
-        const generatedId = await this.activityService.insertActivity(activity);
-        return { id: generatedId };
+        await this.usersService.exists(activity.idUser.toString());
+        if (activity.idCabildo) {
+            if (!(await this.cabildoService.exists(activity.idCabildo.toString()))) {
+                throw new UnprocessableEntityException();
+            }
+        }
+        const idActivity = await this.activityService.insertActivity(activity);
+        const user = await this.usersService.pushToFeed(activity.idUser.toString(), idActivity);
+        user.followers.forEach(async idFollower => await this.usersService.pushToFollow(idFollower, idActivity));
+        if (activity.idCabildo) {
+            const cabildo = await this.cabildoService.pushToFeed(activity.idCabildo.toString(), idActivity);
+            cabildo.members.forEach(async idUser => await this.usersService.pushToFollow(idUser, idActivity));
+        }
+        return { id: idActivity };
     }
 
-    @Get()
-    async getAllActivities() {
-        const activities = await this.activityService.getActivities();
+    @Get('feed/public')
+    async getPublicFeed() {
+        const activities = await this.activityService.getPublicFeed();
+//        console.error(activities);
         return activities;
-    }
-
-    @Get('feed/:idUser') // http://localhost:3000/activity/feed/:idUser
-     async getActivityFeed(@Param('idUser') idUser: string) {
-        return await this.activityService.getActivityFeed(idUser);
     }
 
     @Get(':id')

@@ -25,14 +25,14 @@ export class CommentController {
         @Body('comment') comment: Comment,
         @Body('activity_id') idActivity: string,
     ) {
-        const generatedId = await this.commentService.insertComment(comment);
-        await this.activityService.commentActivity(generatedId, idActivity);
-        return { id: generatedId };
+        const idComment = await this.commentService.insertComment(comment);
+        await this.activityService.commentActivity(idComment, idActivity);
+        return { id: idComment };
     }
 
     @Get()
     async getAllComments() {
-        const comments = await this.commentService.getComments();
+        const comments = await this.commentService.getAllComments();
         return comments;
     }
 
@@ -44,7 +44,8 @@ export class CommentController {
     @Post()
     async updateComment(
         @Body('commentid') commentId: string,
-        @Body('comment') comment: Comment) {
+        @Body('comment') comment: Comment
+    ) {
         return await this.commentService.updateComment(commentId, comment);
     }
 

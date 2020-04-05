@@ -1,24 +1,28 @@
 #!/bin/bash
-USAGE="Usage: ./docker-start [ test | dev | prod | down ]\n\n"\
-"\ttest: run jest test watcher on backend\n"\
+USAGE="Usage: ./docker-start [ test | e2e | watche2e | dev | prod | down ]\n\n"\
+"\ttest: run jest test watcher on backend unit tests\n"\
+"\te2e: run jest/supertest end to end test on application\n"\
+"\twatche2e: run jest/supertest end to end test in watch mode\n"\
 "\tdev: spin up backend in development mode\n"\
 "\tprod: spin up backend in production mode\n"\
 "\tdown: spin down all running containers and network\n"\
-"\n\tGo Cibic.io!\n"
+"\n\tGo Cibic!\n"
+
+DC_DIR=docker-compose
+
 if [ -z $1 ]; then
-	echo -e $USAGE;
-elif [ $1 = "test" ]; then
-	docker-compose down;
-	docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d && \
+    echo -e $USAGE;
+elif [ $1 = "test" -o $1 = "e2e" -o $1 = "watche2e" ]; then
+	if [ $USER = "ubuntu" ]; then
+		echo "DO NOT RUN THIS ON EC2 IT WILL DESTROY THE DATABASE"
+		exit;
+	fi
+    docker-compose down;
+	docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$1.yml up -d && \
 	docker attach $(docker ps -q | head -n1);
-elif [ $1 = "dev" ]; then
-	docker-compose down;
-	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d;
-elif [ $1 = "prod" ]; then
-	docker-compose down;
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d;
+elif [ $1 = "dev" -o $1 = "prod" ]; then
+    docker-compose down;
+	docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$1.yml up -d;
 elif [ $1 = "down" ]; then
-	docker-compose down;
-else
-	echo -e $USAGE;
+    docker-compose down;
 fi

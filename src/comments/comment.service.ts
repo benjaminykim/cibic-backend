@@ -14,7 +14,7 @@ export class CommentService {
         if (err) {
             console.error(`Error with comment: ${err}`);
         } else {
-            console.log(`Success with comment: ${data}`);
+//            console.log(`Success with comment: ${data}`);
         }
     }
 
@@ -25,22 +25,27 @@ export class CommentService {
     }
 
     async updateComment(commentId: string, comment: Comment) {
-        const result = await this.commentModel.findByIdAndUpdate(
+        return await this.commentModel.findByIdAndUpdate(
             commentId,
             comment,
             this.commentCallback
         );
-        return result;
     }
 
-    async getComments() { // list all comments
-        const comments = await this.commentModel.find().exec();
-        return comments;
+    async reply(idComment: string, idReply: string) {
+        return await this.commentModel.findByIdAndUpdate(
+            idComment,
+            { $push: { reply: idReply}}, // only called from insertReply, known to be unique
+            this.commentCallback
+        );
+    }
+
+    async getAllComments() { // list all comments
+        return await this.commentModel.find().exec();
     }
 
     async getCommentById(idComment: string) {
-        const comment = await this.findComment(idComment);
-        return comment;
+        return await this.findComment(idComment);
     }
 
     async deleteComment(idComment: string) {

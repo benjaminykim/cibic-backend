@@ -1,29 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { UserService } from './users.service';
 
-import { UserSchema } from './users.schema';
-import { CabildoSchema } from '../cabildos/cabildo.schema';
-import { CabildoService } from '../cabildos/cabildo.service';
+import { CabildoSchema } from './cabildo.schema';
+import { CabildoService } from './cabildo.service';
 
 import * as mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UserService', () => {
+describe('UsersService', () => {
     setupDB('cibic', true);
-    let userService: UserService;
+    let cabildoService: CabildoService;
 
     beforeEach(async () => {
-        let userModel = mongoose.model('User', UserSchema);
         let cabildoModel = mongoose.model('Cabildo', CabildoSchema);
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                UserService,
                 CabildoService,
-                {
-                    provide: getModelToken('User'),
-                    useValue: userModel,
-                },
                 {
                     provide: getModelToken('Cabildo'),
                     useValue: cabildoModel,
@@ -31,16 +23,15 @@ describe('UserService', () => {
             ],
         }).compile();
 
-        userService = module.get<UserService>(UserService);
+        cabildoService = module.get<CabildoService>(CabildoService);
     });
 
     describe('root', () => {
         it('should be defined', () => {
-            expect(userService).toBeDefined();
+            expect(cabildoService).toBeDefined();
         });
         it('should return empty set', () => {
-            return userService.getUsers()
-
+            return cabildoService.getAllCabildos()
                 .then(data => expect(data).toStrictEqual([]))
                 .catch(err => console.log(err));
         });

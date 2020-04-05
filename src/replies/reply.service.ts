@@ -14,27 +14,27 @@ export class ReplyService {
         if (err) {
             console.error(`Error with reply: ${err}`);
         } else {
-            console.log(`Success with reply: ${data}`);
+//            console.log(`Success with reply: ${data}`);
         }
     }
 
     async insertReply(reply: Reply) {
         const newReply = new this.replyModel(reply);
         const result = await newReply.save();
-        const genId = result.id;
-        return genId as string;
+        const idReply = result.id;
+        return idReply as string;
     }
 
-    async updateReply(replyId: string, reply: Reply) {
+    async updateReply(idReply: string, reply: Reply) {
         const result = await this.replyModel.findByIdAndUpdate(
-            replyId,
+            idReply,
             reply,
             this.replyCallback
         );
         return result;
     }
 
-    async getReply() { // list all replies
+    async getAllReplies() { // list all replies
         const replies = await this.replyModel.find().exec();
         return replies;
     }

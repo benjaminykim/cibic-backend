@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    InternalServerErrorException,
+} from '@nestjs/common';
+import { cabildoProfilePopulate, feedPopulate } from '../constants';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -6,47 +11,89 @@ import { Cabildo } from './cabildo.schema';
 
 @Injectable()
 export class CabildoService {
-    constructor(
-        @InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>,
-    ) {}
+    constructor(@InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>) {}
+
+    private async callback(err: any, data: any) {
+        if (err) {
+            console.error(`Error with activity: ${err}`);
+        } else {
+            //            console.log(`Success with activity: ${data}`);
+        }
+    }
 
     async insertCabildo(cabildo: Cabildo) {
+        const collision = await this.cabildoModel.exists({name: cabildo.name});
+        if (collision)
+            throw new InternalServerErrorException();
         const newCabildo = new this.cabildoModel(cabildo)
         const result = await newCabildo.save();
         return result.id as string;
     }
 
-    async getCabildos() {
-        const cabildos = await this.cabildoModel.find().exec();
+    async checkCabildoName(cabildoName: string) {
+        return await this.cabildoModel.exists({name: cabildoName});
+    }
+
+    async getAllCabildos() {
+        const cabildos = await this.cabildoModel.find().lean().exec();
         return cabildos.map(data => ({
-			id: data.id,
+            id: data.id,
             name: data.name,
             members: data.members,
             moderators: data.moderators,
             admin: data.admin,
             location: data.location,
+            desc: data.desc,
             issues: data.issues,
             meetings: data.meetings,
             files: data.files,
         }));
     }
 
-    async getCabildoById(cabildoId: string) {
-        const cabildo = await this.findCabildo(cabildoId);
-        return cabildo;
+    async exists(idCabildo: string) {
+        return await this.cabildoModel.exists({_id: idCabildo});
     }
 
-    async deleteCabildo(cabildoId: string) {
-        const cabildo = await this.cabildoModel.findByIdAndDelete(cabildoId).exec();
+    async getCabildoProfile(idCabildo: string) {
+        const cabildo = await this.findCabildo(idCabildo);
+        return cabildo.populate(cabildoProfilePopulate).execPopulate;
+    }
+
+    async getCabildoFeed(idCabildo: string) {
+        let cabildo =  await this.cabildoModel
+            .findById(idCabildo)
+            .populate(feedPopulate('activities', 20, 0))
+            .lean();
+        return cabildo.activities;
+    }
+
+    async deleteCabildo(idCabildo: string) {
+        const cabildo = await this.cabildoModel.findByIdAndDelete(idCabildo).exec();
         if (cabildo.n === 0) {
             throw new NotFoundException('Could not find cabildo.');
         }
     }
 
-    private async findCabildo(cabildoId: string) {
+    async addUser(idCabildo: string, idUser) {
+        return await this.cabildoModel.findByIdAndUpdate(
+            idCabildo,
+            { $addToSet: {members: idUser}},
+            this.callback
+        );
+    }
+
+    async pushToFeed(idCabildo: string, idActivity: string) {
+        return await this.cabildoModel.findByIdAndUpdate(
+            idCabildo,
+            {$addToSet: {activities: idActivity}},
+            this.callback
+        );
+    }
+
+    private async findCabildo(idCabildo: string) {
         let cabildo;
         try {
-            cabildo = await this.cabildoModel.findById(cabildoId).exec();
+            cabildo = await this.cabildoModel.findById(idCabildo).lean().exec();
         } catch (error) {
             throw new NotFoundException('Could not find cabildo.');
         }

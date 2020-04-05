@@ -10,30 +10,39 @@ import {
 import { Cabildo } from './cabildo.schema';
 import { CabildoService } from './cabildo.service';
 
-@Controller('cabildos') // http://localhost:3000/cabildos
+@Controller('cabildo') // http://localhost:3000/cabildo
 export class CabildoController {
     constructor(private readonly cabildosService: CabildoService) {}
 
-    @Post() // http://localhost:3000/cabildos
-    async addCabildo(@Body() cabildo: Cabildo
+    @Post() // http://localhost:3000/cabildo
+    async addCabildo(@Body('cabildo') cabildo: Cabildo
     ) {
         const generatedId = await this.cabildosService.insertCabildo(cabildo);
         return { id: generatedId };
     }
 
-    @Get()
+    @Get('check/:name') // http://localhost:3000/cabildo/check/:name
+    async checkCabildoName(@Param('name') cabildoName: string) {
+        return await this.cabildosService.checkCabildoName(cabildoName);
+    }
+
+    @Get() // http://localhost:3000/cabildo
     async getAllCabildos() {
-        const cabildos = await this.cabildosService.getCabildos();
-        return cabildos;
+        return await this.cabildosService.getAllCabildos();
     }
 
-    @Get(':id') // http://localhost:3000/cabildos/:id
-    getCabildoById(@Param('id') cabildoId: string) {
-        return this.cabildosService.getCabildoById(cabildoId);
+    @Get(':id') // http://localhost:3000/cabildo/:id
+    async getCabildoProfile(@Param('id') cabildoId: string) {
+        return this.cabildosService.getCabildoProfile(cabildoId);
     }
 
-    @Delete(':id') // http://localhost:3000/cabildos/:id
-    async deleteProduct(@Param('id') cabildoId: string) {
+    @Get('feed/:id') // http://localhost:3000/cabildo/feed/:id
+    async getCabildoFeed(@Param('id') cabildoId: string) {
+        return this.cabildosService.getCabildoFeed(cabildoId);
+    }
+
+    @Delete(':id') // http://localhost:3000/cabildo/:id
+    async deleteCabildo(@Param('id') cabildoId: string) {
         await this.cabildosService.deleteCabildo(cabildoId);
         return null;
     }

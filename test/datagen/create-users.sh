@@ -16,7 +16,7 @@ firstnames=(    "Steven"
                 "Mike"
                 "Edith"
                 "Jano"
-                "Daiana"
+               "Daiana"
                 "Emiliano"
                 "Martin"
                 "Matias"
@@ -35,6 +35,10 @@ lastnames=( "lname"
 
 temp=~/curlResponse.log
 output=~/idUser.txt
+rm -f $temp
+rm -f $output
+touch $temp
+touch $output
 
 for i in ${!usernames[@]}; do
     curl -H "Content-Type: application/json" -d'{"user":{
@@ -45,14 +49,14 @@ for i in ${!usernames[@]}; do
     "middleName": "middleName",
     "lastName": "'${lastnames[$i]}'",
     "maidenName": "maidenName",
-    "phone": 123456789,
-    "rut": "1234567891",
+    "phone": '$i',
+    "rut": "1234567891'$i'",
     "cabildos": [],
     "files": "none",
     "followers": [],
     "following": [],
     "activityFeed": []
-    }}' http://localhost:3000/users >> $temp 2>&1
+    }}' http://localhost:3000/user >> $temp 2>&1
 done
 grep -o ':".*"' $temp | sed 's/[:"]//g' >> $output
 rm -f $temp
