@@ -16,7 +16,7 @@ firstnames=(    "Steven"
                 "Mike"
                 "Edith"
                 "Jano"
-                "Daiana"
+               "Daiana"
                 "Emiliano"
                 "Martin"
                 "Matias"
@@ -56,7 +56,7 @@ for i in ${!usernames[@]}; do
     "followers": [],
     "following": [],
     "activityFeed": []
-    }}' http://localhost:3000/users >> $temp 2>&1
+    }}' http://localhost:3000/user >> $temp 2>&1
 done
 grep -o ':".*"' $temp | sed 's/[:"]//g' >> $output
 rm -f $temp
