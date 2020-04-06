@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY . /app
 RUN if [ "$DEPLOY_ENV" = "testing" ]; \
-	then	apt install git; \
+	then	apk add git; \
 		    npm install -g jest; \
 	fi; \
 	npm install

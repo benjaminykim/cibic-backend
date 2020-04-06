@@ -7,6 +7,7 @@ import {
     Patch,
     Delete,
     Put,
+    UseGuards,
     UnprocessableEntityException,
 } from '@nestjs/common';
 
@@ -14,6 +15,7 @@ import { CabildoService } from '../cabildos/cabildo.service';
 import { UserService } from '../users/users.service';
 import { ActivityService } from './activity.service';
 import { Activity } from './activity.schema';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('activity') // http://localhost:3000/activity
 export class ActivityController {
@@ -23,6 +25,7 @@ export class ActivityController {
         private readonly cabildoService: CabildoService,
     ) {}
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     async addActivity(@Body('activity') activity: Activity) {
         await this.usersService.exists(activity.idUser.toString());
@@ -41,6 +44,7 @@ export class ActivityController {
         return { id: idActivity };
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get('feed/public')
     async getPublicFeed() {
         const activities = await this.activityService.getPublicFeed();
@@ -48,11 +52,13 @@ export class ActivityController {
         return activities;
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get(':id')
     async getActivityById(@Param('id') activityId: string) {
         return await this.activityService.getActivityById(activityId);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
     async updateActivity(
         @Body('activityid') activityId: string,
@@ -60,6 +66,7 @@ export class ActivityController {
         return await this.activityService.updateActivity(activityId, activity);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Delete(':id')
     async deleteActivity(@Param('id') activityId: string) {
         await this.activityService.deleteActivity(activityId);

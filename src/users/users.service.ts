@@ -137,8 +137,8 @@ export class UserService {
 
     async getUserByEmail(email: string) {
         const user = await this.userModel.findOne({ email });
-		return user;
-	}
+		    return user;
+	  }
 
     async getProfile(idUser: string) {
         await this.exists(idUser);

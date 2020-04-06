@@ -30,15 +30,9 @@ describe('AppController (e2e)', () => {
             expect(res.body.id).toHaveLength(24);
             return res.body.id;
         };
-
         // less typing on request() calls
         const srv = app.getHttpServer();
 
-        // get an empty user list
-        const emptyUsers = await request(srv).get('/user').expect(200)
-        expect(emptyUsers.body).toStrictEqual([]);
-
-        // make a user
         const idA = await request(srv).post('/user').send(userA).expect(201).then(idCheck);
         console.log(`idA: ${idA}`);
 
@@ -46,35 +40,47 @@ describe('AppController (e2e)', () => {
         const idB = await request(srv).post('/user').send(userB).expect(201).then(idCheck);
         console.log(`idB: ${idB}`);
 
+        const authARes = await request(srv).post('/auth/login').send({
+            password: userA.user.password,
+            email: userA.user.email
+        });
+        const authA = {'Authorization': `Bearer ${authARes.body.access_token}`};
+        const authBRes = await request(srv).post('/auth/login').send({
+            password: userB.user.password,
+            email: userB.user.email
+        });
+        const authB = {'Authorization': `Bearer ${authBRes.body.access_token}`};
         // get both users back
-        const twoUsers = await request(srv).get('/user').expect(200)
+        const twoUsers = await request(srv)
+            .get('/user')
+            .set(authA)
+            .expect(200)
         expect(twoUsers.body).toHaveLength(2);
-
         // git an empty cabildo list
-        const emptyCabildos = await request(srv).get('/cabildo').expect(200)
+        const emptyCabildos = await request(srv).get('/cabildo').set(authA).expect(200)
         expect(emptyCabildos.body).toStrictEqual([]);
 
         // make a cabildo
         cabA.cabildo.admin = idA;
-        const idCab = await request(srv).post('/cabildo').send(cabA).expect(201).then(idCheck);
+        const idCab = await request(srv).post('/cabildo').set(authA).send(cabA).expect(201).then(idCheck);
         console.log(`idCab: ${idCab}`);
 
         // get a cabildo back
-        const oneCabildo = await request(srv).get('/cabildo').expect(200)
+        const oneCabildo = await request(srv).get('/cabildo').set(authA).expect(200)
         expect(oneCabildo.body).toHaveLength(1);
 
         // first user follows second user
-        const AfollowB = await request(srv).post('/user/followuser')
+        const AfollowB = await request(srv).post('/user/followuser').set(authA)
             .send({data:{follower: idA, followed: idB}}).expect(/now follows user/)
         console.log(`AfollowB`);
 
         // first user follows a cabildo
-        const AfollowC = await request(srv).post('/user/followcabildo')
+        const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
             .send({data:{follower: idA, followed: idCab}}).expect(/now follows cabildo/)
         console.log(`AfollowC`);
 
         // second user follows a cabildo
-        const BfollowC = await request(srv).post('/user/followcabildo')
+        const BfollowC = await request(srv).post('/user/followcabildo').set(authB)
             .send({data:{follower: idB, followed: idCab}}).expect(/now follows cabildo/)
         console.log(`BfollowC`);
 
@@ -93,15 +99,15 @@ describe('AppController (e2e)', () => {
         console.log("prepared activities");
 
         // post activites
-        const idActA = await request(srv).post('/activity').send(actA)
+        const idActA = await request(srv).post('/activity').set(authB).send(actA)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idActB = await request(srv).post('/activity').send(actB)
+        const idActB = await request(srv).post('/activity').set(authB).send(actB)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idActC = await request(srv).post('/activity').send(actC)
+        const idActC = await request(srv).post('/activity').set(authB).send(actC)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idActD = await request(srv).post('/activity').send(actD)
+        const idActD = await request(srv).post('/activity').set(authB).send(actD)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idActE = await request(srv).post('/activity').send(actE)
+        const idActE = await request(srv).post('/activity').set(authB).send(actE)
             .expect(201).then(idCheck).catch(err => done(err));
         console.log("posted activities");
 
@@ -129,41 +135,41 @@ describe('AppController (e2e)', () => {
         console.log("prepared comments");
 
         // post comments
-        const idComA0 = await request(srv).post('/comment').send(comA0)
+        const idComA0 = await request(srv).post('/comment').set(authB).send(comA0)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComA1 = await request(srv).post('/comment').send(comA1)
+        const idComA1 = await request(srv).post('/comment').set(authB).send(comA1)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComA2 = await request(srv).post('/comment').send(comA2)
+        const idComA2 = await request(srv).post('/comment').set(authB).send(comA2)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComB0 = await request(srv).post('/comment').send(comB0)
+        const idComB0 = await request(srv).post('/comment').set(authB).send(comB0)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComB1 = await request(srv).post('/comment').send(comB1)
+        const idComB1 = await request(srv).post('/comment').set(authB).send(comB1)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComB2 = await request(srv).post('/comment').send(comB2)
+        const idComB2 = await request(srv).post('/comment').set(authB).send(comB2)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComC0 = await request(srv).post('/comment').send(comC0)
+        const idComC0 = await request(srv).post('/comment').set(authB).send(comC0)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComC1 = await request(srv).post('/comment').send(comC1)
+        const idComC1 = await request(srv).post('/comment').set(authB).send(comC1)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComC2 = await request(srv).post('/comment').send(comC2)
+        const idComC2 = await request(srv).post('/comment').set(authB).send(comC2)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComD0 = await request(srv).post('/comment').send(comD0)
+        const idComD0 = await request(srv).post('/comment').set(authB).send(comD0)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComD1 = await request(srv).post('/comment').send(comD1)
+        const idComD1 = await request(srv).post('/comment').set(authB).send(comD1)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComD2 = await request(srv).post('/comment').send(comD2)
+        const idComD2 = await request(srv).post('/comment').set(authB).send(comD2)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComE0 = await request(srv).post('/comment').send(comE0)
+        const idComE0 = await request(srv).post('/comment').set(authB).send(comE0)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComE1 = await request(srv).post('/comment').send(comE1)
+        const idComE1 = await request(srv).post('/comment').set(authB).send(comE1)
             .expect(201).then(idCheck).catch(err => done(err));
-        const idComE2 = await request(srv).post('/comment').send(comE2)
+        const idComE2 = await request(srv).post('/comment').set(authB).send(comE2)
             .expect(201).then(idCheck).catch(err => done(err));
         console.log("posted comments");
 
         // post 100 replies
         for (let i = 0; i < 100; i++) {
-            await request(srv).post('/reply').send(
+            await request(srv).post('/reply').set(authA).send(
                 {
                     reply: {
                         idUser: idB,
@@ -176,10 +182,10 @@ describe('AppController (e2e)', () => {
         }
 
         // get activity feed for first user
-        const feedA = await request(srv).get(`/user/feed/${idA}`).expect(200);
+        const feedA = await request(srv).get(`/user/feed/${idA}`).set(authB).expect(200);
 
         // get activity feed for second user
-        const feedB = await request(srv).get(`/user/feed/${idB}`).expect(200);
+        const feedB = await request(srv).get(`/user/feed/${idB}`).set(authA).expect(200);
 
         // both are the same currently
         expect(feedA.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
@@ -189,42 +195,41 @@ describe('AppController (e2e)', () => {
         console.log(`idC: ${idC}`);
 
         // get a blank activity feed
-        const feedC = await request(srv).get(`/user/feed/${idC}`).expect(200)
+        const feedC = await request(srv).get(`/user/feed/${idC}`).set(authA).expect(200)
        // expect(feedC.body.activityFeed).toStrictEqual([]);
 
         // third user follows a cabildo
-        const CfollowC = await request(srv).post('/user/followcabildo')
+        const CfollowC = await request(srv).post('/user/followcabildo').set(authA)
             .send({data:{follower: idC, followed: idCab}}).expect(/now follows cabildo/)
         console.log(`CfollowC`);
 
         // get a populated activity feed
-        const feedC2 = await request(srv).get(`/user/feed/${idC}`).expect(200)
+        const feedC2 = await request(srv).get(`/user/feed/${idC}`).set(authA).expect(200)
         console.log("feedC");
         console.log(feedC.body);
 
         // Need to add activityFeed update when a user follows a cabildo or another user
         // to include the activities from that entity
         //expect(feedC2.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
-        const userFeedA = await request(srv).get(`/user/feed/${idA}`).expect(200);
+        const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
         console.log("userFeedA:");
         console.log(userFeedA.body);
-        const userFeedB = await request(srv).get(`/user/feed/${idB}`).expect(200);
+        const userFeedB = await request(srv).get(`/user/feed/${idB}`).set(authA).expect(200);
         console.log("userFeedB:");
         console.log(userFeedB.body);
-        const userHomeA = await request(srv).get(`/user/home/${idA}`).expect(200);
+        const userHomeA = await request(srv).get(`/user/home/${idA}`).set(authA).expect(200);
         console.log("userHomeA:");
         console.log(userHomeA.body);
-        const userHomeB = await request(srv).get(`/user/home/${idB}`).expect(200);
+        const userHomeB = await request(srv).get(`/user/home/${idB}`).set(authA).expect(200);
         console.log("userHomeB:");
         console.log(userHomeB.body);
-        const cabildoFeed = await request(srv).get(`/cabildo/feed/${idCab}`).expect(200);
+        const cabildoFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authA).expect(200);
         console.log("cabildoFeed:");
         console.log(cabildoFeed.body);
-        const publicFeed = await request(srv).get(`/activity/feed/public`).expect(200);
+        const publicFeed = await request(srv).get(`/activity/feed/public`).set(authA).expect(200);
         console.log("publicFeed:");
-        console.error(publicFeed);
+        console.log(publicFeed.body);
 
-        console.log("BlahB;adfafdsfsaF");
 //        expect(userFeed.body).toStrictEqual(cabildoFeed.body)
 //        expect(userFeed.body).toStrictEqual(publicFeed.body)
 //        expect(feedC2.body).toStrictEqual(publicFeed.body)
@@ -253,6 +258,7 @@ describe('AppController (e2e)', () => {
         // add a reply with bad fields -- model level
         // new user follows cabildo check if feed updates
         // add things with id's that reference the wrong kind of object
+        console.log("finished")
         done();
     });
 });
