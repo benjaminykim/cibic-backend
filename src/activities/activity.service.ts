@@ -5,15 +5,15 @@ import {
 } from '@nestjs/common';
 import { feedPopulate, activityPopulate, idFromToken } from '../constants'
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Callback, validateId } from '../utils';
+import mongoose from 'mongoose';
+import { validateId } from '../utils';
 //import { AuthService } from '../auth/auth.service';
 import { Activity } from './activity.schema';
 
 @Injectable()
 export class ActivityService {
     constructor(
-        @InjectModel('Activity') private readonly activityModel: Model<Activity>,
+        @InjectModel('Activity') private readonly activityModel: mongoose.Model<Activity>,
     ) {
     }
 
@@ -28,7 +28,6 @@ export class ActivityService {
         const result = await this.activityModel.findByIdAndUpdate(
             activityId,
             activity,
-            Callback
         );
         return result;
     }
@@ -38,12 +37,11 @@ export class ActivityService {
             idActivity,
             {
                 $inc: {
-                    pingNumber: 1,
+                    ping: 1,
                     commentNumber: 1,
                 },
                 $addToSet: { comments: idComment }
             },
-            Callback
         );
         return result;
     }
@@ -96,12 +94,11 @@ export class ActivityService {
             idActivity,
             {
                 $inc: {
-                    pingNumber: 1,
+                    ping: 1,
                     score: value,
                 },
                 $addToSet: { reactions: idReaction },
             },
-            Callback
         );
     }
 
@@ -118,7 +115,6 @@ export class ActivityService {
             {
                 $inc: { score: diff }
             },
-            Callback
         );
     }
 
@@ -131,14 +127,13 @@ export class ActivityService {
             idActivity,
             {
                 $inc: {
-                    pingNumber: -1,
+                    ping: -1,
                     score: -oldValue,
                 },
                 $pull: {
                     reactions: idReaction,
                 },
             },
-            Callback
         );
     }
 }

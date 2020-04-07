@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { userProfilePopulate, feedPopulate } from '../constants'
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
 const saltRounds = 10;
@@ -15,7 +15,7 @@ import { User } from './users.schema';
 
 @Injectable()
 export class UserService {
-    constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
+    constructor(@InjectModel('User') private readonly userModel: mongoose.Model<User>) {}
 
     private async callback (err, res) {
         if (err) {

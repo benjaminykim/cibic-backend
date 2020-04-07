@@ -4,7 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { CommentSchema } from './comment.schema';
 import { CommentService } from './comment.service';
 
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('CommentService', () => {

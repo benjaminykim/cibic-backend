@@ -1,22 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose from 'mongoose';
 
 import { Comment } from './comment.schema';
 
 @Injectable()
 export class CommentService {
     constructor(
-        @InjectModel('Comment') private readonly commentModel: Model<Comment>,
+        @InjectModel('Comment') private readonly commentModel: mongoose.Model<Comment>,
 	) {}
-
-    private async commentCallback(err: any, data: any) {
-        if (err) {
-            console.error(`Error with comment: ${err}`);
-        } else {
-//            console.log(`Success with comment: ${data}`);
-        }
-    }
 
     async insertComment(comment: Comment) {
         const newComment = new this.commentModel(comment);
@@ -28,7 +20,6 @@ export class CommentService {
         return await this.commentModel.findByIdAndUpdate(
             commentId,
             comment,
-            this.commentCallback
         );
     }
 
@@ -36,7 +27,6 @@ export class CommentService {
         return await this.commentModel.findByIdAndUpdate(
             idComment,
             { $push: { reply: idReply}}, // only called from insertReply, known to be unique
-            this.commentCallback
         );
     }
 
@@ -49,7 +39,7 @@ export class CommentService {
     }
 
     async deleteComment(idComment: string) {
-        const comment = await this.commentModel.findByIdAndDelete(idComment).exec(); //callback stuf here TODO SMONROE
+        const comment = await this.commentModel.findByIdAndDelete(idComment).exec();
         if (comment.n === 0) {
             throw new NotFoundException('Could not find comment.');
         }

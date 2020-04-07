@@ -4,7 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { ReplySchema } from './reply.schema';
 import { ReplyService } from './reply.service';
 
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('ReplyService', () => {

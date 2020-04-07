@@ -1,15 +1,15 @@
-import { Schema, Document } from 'mongoose';
+import mongoose from 'mongoose';
 
-export const CommentSchema = Schema({
-    _id: { type: Schema.Types.ObjectId, auto: true },
-    idUser: { type: Schema.Types.ObjectId, ref: 'User' },
+export const CommentSchema = new mongoose.Schema({
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+    idUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     publishDate: { type: Date, default: Date.now },
     content: { type: String, required: true},
     score: { type: Number, required: true, default: 0 },
-	reply: [{ type: Schema.Types.ObjectId, ref: 'Reply'}],
+	reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply'}],
 });
 
-export interface Comment extends Document {
+export interface Comment extends mongoose.Document {
 	idUser: object;
 	publishDate: number;
 	content: string;

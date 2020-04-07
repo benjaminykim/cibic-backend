@@ -14,7 +14,7 @@ import { CabildoService } from '../cabildos/cabildo.service';
 import { ReactionSchema } from './reaction/reaction.schema';
 import { ReactionService } from './reaction/reaction.service';
 
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('UserService', () => {

@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { cabildoProfilePopulate, feedPopulate } from '../constants';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose from 'mongoose';
 
 import { Cabildo } from './cabildo.schema';
 
 @Injectable()
 export class CabildoService {
-    constructor(@InjectModel('Cabildo') private readonly cabildoModel: Model<Cabildo>) {}
+    constructor(@InjectModel('Cabildo') private readonly cabildoModel: mongoose.Model<Cabildo>) {}
 
     private async callback(err: any, data: any) {
         if (err) {

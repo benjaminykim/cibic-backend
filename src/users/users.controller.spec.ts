@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import mongoose = require('mongoose');
+import mongoose from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
 const  { setupDB } = require('../../test/setupdb');
 

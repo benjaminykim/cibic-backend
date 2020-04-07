@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReactionService } from './reaction.service';
 import { ReactionSchema, Reaction } from './reaction.schema'
 import { getModelToken } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 const  { setupDB } = require('../../../test/setupdb');
 
 

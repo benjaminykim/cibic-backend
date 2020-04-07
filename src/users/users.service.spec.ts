@@ -6,7 +6,7 @@ import { UserSchema } from './users.schema';
 import { CabildoSchema } from '../cabildos/cabildo.schema';
 import { CabildoService } from '../cabildos/cabildo.service';
 
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('UserService', () => {

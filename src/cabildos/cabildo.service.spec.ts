@@ -4,7 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { CabildoSchema } from './cabildo.schema';
 import { CabildoService } from './cabildo.service';
 
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('UsersService', () => {

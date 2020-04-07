@@ -1,7 +1,6 @@
-import { Schema, Document } from 'mongoose';
+import mongoose from 'mongoose';
 
-
-export const UserSchema = new Schema({
+export const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
@@ -12,18 +11,18 @@ export const UserSchema = new Schema({
     phone: { type: Number, required: true },
     rut: { type: String }, /* Chilean dni */
     desc: { type: String },
-    cabildos: [{ type: Schema.Types.ObjectId, ref: 'Cabildo' }],
+    cabildos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cabildo' }],
     activityVotes: [{ type: String }],
     commentVotes: [{ type: String }],
     files: [{ type: String }],
-    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    activityFeed: [{ type: Schema.Types.ObjectId, ref: 'Activity' }],
-    followFeed: [{ type: Schema.Types.ObjectId, ref: 'Activity' }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    activityFeed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }],
+    followFeed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }],
     citizenPoints: {type: Number, default: 0},
 });
 
-export interface User extends Document {
+export interface User extends mongoose.Document {
     username: string;
     email: string;
     password: string;

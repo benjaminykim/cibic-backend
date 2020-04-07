@@ -38,4 +38,3 @@ lerna-debug.log*
 package-lock.json
 
 tsconfig.build.code-workspace
-tsconfig*

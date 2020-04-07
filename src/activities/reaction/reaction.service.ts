@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Callback, validateId } from '../../utils';
+import mongoose from 'mongoose';
+import { validateId } from '../../utils';
 import { ReactionSchema, Reaction } from './reaction.schema';
 
 @Injectable()
 export class ReactionService {
     constructor(
-        @InjectModel('Reaction') private readonly reactionModel: Model<Reaction>,
+        @InjectModel('Reaction') private readonly reactionModel: mongoose.Model<Reaction>,
     ) {
     }
 
@@ -23,20 +23,19 @@ export class ReactionService {
     }
 
     async getReaction(idReaction: string) {
-        return await this.reactionModel.findById(idReaction, Callback);
+        return await this.reactionModel.findById(idReaction);
     }
 
     async updateReaction(idReaction: string, value: number) {
-        const oldValue = await this.reactionModel.findById(idReaction, Callback)!;
+        const oldValue = await this.reactionModel.findById(idReaction);
         const success = await this.reactionModel.findByIdAndUpdate(
             idReaction,
             { value: value },
-            Callback,
         );
         return oldValue.value as number;
     }
 
     async deleteReaction(idReaction: string) {
-        return await this.reactionModel.findByIdAndDelete(idReaction, 'select value', Callback);
+        return await this.reactionModel.findByIdAndDelete(idReaction, 'select value');
     }
  }

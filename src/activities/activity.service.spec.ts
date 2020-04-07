@@ -4,7 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { ActivitySchema } from './activity.schema';
 import { ActivityService } from './activity.service';
 
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('UserService', () => {
