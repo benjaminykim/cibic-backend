@@ -12,7 +12,7 @@ DC_DIR=docker-compose
 
 if [ -z $1 ]; then
     echo -e $USAGE;
-elif [ $1 = "test" -o $1 = "e2e" -o $1 = "watche2e" ]; then
+elif [ $1 = "test" -o $1 = "e2e" -o $1 = "watche2e" -o $1 = "shell" ]; then
 	if [ $USER = "ubuntu" ]; then
 		echo "DO NOT RUN THIS ON EC2 IT WILL DESTROY THE DATABASE"
 		exit;

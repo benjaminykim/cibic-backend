@@ -25,6 +25,7 @@ export class UserController {
 
     @Post() // http://localhost:3000/user
     async addUser(@Body('user') user: User)
+
     {
         const generatedId = await this.userService.insertUser(user);
         return {id: generatedId};

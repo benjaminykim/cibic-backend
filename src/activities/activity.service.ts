@@ -3,10 +3,11 @@ import {
     NotFoundException,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { feedPopulate, activityPopulate } from '../constants'
+import { feedPopulate, activityPopulate, idFromToken } from '../constants'
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-
+import { Callback, validateId } from '../utils';
+//import { AuthService } from '../auth/auth.service';
 import { Activity } from './activity.schema';
 
 @Injectable()
@@ -14,14 +15,6 @@ export class ActivityService {
     constructor(
         @InjectModel('Activity') private readonly activityModel: Model<Activity>,
     ) {
-    }
-
-    private async activityCallback(err: any, data: any) {
-        if (err) {
-            console.error(`Error with activity: ${err}`);
-        } else {
-            //            console.log(`Success with activity: ${data}`);
-        }
     }
 
     async insertActivity(activity: Activity) {
@@ -35,7 +28,7 @@ export class ActivityService {
         const result = await this.activityModel.findByIdAndUpdate(
             activityId,
             activity,
-            this.activityCallback
+            Callback
         );
         return result;
     }
@@ -44,22 +37,25 @@ export class ActivityService {
         const result = await this.activityModel.findByIdAndUpdate(
             idActivity,
             {
-                $inc: {ping: 1},
+                $inc: {
+                    pingNumber: 1,
+                    commentNumber: 1,
+                },
                 $addToSet: { comments: idComment }
             },
-            this.activityCallback
+            Callback
         );
         return result;
     }
 
-    async getPublicFeed(limit: number = 20, offset: number = 0) { // list all activities
+    async getPublicFeed(idUser: string, limit: number = 20, offset: number = 0) { // list all activities
         let activities = await this.activityModel.find().skip(offset).limit(limit);
-        return await this.activityModel.populate(activities, activityPopulate);
+        return await this.activityModel.populate(activities, activityPopulate(idUser));
     }
 
-    async getActivityById(idActivity: string) {
+    async getActivityById(idUser: string, idActivity: string) {
         const activity = await this.activityModel.findById(idActivity);
-        return activity.populate(feedPopulate).execPopulate();
+        return await this.activityModel.populate(activity, activityPopulate(idUser));
     }
 
     async deleteActivity(idActivity: string) {
@@ -81,5 +77,68 @@ export class ActivityService {
             throw new NotFoundException('Could not find activity.');
         }
         return activity;
+    }
+
+    async exists(idActivity: string | object) {
+        await validateId(idActivity as string);
+        let it = await this.activityModel.exists({_id: idActivity});
+        if (!it)
+            throw new NotFoundException('Could not find reaction');
+    }
+
+    // Reaction Flow
+    async addReaction(
+        idActivity: string,
+        idReaction: string,
+        value: number,
+    ) {
+        return await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            {
+                $inc: {
+                    pingNumber: 1,
+                    score: value,
+                },
+                $addToSet: { reactions: idReaction },
+            },
+            Callback
+        );
+    }
+
+    async updateReaction(
+        idActivity: string,
+        idReaction: string,
+        oldValue: number,
+        newValue: number,
+    ) {
+        // undo first value, apply second, inc score by that result
+        const diff: number = newValue - oldValue;
+        return await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            {
+                $inc: { score: diff }
+            },
+            Callback
+        );
+    }
+
+    async deleteReaction(
+        idActivity: string,
+        idReaction: string,
+        oldValue: number,
+    ) {
+        return await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            {
+                $inc: {
+                    pingNumber: -1,
+                    score: -oldValue,
+                },
+                $pull: {
+                    reactions: idReaction,
+                },
+            },
+            Callback
+        );
     }
 }

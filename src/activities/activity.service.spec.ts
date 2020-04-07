@@ -30,10 +30,10 @@ describe('UserService', () => {
         it('should be defined', () => {
             expect(service).toBeDefined();
         });
-        it('should return empty set', () => {
-            return service.getPublicFeed()
-                .then(data => expect(data).toStrictEqual([]))
-                .catch(err => console.log(err));
-        });
+        // it('should return empty set', () => {
+        //     return service.getPublicFeed()
+        //         .then(data => expect(data).toStrictEqual([]))
+        //         .catch(err => console.log(err));
+        // });
     });
 });

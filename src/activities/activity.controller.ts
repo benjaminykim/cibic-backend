@@ -8,24 +8,29 @@ import {
     Delete,
     Put,
     UseGuards,
+    Headers,
     UnprocessableEntityException,
 } from '@nestjs/common';
 
 import { CabildoService } from '../cabildos/cabildo.service';
 import { UserService } from '../users/users.service';
+import { Reaction } from './reaction/reaction.schema';
+import { ReactionService } from './reaction/reaction.service';
 import { ActivityService } from './activity.service';
 import { Activity } from './activity.schema';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { idFromToken } from '../constants';
 
+@UseGuards(JwtAuthGuard)
 @Controller('activity') // http://localhost:3000/activity
 export class ActivityController {
     constructor(
         private readonly activityService: ActivityService,
+        private readonly reactionService: ReactionService,
         private readonly usersService: UserService,
         private readonly cabildoService: CabildoService,
     ) {}
 
-    @UseGuards(JwtAuthGuard)
     @Post()
     async addActivity(@Body('activity') activity: Activity) {
         await this.usersService.exists(activity.idUser.toString());
@@ -44,32 +49,69 @@ export class ActivityController {
         return { id: idActivity };
     }
 
-    @UseGuards(JwtAuthGuard)
     @Get('feed/public')
-    async getPublicFeed() {
-        const activities = await this.activityService.getPublicFeed();
-//        console.error(activities);
+    async getPublicFeed(
+        @Headers() h: any,
+    ) {
+        let idUser = idFromToken(h.authorization);
+        const activities = await this.activityService.getPublicFeed(idUser);
         return activities;
     }
 
-    @UseGuards(JwtAuthGuard)
     @Get(':id')
-    async getActivityById(@Param('id') activityId: string) {
-        return await this.activityService.getActivityById(activityId);
+    async getActivityById(
+        @Headers() h: any,
+        @Param('id') idActivity: string,
+    ) {
+        return await this.activityService.getActivityById(idFromToken(h.authorization), idActivity);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Post()
     async updateActivity(
-        @Body('activityid') activityId: string,
+        @Body('activityid') idActivity: string,
         @Body('activity') activity: Activity) {
-        return await this.activityService.updateActivity(activityId, activity);
+        return await this.activityService.updateActivity(idActivity, activity);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Delete(':id')
-    async deleteActivity(@Param('id') activityId: string) {
-        await this.activityService.deleteActivity(activityId);
+    async deleteActivity(@Param('id') idActivity: string) {
+        await this.activityService.deleteActivity(idActivity);
         return null;
+    }
+
+    // Reaction Flow
+
+    @Post('react')
+    async addReaction(
+        @Body('idActivity') idActivity: string,
+        @Body('reaction') reaction: Reaction,
+    ) {
+        await this.activityService.exists(idActivity);
+        const idReaction = await this.reactionService.addReaction(reaction);
+        await this.activityService.addReaction(idActivity, idReaction, reaction.value);
+        return {id: idReaction as string};
+    }
+
+    @Put('react')
+    async updateReaction(
+        @Body('idReaction') idReaction: string,
+        @Body('idActivity') idActivity: string,
+        @Body('value') newValue: number,
+    ) {
+        await this.reactionService.exists(idReaction);
+        await this.activityService.exists(idActivity);
+        let oldValue = await this.reactionService.updateReaction(idReaction, newValue);
+        await this.activityService.updateReaction(idActivity, idReaction, oldValue, newValue);
+    }
+
+    @Delete('react')
+    async deleteReaction(
+        @Body('idReaction') idReaction: string,
+        @Body('idActivity') idActivity: string,
+    ) {
+        await this.reactionService.exists(idReaction);
+        await this.activityService.exists(idActivity);
+        const oldReaction = await this.reactionService.deleteReaction(idReaction);
+        await this.activityService.deleteReaction(idActivity, idReaction, oldReaction);
     }
 }

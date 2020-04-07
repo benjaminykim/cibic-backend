@@ -11,6 +11,9 @@ import { UserSchema, User } from '../users/users.schema';
 import { CabildoSchema } from '../cabildos/cabildo.schema';
 import { CabildoService } from '../cabildos/cabildo.service';
 
+import { ReactionSchema } from './reaction/reaction.schema';
+import { ReactionService } from './reaction/reaction.service';
+
 import * as mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
@@ -22,12 +25,14 @@ describe('UserService', () => {
         let activityModel = mongoose.model('Activity', ActivitySchema);
         let userModel = mongoose.model('User', UserSchema);
         let cabildoModel = mongoose.model('Cabildo', CabildoSchema);
+        let reactionModel = mongoose.model('Reaction', ReactionSchema);
         const module: TestingModule = await Test.createTestingModule({
             controllers: [ActivityController],
             providers: [
                 ActivityService,
                 UserService,
                 CabildoService,
+                ReactionService,
                 {
                     provide: getModelToken('Activity'),
                     useValue: activityModel,
@@ -40,6 +45,10 @@ describe('UserService', () => {
                     provide: getModelToken('Cabildo'),
                     useValue: cabildoModel,
                 },
+                {
+                    provide: getModelToken('Reaction'),
+                    useValue: reactionModel,
+                },
             ],
         }).compile();
 
@@ -50,10 +59,10 @@ describe('UserService', () => {
         it('should be defined', () => {
             expect(controller).toBeDefined();
         });
-        it('should return empty set', () => {
-            return controller.getPublicFeed()
-                .then(data => expect(data).toStrictEqual([]))
-                .catch(err => console.log(err));
-        });
+        // it('should return empty set', () => {
+        //     return controller.getPublicFeed()
+        //         .then(data => expect(data).toStrictEqual([]))
+        //         .catch(err => console.log(err));
+        // });
     });
 });

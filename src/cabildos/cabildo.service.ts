@@ -59,10 +59,10 @@ export class CabildoService {
         return cabildo.populate(cabildoProfilePopulate).execPopulate;
     }
 
-    async getCabildoFeed(idCabildo: string) {
+    async getCabildoFeed(idCabildo: string, idUser: string) {
         let cabildo =  await this.cabildoModel
             .findById(idCabildo)
-            .populate(feedPopulate('activities', 20, 0))
+            .populate(feedPopulate('activities', idUser, 20, 0))
             .lean();
         return cabildo.activities;
     }

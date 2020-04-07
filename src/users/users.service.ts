@@ -150,7 +150,7 @@ export class UserService {
     async getFeed(idUser: string, limit: number = 20, offset: number = 0) {
         await this.exists(idUser);
         let feed = await this.userModel.findById(idUser)
-            .populate(feedPopulate('activityFeed', limit, offset))
+            .populate(feedPopulate('activityFeed', idUser, limit, offset))
             .lean() // return plain json object
         return feed && feed.activityFeed;
     }
@@ -158,7 +158,7 @@ export class UserService {
     async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
         await this.exists(idUser);
         let feed = await this.userModel.findById(idUser)
-            .populate(feedPopulate('followFeed', limit, offset))
+            .populate(feedPopulate('followFeed', idUser, limit, offset))
             .lean() // return plain json object
         return feed && feed.followFeed;
     }

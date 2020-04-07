@@ -1,14 +1,26 @@
+import { jwtConstants } from './auth/constants';
+import { JwtService } from '@nestjs/jwt';
+
+export function idFromToken(token: string) {
+    const body = new Buffer(token.split(' ')[1].split('.')[1], 'base64');
+    const json = JSON.parse(body.toString('ascii'));
+    return json.id as string;
+}
 
 const userPopulate = {// use for idUser field subpopulation
     path:'idUser',
     select:'_id username citizenPoints'
 };
 
-export const activityPopulate = [//use on any list of activity ids
+export const activityPopulate = (idUser: string) => ([//use on any list of activity ids
     userPopulate,
     { // info about cabildo posted to
         path: 'idCabildo',
         select: 'name _id',
+    },
+    {
+        path: 'reactions',
+        idUser: { $eq: { idUser, },},
     },
     { // first 100 comments
         path: 'comments',
@@ -28,15 +40,15 @@ export const activityPopulate = [//use on any list of activity ids
             },
         ],
     },
-]
+]);
 
-export const feedPopulate = (path: string, lim: number, off: number) => ({
+export const feedPopulate = (path: string, idUser: string, lim: number, off: number) => ({
     path: path,
     options: {
         limit: lim,
         offset: off,
     },
-    populate: activityPopulate,
+    populate: activityPopulate(idUser),
 });
 
 export const cabildoProfilePopulate = [// user for cabildo profile

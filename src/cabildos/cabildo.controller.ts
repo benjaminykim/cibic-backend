@@ -6,9 +6,12 @@ import {
     Param,
     Delete,
     UseGuards,
+    Req,
+    Request,
+    Headers
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
+import { idFromToken } from '../constants';
 import { Cabildo } from './cabildo.schema';
 import { CabildoService } from './cabildo.service';
 
@@ -44,8 +47,12 @@ export class CabildoController {
 
     @UseGuards(JwtAuthGuard)
     @Get('feed/:id') // http://localhost:3000/cabildo/feed/:id
-    async getCabildoFeed(@Param('id') cabildoId: string) {
-        return this.cabildosService.getCabildoFeed(cabildoId);
+    async getCabildoFeed(
+        @Headers() headers: any,
+        @Param('id') cabildoId: string,
+    ) {
+        let idUser = idFromToken(headers.authorization);
+        return this.cabildosService.getCabildoFeed(cabildoId, idUser);
     }
 
     @UseGuards(JwtAuthGuard)

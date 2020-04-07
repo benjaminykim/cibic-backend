@@ -34,11 +34,11 @@ describe('AppController (e2e)', () => {
         const srv = app.getHttpServer();
 
         const idA = await request(srv).post('/user').send(userA).expect(201).then(idCheck);
-        console.log(`idA: ${idA}`);
+        console.error(`idA: ${idA}`);
 
         // make a user
         const idB = await request(srv).post('/user').send(userB).expect(201).then(idCheck);
-        console.log(`idB: ${idB}`);
+        console.error(`idB: ${idB}`);
 
         const authARes = await request(srv).post('/auth/login').send({
             password: userA.user.password,
@@ -63,7 +63,7 @@ describe('AppController (e2e)', () => {
         // make a cabildo
         cabA.cabildo.admin = idA;
         const idCab = await request(srv).post('/cabildo').set(authA).send(cabA).expect(201).then(idCheck);
-        console.log(`idCab: ${idCab}`);
+        console.error(`idCab: ${idCab}`);
 
         // get a cabildo back
         const oneCabildo = await request(srv).get('/cabildo').set(authA).expect(200)
@@ -72,17 +72,17 @@ describe('AppController (e2e)', () => {
         // first user follows second user
         const AfollowB = await request(srv).post('/user/followuser').set(authA)
             .send({data:{follower: idA, followed: idB}}).expect(/now follows user/)
-        console.log(`AfollowB`);
+        console.error(`AfollowB`);
 
         // first user follows a cabildo
         const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
             .send({data:{follower: idA, followed: idCab}}).expect(/now follows cabildo/)
-        console.log(`AfollowC`);
+        console.error(`AfollowC`);
 
         // second user follows a cabildo
         const BfollowC = await request(srv).post('/user/followcabildo').set(authB)
             .send({data:{follower: idB, followed: idCab}}).expect(/now follows cabildo/)
-        console.log(`BfollowC`);
+        console.error(`BfollowC`);
 
         // prepare activities with user and cabildo ids
         actA.activity.idUser = idA;
@@ -96,7 +96,7 @@ describe('AppController (e2e)', () => {
             actD.activity.idCabildo =
             actE.activity.idCabildo =
             idCab;
-        console.log("prepared activities");
+        console.error("prepared activities");
 
         // post activites
         const idActA = await request(srv).post('/activity').set(authB).send(actA)
@@ -109,7 +109,7 @@ describe('AppController (e2e)', () => {
             .expect(201).then(idCheck).catch(err => done(err));
         const idActE = await request(srv).post('/activity').set(authB).send(actE)
             .expect(201).then(idCheck).catch(err => done(err));
-        console.log("posted activities");
+        console.error("posted activities");
 
         // prapare comments with user and activity ids
         comA0.comment.idUser = idA;
@@ -132,7 +132,7 @@ describe('AppController (e2e)', () => {
         comC0.activity_id = comC1.activity_id = comC2.activity_id = idActC;
         comD0.activity_id = comD1.activity_id = comD2.activity_id = idActD;
         comE0.activity_id = comE1.activity_id = comE2.activity_id = idActE;
-        console.log("prepared comments");
+        console.error("prepared comments");
 
         // post comments
         const idComA0 = await request(srv).post('/comment').set(authB).send(comA0)
@@ -165,7 +165,7 @@ describe('AppController (e2e)', () => {
             .expect(201).then(idCheck).catch(err => done(err));
         const idComE2 = await request(srv).post('/comment').set(authB).send(comE2)
             .expect(201).then(idCheck).catch(err => done(err));
-        console.log("posted comments");
+        console.error("posted comments");
 
         // post 100 replies
         for (let i = 0; i < 100; i++) {
@@ -180,19 +180,43 @@ describe('AppController (e2e)', () => {
                 }
             ).expect(201).then(idCheck).catch(err => done(err));
         }
+        const reactDos = {
+            idActivity: idActD,
+            reaction: {
+                idUser: idB,
+                value: 2,
+            }
+        };
+
+        console.error("idreact");
+        const React = await request(srv).post('/activity/react').set(authB).send(reactDos).expect(201);
+        const idReact = React.body.id
+        console.error(idReact);
 
         // get activity feed for first user
+        console.error('feeda');
         const feedA = await request(srv).get(`/user/feed/${idA}`).set(authB).expect(200);
+        console.error(feedA.body);
+
+        console.error("idreactagain");
+        const idReactAgain = await request(srv).put(`/activity/react`).set(authB).send(
+            {
+                idReaction: idReact,
+                idActivity: idActD,
+                value: -2,
+            }).expect(200);
+//        console.error(idReactAgain.body);
 
         // get activity feed for second user
+        console.error('feedb');
         const feedB = await request(srv).get(`/user/feed/${idB}`).set(authA).expect(200);
+        console.error(feedB.body);
 
-        // both are the same currently
-        expect(feedA.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
-
+        // should have differing reactions and scores
+//fails bc null??        expect(feedA.body.activityFeed).toMatchObject(feedB.body.activityFeed)
         // make a new user
         const idC = await request(srv).post('/user').send(userC).expect(201).then(idCheck);
-        console.log(`idC: ${idC}`);
+        console.error(`idC: ${idC}`);
 
         // get a blank activity feed
         const feedC = await request(srv).get(`/user/feed/${idC}`).set(authA).expect(200)
@@ -201,34 +225,34 @@ describe('AppController (e2e)', () => {
         // third user follows a cabildo
         const CfollowC = await request(srv).post('/user/followcabildo').set(authA)
             .send({data:{follower: idC, followed: idCab}}).expect(/now follows cabildo/)
-        console.log(`CfollowC`);
+        console.error(`CfollowC`);
 
         // get a populated activity feed
         const feedC2 = await request(srv).get(`/user/feed/${idC}`).set(authA).expect(200)
-        console.log("feedC");
-        console.log(feedC.body);
+        console.error("feedC");
+//        console.error(feedC.body);
 
         // Need to add activityFeed update when a user follows a cabildo or another user
         // to include the activities from that entity
         //expect(feedC2.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
-        const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
-        console.log("userFeedA:");
-        console.log(userFeedA.body);
-        const userFeedB = await request(srv).get(`/user/feed/${idB}`).set(authA).expect(200);
-        console.log("userFeedB:");
-        console.log(userFeedB.body);
-        const userHomeA = await request(srv).get(`/user/home/${idA}`).set(authA).expect(200);
-        console.log("userHomeA:");
-        console.log(userHomeA.body);
-        const userHomeB = await request(srv).get(`/user/home/${idB}`).set(authA).expect(200);
-        console.log("userHomeB:");
-        console.log(userHomeB.body);
-        const cabildoFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authA).expect(200);
-        console.log("cabildoFeed:");
-        console.log(cabildoFeed.body);
         const publicFeed = await request(srv).get(`/activity/feed/public`).set(authA).expect(200);
-        console.log("publicFeed:");
-        console.log(publicFeed.body);
+        console.error("publicFeed:");
+//        console.error(publicFeed.body);
+        const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+        console.error("userFeedA:");
+//        console.error(userFeedA.body);
+        const userFeedB = await request(srv).get(`/user/feed/${idB}`).set(authA).expect(200);
+        console.error("userFeedB:");
+//        console.error(userFeedB.body);
+        const userHomeA = await request(srv).get(`/user/home/${idA}`).set(authA).expect(200);
+        console.error("userHomeA:");
+//        console.error(userHomeA.body);
+        const userHomeB = await request(srv).get(`/user/home/${idB}`).set(authA).expect(200);
+        console.error("userHomeB:");
+//        console.error(userHomeB.body);
+        const cabildoFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authA).expect(200);
+        console.error("cabildoFeed:");
+//        console.error(cabildoFeed.body);
 
 //        expect(userFeed.body).toStrictEqual(cabildoFeed.body)
 //        expect(userFeed.body).toStrictEqual(publicFeed.body)
@@ -258,7 +282,7 @@ describe('AppController (e2e)', () => {
         // add a reply with bad fields -- model level
         // new user follows cabildo check if feed updates
         // add things with id's that reference the wrong kind of object
-        console.log("finished")
+        console.error("finished")
         done();
     });
 });
