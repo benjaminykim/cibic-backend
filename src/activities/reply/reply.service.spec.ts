@@ -5,7 +5,7 @@ import { ReplySchema } from './reply.schema';
 import { ReplyService } from './reply.service';
 
 import mongoose from 'mongoose';
-const  { setupDB } = require('../../test/setupdb');
+const  { setupDB } = require('../../../test/setupdb');
 
 describe('ReplyService', () => {
     setupDB('cibic', true);
@@ -29,11 +29,6 @@ describe('ReplyService', () => {
     describe('root', () => {
         it('should be defined', () => {
             expect(service).toBeDefined();
-        });
-        it('should return empty set', () => {
-            return service.getAllReplies()
-                .then(data => expect(data).toStrictEqual([]))
-                .catch(err => console.log(err));
         });
     });
 });

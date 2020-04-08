@@ -100,7 +100,7 @@ let comA0 = {
         content:"Igual tiene que agregar un dato importante que es la cobertura.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 };
 let comA1 = {
     comment: {
@@ -108,7 +108,7 @@ let comA1 = {
         content:"En la pag del Jumbo y del Lider dice que el despacho se puede demorar días por alta demanda.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 };
 let comA2 = {
     comment: {
@@ -116,7 +116,7 @@ let comA2 = {
         content:"Agregada la cobertura.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 };
 
 
@@ -139,7 +139,7 @@ let comB0 = {
         content:"Igual tiene que agregar un dato importante que es la cobertura.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 };
 let comB1 = {
     comment: {
@@ -147,7 +147,7 @@ let comB1 = {
         content:"En la pag del Jumbo y del Lider dice que el despacho se puede demorar días por alta demanda.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 };
 let comB2 = {
     comment: {
@@ -155,7 +155,7 @@ let comB2 = {
         content:"Agregada la cobertura.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 };
 
 let actC = {
@@ -178,7 +178,7 @@ let comC0 = {
         content:"chaturbate, cam4, samsoda.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 let comC1 = {
     comment: {
@@ -186,7 +186,7 @@ let comC1 = {
         content:"No es de Chile, pero encontré este hilo en twitter para desarrolladores dónde estan compartiendo datos y perfiles para trabajos remotos...",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 let comC2 = {
     comment: {
@@ -194,7 +194,7 @@ let comC2 = {
         content:"Me mandan una peguita xfa",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 let actD = {
     activity: {
@@ -216,7 +216,7 @@ let comD0 = {
         content:"chaturbate, cam4, samsoda.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 let comD1 = {
     comment: {
@@ -224,7 +224,7 @@ let comD1 = {
         content:"No es de Chile, pero encontré este hilo en twitter para desarrolladores dónde estan compartiendo datos y perfiles para trabajos remotos...",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 let comD2 = {
     comment: {
@@ -232,7 +232,7 @@ let comD2 = {
         content:"Me mandan una peguita xfa",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 let actE = {
     activity: {
@@ -254,7 +254,7 @@ let comE0 = {
         content:"Mi mamá se lo hizo, después nací yo (?)",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 let comE1 = {
     comment: {
@@ -262,7 +262,7 @@ let comE1 = {
         content:"De repente preguntando en la discusión random vas a obtener más respuestas.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 let comE2 = {
     comment: {
@@ -270,7 +270,7 @@ let comE2 = {
         content:"Creo que nunca he visto una ooforectomia sin alegar la “paridad cumplida” y este año por primera vez vi una histerectomia por temas de genero. Está difícil que te resulte sin esas condiciones xq los médicos asumen que tienes algún drama sicológico por pedirlo. No, no es chiste, lo he escuchado.",
         score: 0,
     },
-    activity_id: null,
+    idActivity: null,
 }
 
 let reply = {
@@ -279,7 +279,7 @@ let reply = {
         content: "REPLYTIME",
         score: 0,
     },
-    comment: null
+    idComment: null
 };
 
 export {

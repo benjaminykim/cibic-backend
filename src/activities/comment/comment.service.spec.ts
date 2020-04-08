@@ -5,7 +5,7 @@ import { CommentSchema } from './comment.schema';
 import { CommentService } from './comment.service';
 
 import mongoose from 'mongoose';
-const  { setupDB } = require('../../test/setupdb');
+const  { setupDB } = require('../../../test/setupdb');
 
 describe('CommentService', () => {
     setupDB('cibic', true);
@@ -29,11 +29,6 @@ describe('CommentService', () => {
     describe('root', () => {
         it('should be defined', () => {
             expect(service).toBeDefined();
-        });
-        it('should return empty set', () => {
-            return service.getAllComments()
-                .then(data => expect(data).toStrictEqual([]))
-                .catch(err => console.log(err));
         });
     });
 });

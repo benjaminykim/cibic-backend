@@ -13,14 +13,6 @@ import { Cabildo } from './cabildo.schema';
 export class CabildoService {
     constructor(@InjectModel('Cabildo') private readonly cabildoModel: mongoose.Model<Cabildo>) {}
 
-    private async callback(err: any, data: any) {
-        if (err) {
-            console.error(`Error with activity: ${err}`);
-        } else {
-            //            console.log(`Success with activity: ${data}`);
-        }
-    }
-
     async insertCabildo(cabildo: Cabildo) {
         const collision = await this.cabildoModel.exists({name: cabildo.name});
         if (collision)
@@ -78,7 +70,6 @@ export class CabildoService {
         return await this.cabildoModel.findByIdAndUpdate(
             idCabildo,
             { $addToSet: {members: idUser}},
-            this.callback
         );
     }
 
@@ -86,14 +77,13 @@ export class CabildoService {
         return await this.cabildoModel.findByIdAndUpdate(
             idCabildo,
             {$addToSet: {activities: idActivity}},
-            this.callback
         );
     }
 
     private async findCabildo(idCabildo: string) {
         let cabildo;
         try {
-            cabildo = await this.cabildoModel.findById(idCabildo).lean().exec();
+            cabildo = await this.cabildoModel.findById(idCabildo).exec();
         } catch (error) {
             throw new NotFoundException('Could not find cabildo.');
         }

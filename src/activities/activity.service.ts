@@ -17,6 +17,18 @@ export class ActivityService {
     ) {
     }
 
+    async incPing(idActivity: string, value: number) {
+        // Call this when an interaction requires change in ping
+        // But isn't already updating Activity Document
+        // Otherwise do this inline in query
+        return await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            { $inc: { ping: value }}
+        );
+    }
+
+    // Activity Flow
+
     async insertActivity(activity: Activity) {
         const newActivity = new this.activityModel(activity);
         const result = await newActivity.save();
@@ -24,10 +36,10 @@ export class ActivityService {
         return genId as string;
     }
 
-    async updateActivity(activityId: string, activity: Activity) {
+    async updateActivity(activityId: string, content: string) {
         const result = await this.activityModel.findByIdAndUpdate(
             activityId,
-            activity,
+            { test: content },
         );
         return result;
     }
@@ -77,14 +89,15 @@ export class ActivityService {
         return activity;
     }
 
-    async exists(idActivity: string | object) {
-        await validateId(idActivity as string);
+    async exists(idActivity: string) {
+        await validateId(idActivity);
         let it = await this.activityModel.exists({_id: idActivity});
         if (!it)
             throw new NotFoundException('Could not find reaction');
     }
 
     // Reaction Flow
+
     async addReaction(
         idActivity: string,
         idReaction: string,
@@ -108,7 +121,6 @@ export class ActivityService {
         oldValue: number,
         newValue: number,
     ) {
-        // undo first value, apply second, inc score by that result
         const diff: number = newValue - oldValue;
         return await this.activityModel.findByIdAndUpdate(
             idActivity,
@@ -132,6 +144,58 @@ export class ActivityService {
                 },
                 $pull: {
                     reactions: idReaction,
+                },
+            },
+        );
+    }
+
+    // Vote Flow
+    async addVote(
+        idActivity: string,
+        idVote: string,
+        value: number,
+    ) {
+        return await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            {
+                $inc: {
+                    ping: 1,
+                    score: value,
+                },
+                $addToSet: { votes: idVote },
+            },
+        );
+    }
+
+    async updateVote(
+        idActivity: string,
+        idVote: string,
+        oldValue: number,
+        newValue: number,
+    ) {
+        const diff: number = newValue - oldValue;
+        return await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            {
+                $inc: { score: diff }
+            },
+        );
+    }
+
+    async deleteVote(
+        idActivity: string,
+        idVote: string,
+        oldValue: number,
+    ) {
+        return await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            {
+                $inc: {
+                    ping: -1,
+                    score: -oldValue,
+                },
+                $pull: {
+                    votes: idVote,
                 },
             },
         );

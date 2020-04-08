@@ -6,10 +6,10 @@ import { AppService } from './app.service';
 import { UserModule } from './users/users.module';
 import { CabildoModule } from './cabildos/cabildo.module';
 import { ActivityModule } from './activities/activity.module';
-import { CommentModule } from './comments/comment.module';
+//import { CommentModule } from './comments/comment.module';
 import { AuthModule } from './auth/auth.module';
 
-import { ReplyModule } from './replies/reply.module';
+//import { ReplyModule } from './replies/reply.module';
 
 @Module({
     imports: [
@@ -24,8 +24,8 @@ import { ReplyModule } from './replies/reply.module';
         UserModule,
         CabildoModule,
         ActivityModule,
-        CommentModule,
-        ReplyModule,
+//        CommentModule,
+//        ReplyModule,
         AuthModule,
     ],
     controllers: [AppController],

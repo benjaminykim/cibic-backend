@@ -36,6 +36,6 @@ export class ReactionService {
     }
 
     async deleteReaction(idReaction: string) {
-        return await this.reactionModel.findByIdAndDelete(idReaction, 'select value');
+        return await this.reactionModel.findByIdAndDelete(idReaction);
     }
  }

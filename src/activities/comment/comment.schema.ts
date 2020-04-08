@@ -6,7 +6,7 @@ export const CommentSchema = new mongoose.Schema({
     publishDate: { type: Date, default: Date.now },
     content: { type: String, required: true},
     score: { type: Number, required: true, default: 0 },
-	reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply'}],
+    reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply'}],
 });
 
 export interface Comment extends mongoose.Document {

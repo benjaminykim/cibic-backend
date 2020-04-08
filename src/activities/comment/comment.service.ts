@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
+import { validateId } from '../../utils';
 import { Comment } from './comment.schema';
 
 @Injectable()
@@ -16,10 +17,10 @@ export class CommentService {
         return result.id as string;
     }
 
-    async updateComment(commentId: string, comment: Comment) {
+    async updateComment(commentId: string, content: string) {
         return await this.commentModel.findByIdAndUpdate(
             commentId,
-            comment,
+            { content: content },
         );
     }
 
@@ -28,10 +29,6 @@ export class CommentService {
             idComment,
             { $push: { reply: idReply}}, // only called from insertReply, known to be unique
         );
-    }
-
-    async getAllComments() { // list all comments
-        return await this.commentModel.find().exec();
     }
 
     async getCommentById(idComment: string) {
@@ -56,5 +53,62 @@ export class CommentService {
             throw new NotFoundException('Could not find comment.');
         }
         return comment;
+    }
+
+    async exists(idComment: string | object) {
+        await validateId(idComment as string);
+        let it = await this.commentModel.exists({_id: idComment});
+        if (!it)
+            throw new NotFoundException('Could not find comment');
+    }
+
+    // Vote Flow
+    async addVote(
+        idComment: string,
+        idVote: string,
+        value: number,
+    ) {
+        return await this.commentModel.findByIdAndUpdate(
+            idComment,
+            {
+                $inc: {
+                    score: value,
+                },
+                $addToSet: { votes: idVote },
+            },
+        );
+    }
+
+    async updateVote(
+        idComment: string,
+        idVote: string,
+        oldValue: number,
+        newValue: number,
+    ) {
+        const diff: number = newValue - oldValue;
+        return await this.commentModel.findByIdAndUpdate(
+            idComment,
+            {
+                $inc: { score: diff }
+            },
+        );
+    }
+
+    async deleteVote(
+        idComment: string,
+        idVote: string,
+        oldValue: number,
+    ) {
+        return await this.commentModel.findByIdAndUpdate(
+            idComment,
+            {
+                $inc: {
+                    score: -oldValue,
+                },
+                $pull: {
+                    votes: idVote,
+                },
+            },
+        );
     }
 }

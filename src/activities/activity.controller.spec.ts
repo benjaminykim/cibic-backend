@@ -11,13 +11,22 @@ import { UserSchema, User } from '../users/users.schema';
 import { CabildoSchema } from '../cabildos/cabildo.schema';
 import { CabildoService } from '../cabildos/cabildo.service';
 
+import { CommentService } from './comment/comment.service';
+import { CommentSchema } from './comment/comment.schema';
+
+import { ReplyService } from './reply/reply.service';
+import { ReplySchema } from './reply/reply.schema';
+
 import { ReactionSchema } from './reaction/reaction.schema';
 import { ReactionService } from './reaction/reaction.service';
+
+import { VoteSchema } from '../vote/vote.schema';
+import { VoteService } from '../vote/vote.service';
 
 import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UserService', () => {
+describe('ActivityController', () => {
     setupDB('cibic', true);
     let controller: ActivityController;
 
@@ -25,14 +34,20 @@ describe('UserService', () => {
         let activityModel = mongoose.model('Activity', ActivitySchema);
         let userModel = mongoose.model('User', UserSchema);
         let cabildoModel = mongoose.model('Cabildo', CabildoSchema);
+        let commentModel = mongoose.model('Comment', CommentSchema);
+        let replyModel = mongoose.model('Reply', ReplySchema);
         let reactionModel = mongoose.model('Reaction', ReactionSchema);
+        let voteModel = mongoose.model('Vote', VoteSchema);
         const module: TestingModule = await Test.createTestingModule({
             controllers: [ActivityController],
             providers: [
                 ActivityService,
                 UserService,
                 CabildoService,
+                CommentService,
+                ReplyService,
                 ReactionService,
+                VoteService,
                 {
                     provide: getModelToken('Activity'),
                     useValue: activityModel,
@@ -46,8 +61,20 @@ describe('UserService', () => {
                     useValue: cabildoModel,
                 },
                 {
+                    provide: getModelToken('Comment'),
+                    useValue: commentModel,
+                },
+                {
+                    provide: getModelToken('Reply'),
+                    useValue: replyModel,
+                },
+                {
                     provide: getModelToken('Reaction'),
                     useValue: reactionModel,
+                },
+                {
+                    provide: getModelToken('Vote'),
+                    useValue: voteModel,
                 },
             ],
         }).compile();

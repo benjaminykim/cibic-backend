@@ -17,15 +17,6 @@ import { User } from './users.schema';
 export class UserService {
     constructor(@InjectModel('User') private readonly userModel: mongoose.Model<User>) {}
 
-    private async callback (err, res) {
-        if (err) {
-            console.error(`Error: ${err}`);
-            throw new InternalServerErrorException();
-        } else {
-            //                console.log(`Success: ${res}`);
-        }
-    }
-
     private async validateId(id: string) {
         if (id.length == 24)
             return;
@@ -51,7 +42,6 @@ export class UserService {
 
     async insertUser(user: User) {
         let collision = await this.userModel.exists({email: user.email})
-            || await this.userModel.exists({rut: user.rut})
             || await this.userModel.exists({username: user.username});
         if (collision)
             throw new UnprocessableEntityException();
@@ -77,12 +67,10 @@ export class UserService {
         const first = await this.userModel.findByIdAndUpdate(
             idFollower,
             { $addToSet: {following: idFollowed}},
-            this.callback
         );
         const second = await this.userModel.findByIdAndUpdate(
             idFollowed,
             { $addToSet: {followers: idFollower}},
-            this.callback
         );
         if (!first || !second) {
             return false;
@@ -95,7 +83,6 @@ export class UserService {
         return await this.userModel.findByIdAndUpdate(
             idUser,
             { $addToSet: {cabildos: idCabildo}},
-            this.callback
         );
     }
 
@@ -110,7 +97,6 @@ export class UserService {
         return await this.userModel.findByIdAndUpdate(
             idUser,
             {$addToSet: {activityFeed: idActivity}},
-            this.callback
         );
     }
 
@@ -118,7 +104,6 @@ export class UserService {
         return await this.userModel.findByIdAndUpdate(
             idFollower,
             {$addToSet: {followFeed: idActivity}},
-            this.callback
         );
     }
 

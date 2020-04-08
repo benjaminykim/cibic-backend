@@ -34,13 +34,13 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @Get() // http://localhost:3000/user
     async getAllUsers() {
-        return this.userService.getUsers();
+        return await this.userService.getUsers();
     }
 
     @UseGuards(JwtAuthGuard)
     @Get(':id')
     async getUserProfile(@Param('id') id: string) {
-        return this.userService.getProfile(id);
+        return await this.userService.getProfile(id);
     }
 
     @UseGuards(JwtAuthGuard)

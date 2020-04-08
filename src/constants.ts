@@ -2,7 +2,7 @@ import { jwtConstants } from './auth/constants';
 import { JwtService } from '@nestjs/jwt';
 
 export function idFromToken(token: string) {
-    const body = new Buffer(token.split(' ')[1].split('.')[1], 'base64');
+    const body = Buffer.from(token.split(' ')[1].split('.')[1], 'base64');
     const json = JSON.parse(body.toString('ascii'));
     return json.id as string;
 }
