@@ -35,17 +35,9 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get()
-    async getUserProfile(
-        @Body('idUser') idUser: string,
-    ) {
-        return await this.userService.getProfile(idUser);
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Get('feed') // http://localhost:3000/user/feed/:idUser
+    @Get('feed/:idUser') // http://localhost:3000/user/feed/:idUser
     async getUserFeed(
-        @Body('idUser') idUser: string,
+        @Param('idUser') idUser: string,
     ) {
         return await this.userService.getFeed(idUser);
     }
@@ -57,6 +49,14 @@ export class UserController {
     ) {
         const idUser = idFromToken(headers.authorization);
         return await this.userService.getFollow(idUser);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':idUser')
+    async getUserProfile(
+        @Param('idUser') idUser: string,
+    ) {
+        return await this.userService.getProfile(idUser);
     }
 
     @UseGuards(JwtAuthGuard)

@@ -55,9 +55,27 @@ export class UserService {
         return idUser;
     }
 
-    async getUsers() { // only useful in testing
-        const users = await this.userModel.find().lean().exec();
-        return users.map(this.userView);
+    async getProfile(idUser: string) {
+        await this.exists(idUser);
+        return await this.userModel.findById(idUser)
+            .populate(userProfilePopulate)// get activities from user's feed list
+            .lean() // return plan json object
+    }
+
+    async getFeed(idUser: string, limit: number = 20, offset: number = 0) {
+        await this.exists(idUser);
+        let feed = await this.userModel.findById(idUser)
+            .populate(feedPopulate('activityFeed', idUser, limit, offset))
+            .lean() // return plain json object
+        return feed.activityFeed;
+    }
+
+    async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
+        await this.exists(idUser);
+        let feed = await this.userModel.findById(idUser)
+            .populate(feedPopulate('followFeed', idUser, limit, offset))
+            .lean() // return plain json object
+        return feed && feed.followFeed;
     }
 
     // update idFollower's activityFeed with query of idFollowed
@@ -107,6 +125,11 @@ export class UserService {
         );
     }
 
+    async getUserByEmail(email: string) {
+        const user = await this.userModel.findOne({ email });
+		    return user;
+	  }
+
     private async findUser(userId: string) {
         let user;
         try {
@@ -120,31 +143,4 @@ export class UserService {
         return user;
     }
 
-    async getUserByEmail(email: string) {
-        const user = await this.userModel.findOne({ email });
-		    return user;
-	  }
-
-    async getProfile(idUser: string) {
-        await this.exists(idUser);
-        return await this.userModel.findById(idUser)
-            .populate(userProfilePopulate)// get activities from user's feed list
-            .lean() // return plan json object
-    }
-
-    async getFeed(idUser: string, limit: number = 20, offset: number = 0) {
-        await this.exists(idUser);
-        let feed = await this.userModel.findById(idUser)
-            .populate(feedPopulate('activityFeed', idUser, limit, offset))
-            .lean() // return plain json object
-        return feed.activityFeed;
-    }
-
-    async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
-        await this.exists(idUser);
-        let feed = await this.userModel.findById(idUser)
-            .populate(feedPopulate('followFeed', idUser, limit, offset))
-            .lean() // return plain json object
-        return feed && feed.followFeed;
-    }
 }

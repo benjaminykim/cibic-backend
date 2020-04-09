@@ -6,6 +6,7 @@ import {
     Put,
     Delete,
     Body,
+    Param,
     Headers,
     UnprocessableEntityException,
 } from '@nestjs/common';
@@ -71,10 +72,10 @@ export class ActivityController {
         return activities;
     }
 
-    @Get()
+    @Get(':idActivity')
     async getActivityById(
         @Headers() h: any,
-        @Body('idActivity') idActivity: string,
+        @Param('idActivity') idActivity: string,
     ) {
         return await this.activityService.getActivityById(idFromToken(h.authorization), idActivity);
     }
@@ -142,9 +143,9 @@ export class ActivityController {
         return { id: idComment };
     }
 
-    @Get('comment')
+    @Get('comment/:idComment')
     async getCommentById(
-        @Body('idComment') idComment: string,
+        @Param('idComment') idComment: string,
     ) {
         return await this.commentService.getCommentById(idComment);
     }
@@ -160,8 +161,12 @@ export class ActivityController {
     @Delete('comment')
     async deleteComment(
         @Body('idComment') idComment: string,
+        @Body('idActivity') idActivity: string,
     ) {
+        if (!idComment || !idActivity)
+            throw new UnprocessableEntityException();
         await this.commentService.deleteComment(idComment);
+        await this.activityService.deleteComment(idComment, idActivity);
         return null;
     }
 
@@ -211,21 +216,23 @@ export class ActivityController {
     async addReply(
         @Headers() header: any,
         @Body('reply') reply: Reply,
+        @Body('idActivity') idActivity: string,
         @Body('idComment') idComment: string,
     ) {
-        await this.commentService.exists(idComment);
         const idUser = idFromToken(header.authorization);
-        if (!reply || !idComment || !idUser)
+        if (!reply || !idComment || !idActivity || !idUser)
             throw new UnprocessableEntityException();
+        await this.commentService.exists(idComment);
         reply.idUser = idUser;
         const idReply = await this.replyService.insertReply(reply);
         const comment = await this.commentService.reply(idComment, idReply);
+        await this.activityService.incPing(idActivity, 1);
         return { id: idReply };
     }
 
-    @Get('reply')
+    @Get('reply/:idReply')
     async getReplyById(
-        @Body('idReply') idReply: string,
+        @Param('idReply') idReply: string,
     ) {
         return await this.replyService.getReplyById(idReply);
     }
@@ -239,9 +246,11 @@ export class ActivityController {
 
     @Delete('reply')
     async deleteReply(
+        @Body('idActivity') idActivity: string,
         @Body('idReply') idReply: string,
     ) {
         await this.replyService.deleteReply(idReply);
+        await this.activityService.incPing(idActivity, -1);
         return null;
     }
 

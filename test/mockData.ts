@@ -89,15 +89,15 @@ let actA = {
         score: 0,
         ping: 0,
         commentNumber: 0,
-        title: "POR FAVOR, no vayan a Urgencias por puras webadas",
-        text: "Estudio medicina, ya estoy acostumbrado a la horda diaria de pacientes que consultan la urgencia de un HOSPITAL por webadas insignificantes de CERO urgencia médica. En un día normal, te prometo que no me importa que consultes porque te duele el pelo, la uña o el zapato. Te atenderé feliz y con las mejores ganas del planeta. Pero ahora no es un día normal. Estamos en una pandemia. Te duele un poco la guata? Te cayó mal la comida? Toma harta agua y quédate en la casa. Te duele la espalda? Te duele el tobillo?Tomate un paracetamol y quédate en la casa. Si te duele hace harto tiempo toma una hora al POLICLINICO (cuando se calmen las cosas) Tienes un poco de tos? Quédate en la casa y no salgas hasta que se te pase. No te van a hacer el test si no presentas contactos y solo es un cuadro leve. La Urgencia está reservada para paciente URGENTES. Dificultad respiratoria considerable, pacientes crónicos descompensados, accidentes de alto daño. Su tu condición no es grave, lo peor que puedes hacer es ir a urgencias. La sala de espera está lleno de pacientes enfermos y si no tenías el coronavirus antes probablemente ahí te lo pegues, aweonado. Eso, besitos.",
+        title: "Actvidad Uno",
+        text: "Content",
         comments: []
     }
 };
 let comA0 = {
     comment: {
         idUser: null,
-        content:"Igual tiene que agregar un dato importante que es la cobertura.",
+        content:"Comment",
         score: 0,
     },
     idActivity: null,

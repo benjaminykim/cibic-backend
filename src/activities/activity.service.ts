@@ -57,6 +57,19 @@ export class ActivityService {
         );
         return result;
     }
+    async deleteComment(idComment: string, idActivity) {
+        const result = await this.activityModel.findByIdAndUpdate(
+            idActivity,
+            {
+                $inc: {
+                    ping: -1,
+                    commentNumber: -1,
+                },
+                $pull: { comments: idComment }
+            },
+        );
+        return result;
+    }
 
     async getPublicFeed(idUser: string, limit: number = 20, offset: number = 0) { // list all activities
         let activities = await this.activityModel.find().skip(offset).limit(limit);

@@ -196,7 +196,7 @@ describe('AppController (e2e)', () => {
             // get activity feed for first user
             console.error('feeda');
             const feedA = await request(srv).get('/user/feed').set(authA)
-                  .send({idUser: idA}).expect(200);
+                .send({idUser: idA}).expect(200);
             //        console.error(feedA.body);
 
             console.error("idreactagain");
@@ -235,14 +235,14 @@ describe('AppController (e2e)', () => {
             const del1 = await request(srv).delete('/activity/vote').set(authA)
                 .send({idVote:res1.body.id,idActivity:idActA}).expect(200)
             console.error('p3');
-//            const publicFeed3 = await request(srv).get(`/activity/public`).set(authA).expect(200);
-//            console.error("publicFeed3:");
-//            console.error(publicFeed3.body[0]);
+            //            const publicFeed3 = await request(srv).get(`/activity/public`).set(authA).expect(200);
+            //            console.error("publicFeed3:");
+            //            console.error(publicFeed3.body[0]);
 
             // get activity feed for second user
             console.error('feedb');
-//            const feedB = await request(srv).get('/user/feed').set(authA)
-//                  .send({idUser: idB}).expect(200);
+            //            const feedB = await request(srv).get('/user/feed').set(authA)
+            //                  .send({idUser: idB}).expect(200);
             //        console.error(feedB.body);
 
             // should have differing reactions and scores
@@ -253,7 +253,7 @@ describe('AppController (e2e)', () => {
 
             // get a blank activity feed
             const feedC = await request(srv).get('/user/feed').set(authA)
-                  .send({idUser: idC}).expect(200)
+                .send({idUser: idC}).expect(200)
             // expect(feedC.body.activityFeed).toStrictEqual([]);
 
             // third user follows a cabildo
@@ -263,7 +263,7 @@ describe('AppController (e2e)', () => {
 
             // get a populated activity feed
             const feedC2 = await request(srv).get('/user/feed').set(authA)
-                  .send({idUser: idC}).expect(200)
+                .send({idUser: idC}).expect(200)
             console.error("feedC");
             //        console.error(feedC.body);
 
@@ -271,11 +271,11 @@ describe('AppController (e2e)', () => {
             // to include the activities from that entity
             //expect(feedC2.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
             const userFeedA = await request(srv).get('/user/feed').set(authA)
-                  .send({idUser: idA}).expect(200);
+                .send({idUser: idA}).expect(200);
             console.error("userFeedA:");
             console.error(userFeedA.body);
             const userFeedB = await request(srv).get('/user/feed').set(authA)
-                  .send({idUser: idB}).expect(200);
+                .send({idUser: idB}).expect(200);
             console.error("userFeedB:");
             console.error(userFeedB.body);
             const userHomeA = await request(srv).get(`/user/home/${idA}`).set(authA).expect(200);
@@ -362,7 +362,8 @@ describe('AppController (e2e)', () => {
                         content: 'This is a reply',
                         score: 0,
                     },
-                    idComment: idComA0
+                    idComment: idComA0,
+                    idActivity: idActA,
                 }
             ).expect(201).then(idCheck).catch(err => done(err));
 
@@ -378,28 +379,117 @@ describe('AppController (e2e)', () => {
                 .send(react).expect(201).then(idCheck);
 
             // An activity vote
-            const res1 = await request(srv).post('/activity/vote').set(authA)
-                .send({idActivity: idActA, vote: {idUser: idA, value: -1}}).expect(201)
-            const upd1 = await request(srv).put('/activity/vote').set(authA)
-                .send({idVote: res1.body.id, idActivity: idActA, value: 1}).expect(200)
-            //const del1 = await request(srv).delete('/activity/vote').set(authA)
-            //    .send({idVote: res1.body.id,idActivity: idActA}).expect(200)
+            const voteAct = await request(srv).post('/activity/vote').set(authA)
+                .send({idActivity: idActA, vote: {idUser: idA, value: 1}}).expect(201).then(idCheck);
 
             // A comment vote
             const voteComment = await request(srv).post('/activity/comment/vote').set(authA)
-                .send({idActivity: idActA,idComment: idComA0,vote:{idUser:idA,value:1}}).expect(201)
+                .send({idActivity: idActA,idComment: idComA0,vote:{idUser:idA,value:1}}).expect(201).then(idCheck);
 
             // A Reply Vote
             const voteReply = await request(srv).post('/activity/reply/vote').set(authA)
-                .send({idActivity: idActA,idReply: idReply, vote:{idUser:idA,value:1}}).expect(201)
+                .send({idActivity: idActA,idReply: idReply, vote:{idUser:idA,value:1}}).expect(201).then(idCheck);
+
+            {
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+                let act = userFeedA.body[0];
+                expect(act.ping).toBe(6);
+                expect(act.score).toBe(3);
+                expect(act.commentNumber).toBe(1);
+                expect(act.text).toBe('Content');
+                expect(act.comments).toHaveLength(1);
+                let com = act.comments[0];
+                expect(com.score).toBe(1);
+                expect(com.reply).toHaveLength(1);
+                expect(com.content).toBe('Comment');
+                let rep = com.reply[0];
+                expect(rep.score).toBe(1);
+                expect(rep.content).toBe('This is a reply');
+            }
+
+            const upAct = await request(srv).put('/activity').set(authA).send({idActivity:idActA,content:'Update'}).expect(200);
+            const upCom = await request(srv).put('/activity/comment').set(authA).send({idComment:idComA0,content:'Update'}).expect(200);
+            const upRep = await request(srv).put('/activity/reply').set(authA).send({idReply:idReply,content:'Update'}).expect(200);
+            const upRea = await request(srv).put('/activity/react').set(authA).send({idReaction:idReact,idActivity:idActA,value:-2}).expect(200);
+            const upVotAct = await request(srv).put('/activity/vote').set(authA).send({idVote:voteAct,idActivity:idActA,value:-1}).expect(200);
+            const upVotCom = await request(srv).put('/activity/comment/vote').set(authA).send({idVote:voteComment,idComment:idComA0,value:-1}).expect(200);
+            const upVotRep = await request(srv).put('/activity/reply/vote').set(authA).send({idVote:voteReply,idReply:idReply,value:-1}).expect(200);
+
+            {
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+                let act = userFeedA.body[0];
+                expect(act.ping).toBe(6);
+                expect(act.score).toBe(-3);
+                expect(act.text).toBe('Update');
+                expect(act.comments).toHaveLength(1);
+                let com = act.comments[0];
+                expect(com.score).toBe(-1);
+                expect(com.reply).toHaveLength(1);
+                expect(com.content).toBe('Update');
+                let rep = com.reply[0];
+                expect(rep.score).toBe(-1);
+                expect(rep.content).toBe('Update');
+            }
+            const delReact = await request(srv).delete('/activity/react').set(authA).send({idActivity:idActA,idReaction:idReact}).expect(200);
+            const delActVote = await request(srv).delete('/activity/vote').set(authA).send({idActivity:idActA,idVote:voteAct}).expect(200);
+            const delComVote = await request(srv).delete('/activity/comment/vote').set(authA).send({idActivity:idActA,idComment:idComA0,idVote:voteComment}).expect(200);
+            const delRepVote = await request(srv).delete('/activity/reply/vote').set(authA).send({idActivity:idActA,idReply:idReply,idVote:voteReply}).expect(200);
+
+            {
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+                let act = userFeedA.body[0];
+                expect(act.ping).toBe(2);
+                expect(act.score).toBe(0);
+                expect(act.text).toBe('Update');
+                expect(act.comments).toHaveLength(1);
+                let com = act.comments[0];
+                expect(com.score).toBe(0);
+                expect(com.reply).toHaveLength(1);
+                expect(com.content).toBe('Update');
+                let rep = com.reply[0];
+                expect(rep.score).toBe(0);
+                expect(rep.content).toBe('Update');
+            }
+
+            const delRep = await request(srv).delete('/activity/reply').set(authA).send({idActivity: idActA,idReply:idReply}).expect(200);
+            {
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+                let act = userFeedA.body[0];
+                expect(act.ping).toBe(1);
+                expect(act.score).toBe(0);
+                expect(act.text).toBe('Update');
+                expect(act.comments).toHaveLength(1);
+                let com = act.comments[0];
+                expect(com.score).toBe(0);
+                expect(com.reply).toHaveLength(0);
+                expect(com.content).toBe('Update');
+            }
+            const delCom = await request(srv).delete('/activity/comment').set(authA).send({idActivity: idActA,idComment:idComA0}).expect(200);
+            {
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+                let act = userFeedA.body[0];
+                expect(act.ping).toBe(0);
+                expect(act.score).toBe(0);
+                expect(act.commentNumber).toBe(0);
+                expect(act.text).toBe('Update');
+                expect(act.comments).toHaveLength(0);
+            }
+            const delAct = await request(srv).delete('/activity').set(authA).send({idActivity: idActA}).expect(200);
+            {
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+                expect(userFeedA.body).toHaveLength(0);
+
+            }
+            // const del1 = await request(srv).delete('/activity/vote').set(authA)
+            //     .send({idVote: res1.body.id,idActivity: idActA}).expect(200)
 
             // Feeds from each entity
-            const userFeedA = await request(srv).get('/user/feed').set(authA)
-                .send({idUser: idA}).expect(200);
-            const userFeedB = await request(srv).get('/user/feed').set(authB)
-                .send({idUser: idB}).expect(200);
-            const cabildoFeed = await request(srv).get('/cabildo/feed').set(authA)
-                .send({idCabildo: idCab}).expect(200);
+            // const userFeedA = await request(srv).get('/user/feed').set(authA)
+            //     .send({idUser: idA}).expect(200);
+            // const userFeedB = await request(srv).get('/user/feed').set(authB)
+            //     .send({idUser: idB}).expect(200);
+            // const cabildoFeed = await request(srv).get('/cabildo/feed').set(authA)
+            //     .send({idCabildo: idCab}).expect(200);
 
             // This just shows full expanded contents of userFeedA
             // expect(userFeedB.body).toMatchObject(userFeedA.body);

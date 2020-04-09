@@ -2,6 +2,7 @@ import {
     Controller,
     Post,
     Body,
+    Param,
     Get,
     Delete,
     UseGuards,
@@ -34,25 +35,25 @@ export class CabildoController {
         return await this.cabildoService.getAllCabildos();
     }
 
-    @Get('check') // http://localhost:3000/cabildo/check/:name
+    @Get('check/:cabildoName') // http://localhost:3000/cabildo/check/:name
     async checkCabildoName(
-        @Body('cabildoName') cabildoName: string,
+        @Param('cabildoName') cabildoName: string,
     ) {
         return await this.cabildoService.checkCabildoName(cabildoName);
     }
 
-    @Get('feed') // http://localhost:3000/cabildo/feed/:id
+    @Get('feed/:idCabildo') // http://localhost:3000/cabildo/feed/:id
     async getCabildoFeed(
         @Headers() headers: any,
-        @Body('idCabildo') idCabildo: string,
+        @Param('idCabildo') idCabildo: string,
     ) {
         const idUser = idFromToken(headers.authorization);
         return this.cabildoService.getCabildoFeed(idCabildo, idUser);
     }
 
-    @Get('profile') // http://localhost:3000/cabildo/:id
+    @Get('profile/:idCabildo') // http://localhost:3000/cabildo/:id
     async getCabildoProfile(
-        @Body('idCabildo') idCabildo: string,
+        @Param('idCabildo') idCabildo: string,
     ) {
         return this.cabildoService.getCabildoProfile(idCabildo);
     }
