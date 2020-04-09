@@ -24,7 +24,7 @@ export interface Cabildo extends mongoose.Document {
     name: string;
     members: object[];
     moderators: object[];
-    admin: object;
+    admin: object | string;
     location: string;
     desc: string;
     issues: string[];

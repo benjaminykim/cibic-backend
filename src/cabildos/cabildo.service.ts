@@ -13,6 +13,10 @@ import { Cabildo } from './cabildo.schema';
 export class CabildoService {
     constructor(@InjectModel('Cabildo') private readonly cabildoModel: mongoose.Model<Cabildo>) {}
 
+    async checkCabildoName(cabildoName: string) { return await this.cabildoModel.exists({name: cabildoName}); }
+    async getCabildoAdmin(idCabildo: string) { return await this.cabildoModel.findById(idCabildo, 'id'); }
+    async exists(idCabildo: string) { return await this.cabildoModel.exists({_id: idCabildo}); }
+
     async insertCabildo(cabildo: Cabildo) {
         const collision = await this.cabildoModel.exists({name: cabildo.name});
         if (collision)
@@ -20,10 +24,6 @@ export class CabildoService {
         const newCabildo = new this.cabildoModel(cabildo)
         const result = await newCabildo.save();
         return result.id as string;
-    }
-
-    async checkCabildoName(cabildoName: string) {
-        return await this.cabildoModel.exists({name: cabildoName});
     }
 
     async getAllCabildos() {
@@ -40,10 +40,6 @@ export class CabildoService {
             meetings: data.meetings,
             files: data.files,
         }));
-    }
-
-    async exists(idCabildo: string) {
-        return await this.cabildoModel.exists({_id: idCabildo});
     }
 
     async getCabildoProfile(idCabildo: string) {
@@ -69,14 +65,22 @@ export class CabildoService {
     async addUser(idCabildo: string, idUser) {
         return await this.cabildoModel.findByIdAndUpdate(
             idCabildo,
-            { $addToSet: {members: idUser}},
+            {
+                $addToSet: {
+                    members: idUser
+                },
+            },
         );
     }
 
     async pushToFeed(idCabildo: string, idActivity: string) {
         return await this.cabildoModel.findByIdAndUpdate(
             idCabildo,
-            {$addToSet: {activities: idActivity}},
+            {
+                $addToSet: {
+                    activities: idActivity
+                },
+            },
         );
     }
 

@@ -137,7 +137,7 @@ export class UserService {
         let feed = await this.userModel.findById(idUser)
             .populate(feedPopulate('activityFeed', idUser, limit, offset))
             .lean() // return plain json object
-        return feed && feed.activityFeed;
+        return feed.activityFeed;
     }
 
     async getFollow(idUser: string, limit: number = 20, offset: number = 0) {

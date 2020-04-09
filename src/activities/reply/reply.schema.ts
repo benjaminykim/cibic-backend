@@ -6,11 +6,13 @@ export const ReplySchema = new mongoose.Schema({
     publishDate: { type: Date, default: Date.now },
     content: { type: String, required: true},
     score: { type: Number, required: true, default: 0 },
+    votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Vote'}],
 });
 
 export interface Reply extends mongoose.Document {
-	idUser: object;
-	publishDate: object;
-	content: string;
-	score: number;
+    idUser: object | string;
+    publishDate: object;
+    content: string;
+    score: number;
+    votes: object[];
 }

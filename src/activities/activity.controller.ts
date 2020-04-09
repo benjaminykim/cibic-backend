@@ -209,11 +209,15 @@ export class ActivityController {
 
     @Post('reply')
     async addReply(
+        @Headers() header: any,
         @Body('reply') reply: Reply,
         @Body('idComment') idComment: string,
     ) {
-        if (!reply || !idComment)
+        await this.commentService.exists(idComment);
+        const idUser = idFromToken(header.authorization);
+        if (!reply || !idComment || !idUser)
             throw new UnprocessableEntityException();
+        reply.idUser = idUser;
         const idReply = await this.replyService.insertReply(reply);
         const comment = await this.commentService.reply(idComment, idReply);
         return { id: idReply };

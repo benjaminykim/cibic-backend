@@ -1,10 +1,15 @@
 import { jwtConstants } from './auth/constants';
 import { JwtService } from '@nestjs/jwt';
+import { ForbiddenException } from '@nestjs/common';
 
 export function idFromToken(token: string) {
+    if (!token)
+        throw new ForbiddenException();
     const body = Buffer.from(token.split(' ')[1].split('.')[1], 'base64');
-    const json = JSON.parse(body.toString('ascii'));
-    return json.id as string;
+    const idUser = JSON.parse(body.toString('ascii')).id;
+    if (idUser.length != 24)
+        throw new ForbiddenException();
+    return idUser as string;
 }
 
 const userPopulate = {// use for idUser field subpopulation
@@ -12,16 +17,24 @@ const userPopulate = {// use for idUser field subpopulation
     select:'_id username citizenPoints'
 };
 
+const votePopulate = idUser => ({ // to get a user's vote
+    path: 'votes',
+    match: {
+        idUser: idUser,
+    },
+});
+
 export const activityPopulate = (idUser: string) => ([//use on any list of activity ids
     userPopulate,
     { // info about cabildo posted to
         path: 'idCabildo',
         select: 'name _id',
     },
-    {
+    { // the reaction of the user
         path: 'reactions',
-        idUser: { $eq: { idUser, },},
+        match: { idUser: idUser },
     },
+    votePopulate(idUser),
     { // first 100 comments
         path: 'comments',
         options: {
@@ -30,13 +43,17 @@ export const activityPopulate = (idUser: string) => ([//use on any list of activ
         },
         populate: [
             userPopulate,
+            votePopulate(idUser),
             { // top ten replies
                 path: 'reply',
                 options: {
                     limit: 10,
                     sort: 'field -score',
                 },
-                populate: userPopulate,
+                populate: [
+                    userPopulate,
+                    votePopulate(idUser),
+                ],
             },
         ],
     },

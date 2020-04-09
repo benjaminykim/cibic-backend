@@ -6,15 +6,18 @@ import {
     Delete,
     Body,
     Param,
+    Headers,
     UseGuards,
-    NotFoundException
+    NotFoundException,
+    UnprocessableEntityException,
 } from '@nestjs/common';
 
 import { CabildoService } from '../cabildos/cabildo.service';
 import { UserService } from './users.service';
-import { User, Following } from './users.schema';
+import { User } from './users.schema';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { idFromToken } from '../constants';
 
 @Controller('user') // http://localhost:3000/user
 export class UserController {
@@ -32,57 +35,66 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get() // http://localhost:3000/user
-    async getAllUsers() {
-        return await this.userService.getUsers();
+    @Get()
+    async getUserProfile(
+        @Body('idUser') idUser: string,
+    ) {
+        return await this.userService.getProfile(idUser);
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get(':id')
-    async getUserProfile(@Param('id') id: string) {
-        return await this.userService.getProfile(id);
+    @Get('feed') // http://localhost:3000/user/feed/:idUser
+    async getUserFeed(
+        @Body('idUser') idUser: string,
+    ) {
+        return await this.userService.getFeed(idUser);
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get('feed/:id') // http://localhost:3000/user/feed/:idUser
-    async getUserFeed(@Param('id') id: string) {
-        return await this.userService.getFeed(id);
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Get('home/:id') // http://localhost:3000/
-    async getUserHome(@Param('id') id: string) {
-        return await this.userService.getFollow(id);
+    @Get('home') // http://localhost:3000/
+    async getUserHome(
+        @Headers() headers: any,
+    ) {
+        const idUser = idFromToken(headers.authorization);
+        return await this.userService.getFollow(idUser);
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('followcabildo') // http://localhost:3000/user/followcabildo
-    async followCabildo(@Body('data') user: Following) {
-        if (!user || !user.follower || !user.followed) {
-            return 'bad cabildo following data\n'
+    async followCabildo(
+        @Headers() h: any,
+        @Body('idCabildo') idCabildo: string,
+    ) {
+        const idUser = idFromToken(h.authorization);
+        if (!idUser || !idCabildo) {
+            // Throw http exception here TODO
+            throw new UnprocessableEntityException();
         }
-        await this.userService.exists(user.follower);
-        await this.cabildoService.exists(user.followed);
+        await this.userService.exists(idUser);
+        await this.cabildoService.exists(idCabildo);
 
-        const follower = await this.userService.followCabildo(user.follower, user.followed);
-        const followed = await this.cabildoService.addUser(user.followed, user.follower);
+        const follower = await this.userService.followCabildo(idUser, idCabildo);
+        const followed = await this.cabildoService.addUser(idCabildo, idUser);
         if (follower && followed) {
-            return `user ${user.follower} now follows cabildo ${user.followed}`;
+            return `user ${idUser} now follows cabildo ${idCabildo}`;
         }
-
-        return "that user cannot follow that cabildo"
+        throw new UnprocessableEntityException();
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('followuser') // http://localhost:3000/user/followuser
-    async followUser(@Body('data') user: Following) {
-        if (!user || !user.follower || !user.followed) {
-            return 'bad user following data\n'
+    async followUser(
+        @Headers() h: any,
+        @Body('idUser') idOther: string,
+    ) {
+        const idUser = idFromToken(h.authorization);
+        if (!idUser || !idOther) {
+            throw new UnprocessableEntityException();
         }
-        const success = await this.userService.followUser(user.follower, user.followed);
+        const success = await this.userService.followUser(idUser, idOther);
         if (success) {
-            return `user ${user.follower} now follows user ${user.followed}: ${success}`;
+            return `user ${idUser} now follows user ${idOther}: ${success}`;
         }
-        return "that user cannot follow that user"
+        throw new UnprocessableEntityException();
     }
 }

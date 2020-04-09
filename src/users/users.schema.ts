@@ -43,8 +43,3 @@ export interface User extends mongoose.Document {
     followFeed: object[];
     citizenPoints: number;
 }
-
-export interface Following extends Document {
-    follower: string;
-    followed: string;
-}

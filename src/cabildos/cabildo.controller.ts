@@ -3,62 +3,73 @@ import {
     Post,
     Body,
     Get,
-    Param,
     Delete,
     UseGuards,
-    Req,
-    Request,
-    Headers
+    Headers,
+    ForbiddenException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { idFromToken } from '../constants';
 import { Cabildo } from './cabildo.schema';
 import { CabildoService } from './cabildo.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('cabildo') // http://localhost:3000/cabildo
 export class CabildoController {
-    constructor(private readonly cabildosService: CabildoService) {}
+    constructor(private readonly cabildoService: CabildoService) {}
 
-    @UseGuards(JwtAuthGuard)
     @Post() // http://localhost:3000/cabildo
-    async addCabildo(@Body('cabildo') cabildo: Cabildo
+    async addCabildo(
+        @Headers() headers: any,
+        @Body('cabildo') cabildo: Cabildo,
     ) {
-        const generatedId = await this.cabildosService.insertCabildo(cabildo);
+        const idUser = idFromToken(headers.authorization);
+        cabildo.admin = idUser;
+        const generatedId = await this.cabildoService.insertCabildo(cabildo);
         return { id: generatedId };
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get('check/:name') // http://localhost:3000/cabildo/check/:name
-    async checkCabildoName(@Param('name') cabildoName: string) {
-        return await this.cabildosService.checkCabildoName(cabildoName);
-    }
-
-    @UseGuards(JwtAuthGuard)
     @Get() // http://localhost:3000/cabildo
     async getAllCabildos() {
-        return await this.cabildosService.getAllCabildos();
+        return await this.cabildoService.getAllCabildos();
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get(':id') // http://localhost:3000/cabildo/:id
-    async getCabildoProfile(@Param('id') cabildoId: string) {
-        return this.cabildosService.getCabildoProfile(cabildoId);
+    @Get('check') // http://localhost:3000/cabildo/check/:name
+    async checkCabildoName(
+        @Body('cabildoName') cabildoName: string,
+    ) {
+        return await this.cabildoService.checkCabildoName(cabildoName);
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get('feed/:id') // http://localhost:3000/cabildo/feed/:id
+    @Get('feed') // http://localhost:3000/cabildo/feed/:id
     async getCabildoFeed(
         @Headers() headers: any,
-        @Param('id') cabildoId: string,
+        @Body('idCabildo') idCabildo: string,
     ) {
-        let idUser = idFromToken(headers.authorization);
-        return this.cabildosService.getCabildoFeed(cabildoId, idUser);
+        const idUser = idFromToken(headers.authorization);
+        return this.cabildoService.getCabildoFeed(idCabildo, idUser);
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Delete(':id') // http://localhost:3000/cabildo/:id
-    async deleteCabildo(@Param('id') cabildoId: string) {
-        await this.cabildosService.deleteCabildo(cabildoId);
-        return null;
+    @Get('profile') // http://localhost:3000/cabildo/:id
+    async getCabildoProfile(
+        @Body('idCabildo') idCabildo: string,
+    ) {
+        return this.cabildoService.getCabildoProfile(idCabildo);
+    }
+
+    @Delete() // http://localhost:3000/cabildo/:id
+    async deleteCabildo(
+        @Headers() headers: any,
+        @Body('idCabildo') idCabildo: string,
+    ) {
+        // We'll have to pull other data, like this id from other lists, and transfer activities to global maybe
+        // Big design choice here
+        const idUser = idFromToken(headers.authorization);
+        const idAdmin = (await this.cabildoService.getCabildoAdmin(idCabildo))._id;
+        console.error(idUser);
+        console.error(idAdmin);
+        if (idUser !== idAdmin)
+            throw new ForbiddenException('You are not the admin of this cabildo');
+        await this.cabildoService.deleteCabildo(idCabildo);
     }
 }
