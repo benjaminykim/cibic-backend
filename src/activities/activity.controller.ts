@@ -25,7 +25,7 @@ import { Reaction } from './reaction/reaction.schema';
 import { Vote } from '../vote/vote.schema';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { idFromToken } from '../constants';
+import { idFromToken } from '../utils';
 
 @UseGuards(JwtAuthGuard)
 @Controller('activity') // http://localhost:3000/activity

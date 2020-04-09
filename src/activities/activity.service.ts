@@ -3,7 +3,7 @@ import {
     NotFoundException,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { feedPopulate, activityPopulate, idFromToken } from '../constants'
+import { feedPopulate, activityPopulate } from '../constants'
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { validateId } from '../utils';
@@ -39,7 +39,7 @@ export class ActivityService {
     async updateActivity(activityId: string, content: string) {
         const result = await this.activityModel.findByIdAndUpdate(
             activityId,
-            { test: content },
+            { text: content },
         );
         return result;
     }

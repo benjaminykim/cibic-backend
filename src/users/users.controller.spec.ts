@@ -63,9 +63,6 @@ describe('UserController', () => {
         it('should be defined', () => {
             expect(controller).toBeDefined();
         });
-        it('should get empty set', () => {
-            return controller.getAllUsers().then(data => expect(data).toStrictEqual([]));
-        });
         it('shouldn`t find an invalid idUser', () => {
             return controller.getUserProfile("4c6d7a6a5")
                 .catch(err => expect(err).toBeInstanceOf(NotFoundException));
@@ -76,7 +73,7 @@ describe('UserController', () => {
 
         });
         it('should create a user, then find that user', async (done) => {
-            const data = await controller.addUser(mockUser);//.then(data => {
+            const data = await controller.addUser(mockUser);
             expect(data.id).toHaveLength(24);
             const again = await controller.getUserProfile(data.id);
             again._id = again._id.toString();

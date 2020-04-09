@@ -9,7 +9,7 @@ import {
     ForbiddenException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { idFromToken } from '../constants';
+import { idFromToken } from '../utils';
 import { Cabildo } from './cabildo.schema';
 import { CabildoService } from './cabildo.service';
 

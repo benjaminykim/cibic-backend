@@ -402,7 +402,7 @@ describe('AppController (e2e)', () => {
                 .send({idCabildo: idCab}).expect(200);
 
             // This just shows full expanded contents of userFeedA
-             expect(userFeedB.body).toMatchObject(userFeedA.body);
+            // expect(userFeedB.body).toMatchObject(userFeedA.body);
 
             // Goodbye!
             done();

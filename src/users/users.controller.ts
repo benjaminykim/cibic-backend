@@ -17,7 +17,7 @@ import { UserService } from './users.service';
 import { User } from './users.schema';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { idFromToken } from '../constants';
+import { idFromToken } from '../utils';
 
 @Controller('user') // http://localhost:3000/user
 export class UserController {
