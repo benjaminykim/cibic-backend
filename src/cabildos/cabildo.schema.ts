@@ -8,7 +8,7 @@ const MeetingSchema = new mongoose.Schema({
 });
 
 export const CabildoSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: true, index: true },
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // at least 1
     moderators: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // at least 1
     admin: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

@@ -36,9 +36,9 @@ export class ActivityService {
         return genId as string;
     }
 
-    async updateActivity(activityId: string, content: string) {
+    async updateActivity(idActivity: string, content: string) {
         const result = await this.activityModel.findByIdAndUpdate(
-            activityId,
+            idActivity,
             { text: content },
         );
         return result;

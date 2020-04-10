@@ -5,7 +5,7 @@ export const CommentSchema = new mongoose.Schema({
     idUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     publishDate: { type: Date, default: Date.now },
     content: { type: String, required: true},
-    score: { type: Number, required: true, default: 0 },
+    score: { type: Number, required: true, default: 0, index: true },
     votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Vote'}],
     reply: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply'}],
 });

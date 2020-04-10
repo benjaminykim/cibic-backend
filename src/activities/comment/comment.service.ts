@@ -17,9 +17,9 @@ export class CommentService {
         return result.id as string;
     }
 
-    async updateComment(commentId: string, content: string) {
+    async updateComment(idComment: string, content: string) {
         return await this.commentModel.findByIdAndUpdate(
-            commentId,
+            idComment,
             { content: content },
         );
     }
