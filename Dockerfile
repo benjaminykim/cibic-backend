@@ -2,7 +2,7 @@ FROM node:12.16.1-alpine
 WORKDIR /app
 
 COPY . /app
-RUN if [ "$DEPLOY_ENV" = "testing" ]; \
+RUN if [ "$DEPLOY_ENV" = "development" ]; \
 	then	apk add git; \
 		    npm install -g jest; \
 	fi; \
