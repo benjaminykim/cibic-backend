@@ -72,8 +72,15 @@ export class ActivityService {
     }
 
     async getPublicFeed(idUser: string, limit: number = 20, offset: number = 0) { // list all activities
+//        console.error("reentry");
         let activities = await this.activityModel.find().skip(offset).limit(limit);
-        return await this.activityModel.populate(activities, activityPopulate(idUser));
+//        console.error(activities[0]);
+//        console.error("returning inner");
+        let query = activityPopulate(idUser);
+//        console.error(query);
+        let ret = await this.activityModel.populate(activities, query);
+//        console.error(ret)
+        return ret;
     }
 
     async getActivityById(idUser: string, idActivity: string) {

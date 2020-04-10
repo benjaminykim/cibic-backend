@@ -7,8 +7,8 @@ import { ActivityService } from './activity.service';
 import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UserService', () => {
-    setupDB('cibic', true);
+describe('ActivityService', () => {
+    setupDB('test', true);
     let service: ActivityService;
 
     beforeEach(async () => {

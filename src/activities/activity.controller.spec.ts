@@ -27,7 +27,7 @@ import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('ActivityController', () => {
-    setupDB('cibic', true);
+    setupDB('test', true);
     let controller: ActivityController;
 
     beforeEach(async () => {

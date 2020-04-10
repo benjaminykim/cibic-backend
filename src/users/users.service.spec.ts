@@ -10,7 +10,7 @@ import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
 describe('UserService', () => {
-    setupDB('cibic', true);
+    setupDB('test', true);
     let userService: UserService;
 
     beforeEach(async () => {
@@ -37,12 +37,6 @@ describe('UserService', () => {
     describe('root', () => {
         it('should be defined', () => {
             expect(userService).toBeDefined();
-        });
-        it('should return empty set', () => {
-            return userService.getUsers()
-
-                .then(data => expect(data).toStrictEqual([]))
-                .catch(err => console.log(err));
         });
     });
 });

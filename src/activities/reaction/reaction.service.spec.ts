@@ -7,7 +7,7 @@ const  { setupDB } = require('../../../test/setupdb');
 
 
 describe('ReactionService', () => {
-    setupDB('cibic', true);
+    setupDB('test', true);
     let service: ReactionService;
 
     beforeEach(async () => {

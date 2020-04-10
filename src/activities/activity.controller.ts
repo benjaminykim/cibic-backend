@@ -49,9 +49,7 @@ export class ActivityController {
     ) {
         await this.usersService.exists(activity.idUser.toString());
         if (activity.idCabildo) {
-            if (!(await this.cabildoService.exists(activity.idCabildo.toString()))) {
-                throw new UnprocessableEntityException();
-            }
+            await this.cabildoService.exists(activity.idCabildo.toString());
         }
         const idActivity = await this.activityService.insertActivity(activity);
         const user = await this.usersService.pushToFeed(activity.idUser.toString(), idActivity);
@@ -67,8 +65,12 @@ export class ActivityController {
     async getPublicFeed(
         @Headers() h: any,
     ) {
+//        console.error("Entry");
         let idUser = idFromToken(h.authorization);
+//        console.error("authed");
         const activities = await this.activityService.getPublicFeed(idUser);
+//        console.error("returning");
+//        console.error(activities[0]);
         return activities;
     }
 
@@ -77,20 +79,28 @@ export class ActivityController {
         @Headers() h: any,
         @Param('idActivity') idActivity: string,
     ) {
-        return await this.activityService.getActivityById(idFromToken(h.authorization), idActivity);
+        const idUser = idFromToken(h.authorization);
+        if (!idUser || !idActivity)
+            throw new UnprocessableEntityException();
+        await this.activityService.exists(idActivity);
+        return await this.activityService.getActivityById(idUser, idActivity);
     }
 
     @Put()
     async updateActivity(
         @Body('idActivity') idActivity: string,
-        @Body('content') activity: string) {
-        return await this.activityService.updateActivity(idActivity, activity);
+        @Body('content') content: string) {
+        if (!idActivity || !content)
+            throw new UnprocessableEntityException();
+        return await this.activityService.updateActivity(idActivity, content);
     }
 
     @Delete()
     async deleteActivity(
         @Body('idActivity') idActivity: string,
     ) {
+        if (!idActivity)
+            throw new UnprocessableEntityException();
         await this.activityService.deleteActivity(idActivity);
         return null;
     }

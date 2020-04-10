@@ -5,6 +5,7 @@ import {
     InternalServerErrorException,
 } from '@nestjs/common';
 import { userProfilePopulate, feedPopulate } from '../constants'
+import { validateId } from '../utils';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -16,12 +17,6 @@ import { User } from './users.schema';
 @Injectable()
 export class UserService {
     constructor(@InjectModel('User') private readonly userModel: mongoose.Model<User>) {}
-
-    private async validateId(id: string) {
-        if (id.length == 24)
-            return;
-        throw new NotFoundException();
-    }
 
     private userView = data => ({
         id: data._id,
@@ -45,7 +40,7 @@ export class UserService {
             || await this.userModel.exists({username: user.username});
         if (collision)
             throw new UnprocessableEntityException();
-        const idUser = await bcrypt.hash(user.password, saltRounds)
+        const idUser = bcrypt.hash(user.password, saltRounds)
             .then(async hash => {
                 user.password = hash;
                 const newUser = new this.userModel(user);
@@ -105,7 +100,7 @@ export class UserService {
     }
 
     async exists(idUser: string) {
-        await this.validateId(idUser);
+        await validateId(idUser);
         let it = await this.userModel.exists({_id: idUser});
         if (!it)
             throw new NotFoundException('Could not find user.');

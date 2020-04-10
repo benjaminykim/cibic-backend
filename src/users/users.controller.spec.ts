@@ -12,7 +12,7 @@ import { CabildoSchema } from '../cabildos/cabildo.schema';
 import { CabildoService } from '../cabildos/cabildo.service';
 
 describe('UserController', () => {
-    setupDB('cibic', true);
+    setupDB('test', true);
     let controller: UserController;
     let mockUser: User = {
         username: "smonroe",

@@ -7,7 +7,7 @@ const  { setupDB } = require('../../test/setupdb');
 
 
 describe('VoteService', () => {
-    setupDB('cibic', true);
+    setupDB('test', true);
     let service: VoteService;
 
     beforeEach(async () => {

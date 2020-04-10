@@ -4,9 +4,8 @@ import {
 } from '@nestjs/common';
 
 export async function validateId(id: string) {
-    if (id.length == 24)
-        return;
-    throw new NotFoundException('Could not find entity');
+    if (!id || id.length !== 24 || id.indexOf('/') !== -1)
+        throw new NotFoundException('Could not find entity');
 }
 import {  } from '@nestjs/common';
 

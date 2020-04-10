@@ -4,6 +4,7 @@ import {
     InternalServerErrorException,
 } from '@nestjs/common';
 import { cabildoProfilePopulate, feedPopulate } from '../constants';
+import { validateId } from '../utils';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
@@ -15,7 +16,13 @@ export class CabildoService {
 
     async checkCabildoName(cabildoName: string) { return await this.cabildoModel.exists({name: cabildoName}); }
     async getCabildoAdmin(idCabildo: string) { return await this.cabildoModel.findById(idCabildo, 'id'); }
-    async exists(idCabildo: string) { return await this.cabildoModel.exists({_id: idCabildo}); }
+
+    async exists(idCabildo: string) {
+        await validateId(idCabildo);
+        let it = await this.cabildoModel.exists({_id: idCabildo});
+        if (!it)
+            throw new NotFoundException('Could not find cabildo.');
+    }
 
     async insertCabildo(cabildo: Cabildo) {
         const collision = await this.cabildoModel.exists({name: cabildo.name});
@@ -44,7 +51,7 @@ export class CabildoService {
 
     async getCabildoProfile(idCabildo: string) {
         const cabildo = await this.findCabildo(idCabildo);
-        return cabildo.populate(cabildoProfilePopulate).execPopulate;
+        return cabildo.populate(cabildoProfilePopulate).execPopulate();
     }
 
     async getCabildoFeed(idCabildo: string, idUser: string) {

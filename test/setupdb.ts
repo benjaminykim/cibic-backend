@@ -54,7 +54,7 @@ module.exports = {
     // Disconnect Mongoose
     afterAll(async () => {
       await dropAllCollections();
-      await mongoose.connection.close();
+//      await mongoose.connection.close();
     });
   }
 };

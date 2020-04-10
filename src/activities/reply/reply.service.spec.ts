@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 const  { setupDB } = require('../../../test/setupdb');
 
 describe('ReplyService', () => {
-    setupDB('cibic', true);
+    setupDB('test', true);
     let service: ReplyService;
 
     beforeEach(async () => {

@@ -7,8 +7,8 @@ import { CabildoService } from './cabildo.service';
 import mongoose from 'mongoose';
 const  { setupDB } = require('../../test/setupdb');
 
-describe('UsersService', () => {
-    setupDB('cibic', true);
+describe('CabildoService', () => {
+    setupDB('test', true);
     let cabildoService: CabildoService;
 
     beforeEach(async () => {
