@@ -77,7 +77,8 @@ export class UserService {
         let feeds = [...user['cabildos'], ...user['following']];
         let nested = feeds.map(obj => obj.activityFeed);
         let feed = [].concat.apply([], nested);
-        return feed;
+        let finalSet = [...new Set(feed)];
+        return finalSet;
     }
 
     // update idFollower's activityFeed with query of idFollowed
