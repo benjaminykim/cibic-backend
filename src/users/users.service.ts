@@ -71,10 +71,13 @@ export class UserService {
 
     async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
         await this.exists(idUser);
-        let feed = await this.userModel.findById(idUser)
+        let user = await this.userModel.findById(idUser)
             .populate(followPopulate(idUser, limit, offset))
             .lean() // return plain json object
-        return feed && feed.followFeed;
+        let cabs = [...user['cabildos']];
+        let fols = [...user['following']];
+        let feed = [...cabs['activities'], ...fols['activityFeed']];
+        return feed;
     }
 
     // update idFollower's activityFeed with query of idFollowed
