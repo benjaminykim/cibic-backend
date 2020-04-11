@@ -97,4 +97,43 @@ export class UserController {
         }
         throw new UnprocessableEntityException();
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('unfollowcabildo') // http://localhost:3000/user/followcabildo
+    async unfollowCabildo(
+        @Headers() h: any,
+        @Body('idCabildo') idCabildo: string,
+    ) {
+        const idUser = idFromToken(h.authorization);
+        if (!idUser || !idCabildo) {
+            // Throw http exception here TODO
+            throw new UnprocessableEntityException();
+        }
+        await this.userService.exists(idUser);
+        await this.cabildoService.exists(idCabildo);
+
+        const follower = await this.userService.unfollowCabildo(idUser, idCabildo);
+        const followed = await this.cabildoService.removeUser(idCabildo, idUser);
+        if (follower && followed) {
+            return `user ${idUser} no longer follows cabildo ${idCabildo}`;
+        }
+        throw new UnprocessableEntityException();
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('unfollowuser') // http://localhost:3000/user/followuser
+    async unfollowUser(
+        @Headers() h: any,
+        @Body('idUser') idOther: string,
+    ) {
+        const idUser = idFromToken(h.authorization);
+        if (!idUser || !idOther) {
+            throw new UnprocessableEntityException();
+        }
+        const success = await this.userService.unfollowUser(idUser, idOther);
+        if (success) {
+            return `user ${idUser} no longer follows user ${idOther}`;
+        }
+        throw new UnprocessableEntityException();
+    }
 }

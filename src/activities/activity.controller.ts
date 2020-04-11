@@ -53,10 +53,8 @@ export class ActivityController {
         }
         const idActivity = await this.activityService.insertActivity(activity);
         const user = await this.usersService.pushToFeed(activity.idUser.toString(), idActivity);
-        user.followers.forEach(async idFollower => await this.usersService.pushToFollow(idFollower, idActivity));
         if (activity.idCabildo) {
             const cabildo = await this.cabildoService.pushToFeed(activity.idCabildo.toString(), idActivity);
-            cabildo.members.forEach(async idUser => await this.usersService.pushToFollow(idUser, idActivity));
         }
         return { id: idActivity };
     }
@@ -65,12 +63,8 @@ export class ActivityController {
     async getPublicFeed(
         @Headers() h: any,
     ) {
-//        console.error("Entry");
         let idUser = idFromToken(h.authorization);
-//        console.error("authed");
         const activities = await this.activityService.getPublicFeed(idUser);
-//        console.error("returning");
-//        console.error(activities[0]);
         return activities;
     }
 

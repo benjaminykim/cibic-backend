@@ -48,6 +48,33 @@ export const activityPopulate = (idUser: string) => ([//use on any list of activ
     },
 ]);
 
+export const followPopulate = (idUser: string, lim: number, off: number) => ([
+    {
+        path: 'following',
+        populate: {
+            path: 'activityFeed',
+            option: {
+                limit: lim,
+                offset: off,
+                sort: 'ping',
+            },
+            populate: activityPopulate(idUser),
+        },
+    },
+    {
+        path: 'cabildos',
+        populate: {
+            path: 'activities',
+            options: {
+                limit: lim,
+                offset: off,
+                sort: 'ping',
+            },
+            populate: activityPopulate(idUser),
+        },
+    },
+]);
+
 export const feedPopulate = (path: string, idUser: string, lim: number, off: number) => ({
     path: path,
     options: {

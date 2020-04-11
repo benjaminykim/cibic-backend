@@ -4,7 +4,11 @@ import {
     UnprocessableEntityException,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { userProfilePopulate, feedPopulate } from '../constants'
+import {
+    userProfilePopulate,
+    feedPopulate,
+    followPopulate,
+} from '../constants'
 import { validateId } from '../utils';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
@@ -68,7 +72,7 @@ export class UserService {
     async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
         await this.exists(idUser);
         let feed = await this.userModel.findById(idUser)
-            .populate(feedPopulate('followFeed', idUser, limit, offset))
+            .populate(followPopulate(idUser, limit, offset))
             .lean() // return plain json object
         return feed && feed.followFeed;
     }
@@ -88,7 +92,6 @@ export class UserService {
         if (!first || !second) {
             return false;
         }
-        // populate feed
         return true;
     }
 
@@ -96,6 +99,30 @@ export class UserService {
         return await this.userModel.findByIdAndUpdate(
             idUser,
             { $addToSet: {cabildos: idCabildo}},
+        );
+    }
+
+    // update idFollower's activityFeed with query of idFollowed
+    async unfollowUser(idFollower: string, idFollowed: string) {
+        await this.exists(idFollower);
+        await this.exists(idFollowed);
+        const first = await this.userModel.findByIdAndUpdate(
+            idFollower,
+            { $pull: {following: idFollowed}},
+        );
+        const second = await this.userModel.findByIdAndUpdate(
+            idFollowed,
+            { $pull: {followers: idFollower}},
+        );
+        if (!first || !second) {
+            return false;
+        }
+        return true;
+    }
+    async unfollowCabildo(idUser: string, idCabildo: string) {
+        return await this.userModel.findByIdAndUpdate(
+            idUser,
+            { $pull: {cabildos: idCabildo}},
         );
     }
 

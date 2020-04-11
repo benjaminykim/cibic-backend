@@ -80,6 +80,17 @@ export class CabildoService {
         );
     }
 
+    async removeUser(idCabildo: string, idUser) {
+        return await this.cabildoModel.findByIdAndUpdate(
+            idCabildo,
+            {
+                $pull: {
+                    members: idUser
+                },
+            },
+        );
+    }
+
     async pushToFeed(idCabildo: string, idActivity: string) {
         return await this.cabildoModel.findByIdAndUpdate(
             idCabildo,
