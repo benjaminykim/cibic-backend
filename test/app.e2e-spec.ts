@@ -338,7 +338,7 @@ describe('AppController (e2e)', () => {
             const AfollowB = await request(srv).post('/user/followuser').set(authA)
                 .send({idUser: idB}).expect(/now follows user/)
             // Second user follows cabildo
-            const BfollowC = await request(srv).post('/user/followcabildo').set(authB)
+            const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
                 .send({idCabildo: idCab}).expect(/now follows cabildo/)
 
             // An activity
@@ -346,6 +346,11 @@ describe('AppController (e2e)', () => {
             actA.activity.idCabildo = idCab;
             const idActA = await request(srv).post('/activity').set(authA).send(actA)
                 .expect(201).then(idCheck).catch(err => done(err));
+//second activity
+//            actB.activity.idUser = idA;
+//            actB.activity.idCabildo = idCab;
+//            const idActB = await request(srv).post('/activity').set(authA).send(actB)
+//                .expect(201).then(idCheck).catch(err => done(err));
 
             // A comment
             comA0.comment.idUser = idA;
@@ -422,7 +427,9 @@ describe('AppController (e2e)', () => {
                 .send({idVote:voteReply,idReply:idReply,value:-1}).expect(200);
 
             {
-                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+//                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+                const userFeedA = await request(srv).get(`/user/home`).set(authA).expect(200);
+//                console.log(userFeedA.body);
                 let act = userFeedA.body[0];
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(-3);
@@ -567,5 +574,6 @@ describe('AppController (e2e)', () => {
             // Goodbye!
             done();
         }
+
     });
 });

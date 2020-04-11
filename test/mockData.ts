@@ -78,7 +78,7 @@ let cabA = {
         issues: [],
         meetings: [],
         files: [],
-        activities: []
+        activityFeed: []
     }
 };
 let actA = {

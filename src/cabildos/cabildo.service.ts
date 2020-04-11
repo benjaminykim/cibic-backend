@@ -57,9 +57,9 @@ export class CabildoService {
     async getCabildoFeed(idCabildo: string, idUser: string) {
         let cabildo =  await this.cabildoModel
             .findById(idCabildo)
-            .populate(feedPopulate('activities', idUser, 20, 0))
+            .populate(feedPopulate('activityFeed', idUser, 20, 0))
             .lean();
-        return cabildo.activities;
+        return cabildo.activityFeed;
     }
 
     async deleteCabildo(idCabildo: string) {
@@ -96,7 +96,7 @@ export class CabildoService {
             idCabildo,
             {
                 $addToSet: {
-                    activities: idActivity
+                    activityFeed: idActivity
                 },
             },
         );

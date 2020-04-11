@@ -74,9 +74,9 @@ export class UserService {
         let user = await this.userModel.findById(idUser)
             .populate(followPopulate(idUser, limit, offset))
             .lean() // return plain json object
-        let cabs = [...user['cabildos']];
-        let fols = [...user['following']];
-        let feed = [...cabs['activities'], ...fols['activityFeed']];
+        let feeds = [...user['cabildos'], ...user['following']];
+        let nested = feeds.map(obj => obj.activityFeed);
+        let feed = [].concat.apply([], nested);
         return feed;
     }
 

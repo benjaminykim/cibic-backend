@@ -17,7 +17,7 @@ export const CabildoSchema = new mongoose.Schema({
     issues: [{ type: String, required: true }],
     meetings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' }],
     files: [{ type: String, required: true }],
-    activities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }],
+    activityFeed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }],
 });
 
 export interface Cabildo extends mongoose.Document {
@@ -30,5 +30,5 @@ export interface Cabildo extends mongoose.Document {
     issues: string[];
     meetings: object[];
     files: string[];
-    activities: object[];
+    activityFeed: object[];
 }
