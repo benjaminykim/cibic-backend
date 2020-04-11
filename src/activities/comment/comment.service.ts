@@ -31,15 +31,23 @@ export class CommentService {
         );
     }
 
+    async deleteReply(idComment: string, idReply: string) {
+        return await this.commentModel.findByIdAndUpdate(
+            idComment,
+            { $pull: { reply: idReply}},
+        );
+    }
+
     async getCommentById(idComment: string) {
         return await this.findComment(idComment);
     }
 
     async deleteComment(idComment: string) {
         const comment = await this.commentModel.findByIdAndDelete(idComment).exec();
-        if (comment.n === 0) {
+        if (comment === null) {
             throw new NotFoundException('Could not find comment.');
         }
+        return comment;
     }
 
     private async findComment(idComment: string) {

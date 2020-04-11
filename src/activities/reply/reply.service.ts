@@ -32,10 +32,11 @@ export class ReplyService {
     }
 
     async deleteReply(idReply: string) {
-        const reply = await this.replyModel.findByIdAndDelete(idReply).exec();
-        if (reply.n === 0) {
+        const reply = await this.replyModel.findByIdAndDelete(idReply);
+        if (reply === null) {
             throw new NotFoundException('Could not find reply.');
         }
+        return reply;
     }
 
     private async findReply(idReply: string) {

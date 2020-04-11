@@ -91,9 +91,10 @@ export class ActivityService {
     async deleteActivity(idActivity: string) {
         const activity = await this.activityModel.findByIdAndDelete(idActivity).exec();
         //callback stuf here TODO SMONROE
-        if (activity.n === 0) {
+        if (activity === null) {
             throw new NotFoundException('Could not find activity.');
         }
+        return activity;
     }
 
     private async findActivity(idActivity: string) {

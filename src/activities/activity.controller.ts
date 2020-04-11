@@ -101,7 +101,20 @@ export class ActivityController {
         const idUser = idFromToken(header.authorization);
         if (!idActivity || !idUser)
             throw new UnprocessableEntityException();
-        await this.activityService.deleteActivity(idActivity);
+        const activity = await this.activityService.deleteActivity(idActivity);
+        activity.comments.forEach(
+            async idComment => {
+                await this.activityService.deleteComment(idComment, idActivity);
+                const comment = await this.commentService.deleteComment(idComment);
+                comment.reply.forEach(async idReply => {
+                    const reply = await this.replyService.deleteReply(idReply)
+                    reply.votes.forEach(async idVote => this.voteService.deleteVote(idVote));
+                });
+                comment.votes.forEach(async idVote => await this.voteService.deleteVote(idVote));
+            }
+        );
+        activity.reactions.forEach(async idReact => await this.reactionService.deleteReaction(idReact));
+        activity.votes.forEach(async idVote => await this.voteService.deleteVote(idVote));
         return null;
     }
 
@@ -186,8 +199,20 @@ export class ActivityController {
         const idUser = idFromToken(header.authorization);
         if (!idComment || !idActivity || !idUser)
             throw new UnprocessableEntityException();
-        await this.commentService.deleteComment(idComment);
         await this.activityService.deleteComment(idComment, idActivity);
+        const comment = await this.commentService.deleteComment(idComment);
+        comment.reply.forEach(async idReply => {
+            const reply = await this.replyService.deleteReply(idReply);
+            reply.votes.forEach(async idVote => {
+                await this.voteService.deleteVote(idVote);
+                await this.activityService.incPing(idActivity, -1);
+            });
+            await this.activityService.incPing(idActivity, -1);
+        });
+        comment.votes.forEach(async idVote => {
+            await this.voteService.deleteVote(idVote);
+            await this.activityService.incPing(idActivity, -1);
+        });
         await this.usersService.addPoints(idUser, -2);
         return null;
     }
@@ -277,10 +302,16 @@ export class ActivityController {
     async deleteReply(
         @Headers() header: any,
         @Body('idActivity') idActivity: string,
+        @Body('idComment') idComment: string,
         @Body('idReply') idReply: string,
     ) {
         const idUser = idFromToken(header.authorization);
-        await this.replyService.deleteReply(idReply);
+        const reply = await this.replyService.deleteReply(idReply);
+        reply.votes.forEach(async idVote => {
+            await this.voteService.deleteVote(idVote);
+            await this.activityService.incPing(idActivity, -1);
+        });
+        await this.commentService.deleteReply(idComment, idReply);
         await this.usersService.addPoints(idUser, -2);
         await this.activityService.incPing(idActivity, -1);
         return null;
