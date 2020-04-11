@@ -136,8 +136,8 @@ export class ActivityController {
 
     @Put('vote')
     async updateVote(
-        @Body('idVote') idVote: string,
         @Body('idActivity') idActivity: string,
+        @Body('idVote') idVote: string,
         @Body('value') newValue: number,
     ) {
         await this.voteService.exists(idVote);
@@ -149,8 +149,8 @@ export class ActivityController {
     @Delete('vote')
     async deleteVote(
         @Headers() header: any,
-        @Body('idVote') idVote: string,
         @Body('idActivity') idActivity: string,
+        @Body('idVote') idVote: string,
     ) {
         const idUser = idFromToken(header.authorization);
         await this.voteService.exists(idVote);
@@ -165,8 +165,8 @@ export class ActivityController {
     @Post('comment')
     async addComment(
         @Headers() header: any,
-        @Body('comment') comment: Comment,
         @Body('idActivity') idActivity: string,
+        @Body('comment') comment: Comment,
     ) {
         const idUser = idFromToken(header.authorization);
         const idComment = await this.commentService.insertComment(comment);
@@ -193,8 +193,8 @@ export class ActivityController {
     @Delete('comment')
     async deleteComment(
         @Headers() header: any,
-        @Body('idComment') idComment: string,
         @Body('idActivity') idActivity: string,
+        @Body('idComment') idComment: string,
     ) {
         const idUser = idFromToken(header.authorization);
         if (!idComment || !idActivity || !idUser)
@@ -237,8 +237,8 @@ export class ActivityController {
 
     @Put('comment/vote')
     async updateCommentVote(
-        @Body('idVote') idVote: string,
         @Body('idComment') idComment: string,
+        @Body('idVote') idVote: string,
         @Body('value') newValue: number,
     ) {
         await this.voteService.exists(idVote);
@@ -268,9 +268,9 @@ export class ActivityController {
     @Post('reply')
     async addReply(
         @Headers() header: any,
-        @Body('reply') reply: Reply,
         @Body('idActivity') idActivity: string,
         @Body('idComment') idComment: string,
+        @Body('reply') reply: Reply,
     ) {
         const idUser = idFromToken(header.authorization);
         if (!reply || !idComment || !idActivity || !idUser)
@@ -337,8 +337,8 @@ export class ActivityController {
 
     @Put('reply/vote')
     async updateReplyVote(
-        @Body('idVote') idVote: string,
         @Body('idReply') idReply: string,
+        @Body('idVote') idVote: string,
         @Body('value') newValue: number,
     ) {
         await this.voteService.exists(idVote);
@@ -351,8 +351,8 @@ export class ActivityController {
     async deleteReplyVote(
         @Headers() header: any,
         @Body('idActivity') idActivity: string,
-        @Body('idVote') idVote: string,
         @Body('idReply') idReply: string,
+        @Body('idVote') idVote: string,
     ) {
         const idUser = idFromToken(header.authorization);
         await this.voteService.exists(idVote);
@@ -381,8 +381,8 @@ export class ActivityController {
 
     @Put('react')
     async updateReaction(
-        @Body('idReaction') idReaction: string,
         @Body('idActivity') idActivity: string,
+        @Body('idReaction') idReaction: string,
         @Body('value') newValue: number,
     ) {
         await this.reactionService.exists(idReaction);
@@ -394,8 +394,8 @@ export class ActivityController {
     @Delete('react')
     async deleteReaction(
         @Headers() header: any,
-        @Body('idReaction') idReaction: string,
         @Body('idActivity') idActivity: string,
+        @Body('idReaction') idReaction: string,
     ) {
         const idUser = idFromToken(header.authorization);
         await this.reactionService.exists(idReaction);
