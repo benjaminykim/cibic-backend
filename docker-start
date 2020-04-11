@@ -21,6 +21,7 @@ elif [ $1 = "test" -o $1 = "e2e" -o $1 = "watche2e" -o $1 = "shell" ]; then
 	docker-compose down;
 	docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$1.yml up -d && \
 	docker attach $(docker ps -q | head -n1);
+	docker volume prune -f
 elif [ $1 = "dev" -o $1 = "prod" ]; then
 	docker-compose down;
 	docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$1.yml up -d;

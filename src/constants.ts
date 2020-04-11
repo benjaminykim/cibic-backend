@@ -3,11 +3,13 @@
 
 const userPopulate = {// use for idUser field subpopulation
     path:'idUser',
+    model: 'User',
     select:'_id username citizenPoints'
 };
 
 const votePopulate = idUser => ({ // to get a user's vote
     path: 'votes',
+    model: 'Vote',
     match: {
         idUser: idUser,
     },
@@ -17,15 +19,18 @@ export const activityPopulate = (idUser: string) => ([//use on any list of activ
     userPopulate,
     { // info about cabildo posted to
         path: 'idCabildo',
+        model: 'Cabildo',
         select: 'name _id',
     },
     { // the reaction of the user
         path: 'reactions',
+        model: 'Reaction',
         match: { idUser: idUser },
     },
     votePopulate(idUser),
     { // first 100 comments
         path: 'comments',
+        model: 'Comment',
         options: {
             limit: 100,
             sort: 'field -score'
@@ -35,6 +40,7 @@ export const activityPopulate = (idUser: string) => ([//use on any list of activ
             votePopulate(idUser),
             { // top ten replies
                 path: 'reply',
+                model: 'Reply',
                 options: {
                     limit: 10,
                     sort: 'field -score',

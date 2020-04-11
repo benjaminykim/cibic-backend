@@ -10,6 +10,7 @@ import {
     followPopulate,
 } from '../constants'
 import { validateId } from '../utils';
+import { activityPopulate } from '../constants';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -70,15 +71,33 @@ export class UserService {
     }
 
     async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
+        // TODO This is HORRIBLE, we have got to find a better way to accomplish unique activity list
         await this.exists(idUser);
-        let user = await this.userModel.findById(idUser)
-            .populate(followPopulate(idUser, limit, offset))
-            .lean() // return plain json object
-        let feeds = [...user['cabildos'], ...user['following']];
-        let nested = feeds.map(obj => obj.activityFeed);
-        let feed = [].concat.apply([], nested);
-        let finalSet = [...new Set(feed)];
-        return finalSet;
+        const user = await this.userModel
+            .findById(idUser)
+            .populate(
+                [
+                    {
+                        path: 'following',
+                        select: 'activityFeed -_id',
+                        populate: { path: 'activityFeed' },
+                    },
+                    {
+                        path: 'cabildos',
+                        select: 'activityFeed -_id',
+                        populate: { path: 'activityFeed' },
+                    },
+                ]
+            )
+            .exec();
+        const ids = [...user.following, ...user.cabildos].map(obj => obj.activityFeed);
+        const feedIds = [].concat.apply([], ids);
+        let tally = {};
+        feedIds.forEach(id => {tally[id._id] = id});
+        const feed = await this.userModel.populate(
+            Object.values(tally).sort((a,b) => a['ping'] < b['ping'] ? 1 : -1),
+            activityPopulate(idUser));
+        return feed;
     }
 
     // update idFollower's activityFeed with query of idFollowed
@@ -148,6 +167,13 @@ export class UserService {
         return await this.userModel.findByIdAndUpdate(
             idFollower,
             {$addToSet: {followFeed: idActivity}},
+        );
+    }
+
+    async addPoints(idUser: string | object, value: number) {
+        return await this.userModel.findByIdAndUpdate(
+            idUser,
+            { $inc: { citizenPoints: value } }
         );
     }
 

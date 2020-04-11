@@ -16,7 +16,7 @@ export const ActivitySchema = new mongoose.Schema({
 });
 
 export interface Activity extends mongoose.Document {
-    idUser: object;
+    idUser: object | string;
     idCabildo: object;
     activityType: string;
     score: number;

@@ -197,7 +197,7 @@ describe('AppController (e2e)', () => {
 
             // get activity feed for first user
             console.error('feeda');
-            const feedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+            //const feedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
             //        console.error(feedA.body);
 
             console.error("idreactagain");
@@ -224,12 +224,13 @@ describe('AppController (e2e)', () => {
             //console.error("publicFeed:");
             //console.error(publicFeed.body[0]);
 
+            console.error("updating");
             const upd1 = await request(srv).put('/activity/vote').set(authA)
                 .send({idVote:res1.body.id,idActivity:idActA,value:-1}).expect(200)
             //const publicFeed2 = await request(srv).get(`/activity/public`).set(authA).expect(200);
             //console.error("publicFeed2:");
             //console.error(publicFeed2.body[0]);
-            //console.error('votecomment');
+            console.error('votecomment');
             const voteComment = await request(srv).post('/activity/comment/vote').set(authB)
                 .send({idActivity: idActA,idComment: idComA0,vote:{idUser:idB,value:1}})
                 .expect(201)
@@ -277,12 +278,15 @@ describe('AppController (e2e)', () => {
             // const userFeedB = await request(srv).get(`/user/feed/${idB}`).set(authA).expect(200);
             // console.error("userFeedB:");
             // console.error(userFeedB.body);
-            // const userHomeA = await request(srv).get(`/user/home`).set(authA).expect(200);
-            // console.error("userHomeA:");
-            // console.error(userHomeA.body);
-            // const userHomeB = await request(srv).get(`/user/home`).set(authB).expect(200);
-            // console.error("userHomeB:");
-            // console.error(userHomeB.body);
+            console.log("getting homeA");
+            const userHomeA = await request(srv).get(`/user/home`).set(authA).expect(200);
+            console.error("userHomeA:");
+//            console.error(userHomeA.body);
+            console.log("getting homeB");
+            const userHomeB = await request(srv).get(`/user/home`).set(authB).expect(200);
+            console.error("userHomeB:");
+//            console.error(userHomeB.body);
+//            expect(userHomeA.body).toStrictEqual([]);
             // const cabildoFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authA).expect(200);
             // console.error("cabildoFeed:");
             // console.error(cabildoFeed.body);
@@ -335,10 +339,10 @@ describe('AppController (e2e)', () => {
             const idCab = await request(srv).post('/cabildo').set(authA)
                 .send(cabA).expect(201).then(idCheck);
             // First user follows second user
-            const AfollowB = await request(srv).post('/user/followuser').set(authA)
-                .send({idUser: idB}).expect(/now follows user/)
+            const BfollowA = await request(srv).post('/user/followuser').set(authB)
+                .send({idUser: idA}).expect(/now follows user/)
             // Second user follows cabildo
-            const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
+            const BfollowC = await request(srv).post('/user/followcabildo').set(authB)
                 .send({idCabildo: idCab}).expect(/now follows cabildo/)
 
             // An activity
@@ -427,9 +431,9 @@ describe('AppController (e2e)', () => {
                 .send({idVote:voteReply,idReply:idReply,value:-1}).expect(200);
 
             {
-//                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
-                const userFeedA = await request(srv).get(`/user/home`).set(authA).expect(200);
-//                console.log(userFeedA.body);
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
+//                const userFeedA = await request(srv).get(`/user/home`).set(authA).expect(200);
+                console.log(userFeedA.body);
                 let act = userFeedA.body[0];
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(-3);
@@ -575,5 +579,5 @@ describe('AppController (e2e)', () => {
             done();
         }
 
-    });
+    }, 20000);
 });
