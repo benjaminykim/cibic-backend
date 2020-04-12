@@ -21,5 +21,8 @@ services:
   node_router:
     build: node_router
     container_name: node_router
+    volumes:
+     - './node_router:/srv'
+     - '/srv/node_modules'
     ports:
-      - "80:80"
+      - "443:443"

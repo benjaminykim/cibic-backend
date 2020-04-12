@@ -1,11 +1,24 @@
+const url = 'https://api.cibic.io:3000/';
+const https = require("https");
+const fs = require("fs");
+
 const express = require('express');
-const url = 'http://52.9.99.38:3000/';
 const app = express();
+const router = express.Router()
 
-app.get('/', (req, res) => res.send('Welcome to Cibic.io'));
+const options = {
+    key: fs.readFileSync('/srv/api.cibic.io.key'),
+    cert: fs.readFileSync('/srv/api.cibic.io.crt'),
+};
 
-app.get('/api/:path', function (req, res) {
-	let redir = url + req.params.path
-	console.log(redir);
- 	res.location(redir).status(301).end();
-}).listen(80);
+router.all('/api/*', function (req, res) {
+    let redir = url + req.params[0]
+    console.log(redir);
+    res.redirect(redir);
+    res.end();
+})
+
+app.use(router);
+app.listen(3443);
+
+https.createServer(options, app).listen(443);

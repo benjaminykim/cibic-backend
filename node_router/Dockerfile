@@ -1,8 +1,8 @@
 FROM node:12-buster
-WORKDIR /app
+WORKDIR /srv
 
-COPY . /app
+COPY . /srv
 RUN npm install
 
-EXPOSE 80
+EXPOSE 443
 CMD [ "node", "server.js"]

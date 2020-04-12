@@ -27,6 +27,7 @@ lerna-debug.log*
 *.sublime-workspace
 *~
 \#*\#
+.\#*
 
 # IDE - VSCode
 .vscode/*
@@ -38,3 +39,12 @@ lerna-debug.log*
 package-lock.json
 
 tsconfig.build.code-workspace
+
+# Security
+*.pem
+*.crt
+*.srl
+*.csr
+*.key
+*.ext
+*.env

@@ -2,11 +2,7 @@ FROM node:12.16.1-alpine
 WORKDIR /app
 
 COPY . /app
-RUN if [ "$DEPLOY_ENV" = "development" ]; \
-	then	apk add git; \
-		    npm install -g jest; \
-	fi; \
-	npm install
+RUN apk add git; npm install -g jest;	npm install
 
 EXPOSE 3000
 CMD [ "npm", "run", "start:dev" ]
