@@ -6,8 +6,6 @@ RSA_BITS=4096
 URL=api.cibic.io
 CA_NAME=Cibic_Io
 SSL_TOOL=openssl
-CA_CERT_UPDATE_TOOL=update-ca-certificates
-CERT_UTIL=certutil
 
 echo "This script is meant to generate root CA certs and development certs for Cibic.io"
 echo "If asked for a password, type '${PSSWD}' and hit enter."
@@ -31,28 +29,7 @@ if [ -z `which ${SSL_TOOL}` ]; then
     echo "or use your package manager to install ${SSL_TOOL}."
     exit 1
 fi
-
-if [ -z `which ${CA_CERT_UPDATE_TOOL}` ]; then
-    echo
-    echo "                                  Oh No!"
-    echo "This is meant to be ran on a machine with ${CA_CERT_UPDATE_TOOL} installed."
-    echo "This script is unsure of how to tell browsers about your installed root certificates without it."
-    echo "Please do some googling and figure out how to install root certificates on your os,"
-    echo "and modify this script accordingly"
-    exit 1
-fi
-
-if [ -z `which ${CERT_UTIL}` ]; then
-    echo
-    echo "                                  Oh No!"
-    echo "This is meant to be ran on a machine with ${CERT_UTIL} installed."
-    echo "This script is unsure of how to tell browsers about your installed root certificates without it."
-    echo "you can install it on Debian based machines with 'sudo apt install -y libnss3-tools'"
-    echo "I'll leave it to you to install this or modify the script accordingly"
-    exit 1
-fi
-
-echo "Found all tools needed, continuing now..."
+echo "Found all tools needed, continuing with generation..."
 
 # The guide for this file located is at:
 # https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/
@@ -105,41 +82,8 @@ ${SSL_TOOL} x509 -passin pass:$ROOT_PSSWD -req -in ${URL}.csr -CA ${CA_NAME}.pem
 
 if [ -f ${URL}.crt -a -f ${URL}.csr  -a -f ${URL}.ext -a -f ${URL}.key -a -f ${CA_NAME}.key -a -f ${CA_NAME}.pem -a -f ${CA_NAME}.srl ]; then
     cp ${URL}.key ${URL}.crt node_router
-    echo "The fillowing steps will install the root cert in your certificate authority store."
-    echo "This will require your sudo password to continue."
-    echo "If you don't have this, or don't wish to install, Ctrl-C now."
-    # The following steps are from:
-    # https://thomas-leister.de/en/how-to-import-ca-root-certificate/
-    ### Script installs root.cert.pem to certificate trust store of applications using NSS
-    ### (e.g. Firefox, Thunderbird, Chromium)
-    ### Mozilla uses cert8, Chromium and Chrome use cert9
-    ### Requirement: apt install libnss3-tools
-
-    sudo mkdir -p /usr/local/share/ca-certificates/extra && \
-        sudo cp ${CA_NAME}.pem /usr/local/share/ca-certificates/extra/${CA_NAME}.crt && \
-        sudo ${CA_CERT_UPDATE_TOOL} || exit 1
-
-    certfile="${CA_NAME}.pem"
-    certname="${CA_NAME}"
-
-    ### For cert8 (legacy - DBM)
-    for certDB in $(find ~/ -name "cert8.db")
-    do
-        certdir=$(dirname ${certDB});
-        certutil -A -n "${certname}" -t "TCu,Cu,Tu" -i ${certfile} -d dbm:${certdir}
-    done
-
-    ### For cert9 (SQL)
-    for certDB in $(find ~/ -name "cert9.db")
-    do
-        certdir=$(dirname ${certDB});
-        certutil -A -n "${certname}" -t "TCu,Cu,Tu" -i ${certfile} -d sql:${certdir}
-    done
+    echo "Success! ${CA_NAME}.pem is your Root Certificate, install it on any necessary machines."
 fi
-
-# Wonderful.
-# Now there are three file, .key .csr and .crt.
-# .key and .crt will be given to the web server (Our EC2 instance)
 
 # The following is from:
 # https://www.ssl2buy.com/wiki/how-to-install-ssl-certificate-on-aws-ec2-instance
@@ -192,4 +136,3 @@ fi
 # You must wait for at least 5 minutes for the changes you made to take effect in AWS EC2. Once you restart, you will find that the changes have been accommodated.
 
 # Once the process is over, it is a good practice to check and test whether the SSL certificate has been properly configured and set-up.
-

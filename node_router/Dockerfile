@@ -1,4 +1,4 @@
-FROM node:12-buster
+FROM node:12.16.1-alpine
 WORKDIR /srv
 
 COPY . /srv

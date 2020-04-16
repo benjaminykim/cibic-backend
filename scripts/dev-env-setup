@@ -1,0 +1,56 @@
+#!/bin/bash
+hecho () {
+    echo "$0: ${@}"
+}
+
+export ROOT_PSSWD=${ROOT_PSSWD:-'development'}
+export CLIENT_PSSWD=${CLIENT_PSSWD:-'temporary'}
+export RSA_BITS=${RSA_BITS:-'4096'}
+export URL=${URL:-'api.cibic.io'}
+export CA_NAME=${CA_NAME:-'Cibic_Io'}
+export SSL_TOOL=${SSL_TOOL:-'openssl'}
+export CA_CERT_UPDATE_TOOL=${CA_CERT_UPDATE_TOOL:-'update-ca-certificates'}
+export CERT_UTIL=${CERT_UTIL:-'certutil'}
+export CERT_STORE_PATH=${CERT_STORE_PATH:-'/usr/local/share/ca-certificates/extra'}
+
+GEN_ROOT=gen-root-cert
+GEN_CERT=gen-cert
+INSTALL_ROOT=install-root-cert
+
+hecho "This is the top-level script for initializing a development environment to work with the cibic.io backend."
+hecho "We use environment variables to set properties across generation and installation of certificates"
+
+if [ ! -x ${GEN_ROOT} -o ! -x ${INSTALL_ROOT} -o ! -x ${GEN_CERT} ]
+then
+    hecho "Cannot find all three executable scripts"
+    hecho "Are you in the right directory,"
+    hecho "and do they have proper execute permissions?"
+    exit 1
+fi
+
+./${GEN_ROOT}
+if [ $? = '0' ]
+then
+    hecho "$0: Generated Root Certificate"
+else
+    hecho "$0: Failed to Generate Root Cert, Exiting now..."
+    exit 1
+fi
+
+./${GEN_CERT}
+if [ $? = '0' ]
+then
+    hecho "$0: Generated New Certificate"
+else
+    hecho "$0: Failed to Generate New Cert, Exiting now..."
+    exit 1
+fi
+
+./${INSTALL_ROOT}
+if [ $? = '0' ]
+then
+    hecho "$0: Installed Root Certificate"
+else
+    hecho "$0: Failed to Install Root Cert, Exiting now..."
+    exit 1
+fi

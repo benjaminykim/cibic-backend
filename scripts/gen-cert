@@ -1,0 +1,66 @@
+#!/bin/bash
+hecho () {
+    echo "$0: ${@}"
+}
+
+hecho "This will generate a new cert and install it in the development environment, this is not for Cibic server access."
+hecho "This can be ran repeatedly without ill effect"
+
+ROOT_PSSWD=${ROOT_PSSWD:-'development'}
+CLIENT_PSSWD=${CLIENT_PSSWD:-'temporary'}
+RSA_BITS=${RSA_BITS:-'4096'}
+URL=${URL:-'api.cibic.io'}
+CA_NAME=${CA_NAME:-'Cibic_Io'}
+SSL_TOOL=${SSL_TOOL:-'openssl'}
+
+hecho "If asked for a password, type '${PSSWD}' and hit enter."
+hecho "Checking for tools..."
+if [ `uname` != 'Linux' ]; then
+    hecho
+    hecho "                                  Oh No!"
+    hecho "This is meant to be ran on a linux based os. You don't appear to be on one."
+    hecho "If you are on windows, contact the dev team for guidance."
+    hecho "If you are on a unix-like OS or OSX, go ahead and look over the script and modify as necessary,"
+    hecho "then turn this safety check off. Cheers -smonroe"
+    exit 1
+fi
+
+if [ -z `which ${SSL_TOOL}` ]; then
+    hecho
+    hecho "                                  Oh No!"
+    hecho "This is meant to be ran on a machine with ${SSL_TOOL} installed. You don't appear to have this."
+    hecho "If you have a similar tool installed, please read this guide and modify it accordingly,"
+    hecho "or use your package manager to install ${SSL_TOOL}."
+    exit 1
+fi
+hecho "Found all tools needed, continuing with generation..."
+
+# Here, we generate signed certs basec on our root cert
+
+# First, another private key, no inputs needed
+${SSL_TOOL} genrsa -out ${URL}.key ${RSA_BITS} || exit 1
+
+# Then, a Certificate Signing Request (CSR), with more fields and a password less than 20 characters
+echo -e "US\nCA\nSan Jose\n${CA_NAME}\nDevelopment\nCibic.io\n.\nCLIENT_PASSWORD_HERE\n${CA_NAME}" | ${SSL_TOOL} req -passin pass:$CLIENT_PSSWD -new -key ${URL}.key -out ${URL}.csr || exit 1
+
+# Almost there, we need a configuration file to define the Subject Alternative Name (SAN) extension
+echo "authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = ${URL}
+DNS.2 = localhost" > ${URL}.ext || exit 1
+
+# And now we generate the actual certificate! This needs the CA's root password.
+${SSL_TOOL} x509 -passin pass:$ROOT_PSSWD -req -in ${URL}.csr -CA ${CA_NAME}.pem -CAkey ${CA_NAME}.key -CAcreateserial -out ${URL}.crt -days 365 -sha256 -extfile ${URL}.ext || exit 1
+
+# Assuming we got this far, we're probably on linux and succesful, but lets check for full success and then do an install.
+if [ -f ${URL}.crt -a -f ${URL}.csr  -a -f ${URL}.ext -a -f ${URL}.key -a -f ${CA_NAME}.key -a -f ${CA_NAME}.pem -a -f ${CA_NAME}.srl ]; then
+    cp ${URL}.key ${URL}.crt ../node_router
+    cp ${URL}.key ${URL}.crt ../src
+    hecho "Success! ${CA_NAME}.pem is your Root Certificate, install it on any necessary machines."
+else
+    hecho "Could not find all expected file, please read any error messages and try again"
+fi

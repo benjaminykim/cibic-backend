@@ -1,0 +1,80 @@
+#!/bin/bash
+hecho () {
+    echo "$0: ${@}"
+}
+
+hecho "Only run this script once, or you'll end up with duplicates!"
+
+CA_NAME=${CA_NAME:-'Cibic_Io'}
+CA_CERT_UPDATE_TOOL=${CA_CERT_UPDATE_TOOL:-'update-ca-certificates'}
+CERT_UTIL=${CERT_UTIL:-'certutil'}
+CERT_STORE_PATH=${CERT_STORE_PATH:-'/usr/local/share/ca-certificates/extra'}
+
+if [ ! -f ${CA_NAME}.der -o ! -f ${CA_NAME}.pem -o ! -f ${CA_NAME}.srl ]
+then
+    hecho "Cannot find ${CA_NAME}.{der,pem,crt}"
+    hecho "Have you ran gen-root-cert?"
+    exit 1;
+fi
+
+if [ `uname` != 'Linux' ]
+then
+    if [ `uname` = 'Darwin' ]
+    then
+        hecho "OSX detected. Enter sudo password to install root certificate in system keychain"
+        sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ${CA_NAME}.pem && hecho 'Success!' || hecho 'Failure...'
+        exit 0;
+    fi
+    hecho
+    hecho "                                  Oh No!"
+    hecho "This is meant to be ran on macOSX or Linux OS."
+    hecho "You don't appear to be on an OS we recognize."
+    hecho "Please contact the dev team for guidance."
+    exit 1
+fi
+if [ -z `which ${CA_CERT_UPDATE_TOOL}` ]
+then
+    hecho
+    hecho "                                  Oh No!"
+    hecho "Cannot find ${CA_CERT_UPDATE_TOOL} tool on this machine."
+    hecho "We don't know how to tell the OS about your root certificates without it."
+    exit 1
+fi
+
+if [ -z `which ${CERT_UTIL}` ]
+then
+    if [ ! -z `which apt` ]
+    then
+        hecho "Enter sudo password to install libnss3-tools"
+        sudo apt install -y libnss3-tools
+    else
+    hecho
+    hecho "                                  Oh No!"
+    hecho "This is meant to be ran on a machine with ${CERT_UTIL} installed."
+    hecho "We don't know how to tell browsers about root certificates without it."
+    hecho "and we aren't sure how to install it on your machine,"
+    exit 1
+    fi
+fi
+
+# The following steps are from:
+# https://thomas-leister.de/en/how-to-import-ca-root-certificate/
+
+hecho "Installing root certificate to ${CERT_STORE_PATH}"
+sudo mkdir -p ${CERT_STORE_PATH} && \
+    sudo cp ${CA_NAME}.pem ${CERT_STORE_PATH}/${CA_NAME}.crt && \
+    sudo ${CA_CERT_UPDATE_TOOL} || exit 1
+
+# For cert8 (legacy - DBM)
+for CERT_DB in $(find ~/ -name "cert8.db")
+do
+    CERT_DIR=$(dirname ${CERT_DB});
+    ${CERT_UTIL} -A -n "${CA_NAME}" -t "TCu,Cu,Tu" -i ${CA_NAME}.pem -d dbm:${CERT_DIR}
+done
+
+# For cert9 (SQL)
+for CERT_DB in $(find ~/ -name "cert9.db")
+do
+    CERT_DIR=$(dirname ${CERT_DB});
+    ${CERT_UTIL} -A -n "${CA_NAME}" -t "TCu,Cu,Tu" -i ${CA_NAME}.pem -d sql:${CERT_DIR}
+done

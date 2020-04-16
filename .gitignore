@@ -42,6 +42,7 @@ tsconfig.build.code-workspace
 
 # Security
 *.pem
+*.der
 *.crt
 *.srl
 *.csr
