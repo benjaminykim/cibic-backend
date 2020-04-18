@@ -65,13 +65,18 @@ export class UserService {
     async getFeed(idUser: string, limit: number = 20, offset: number = 0) {
         await this.exists(idUser);
         let feed = await this.userModel.findById(idUser)
-            .populate(feedPopulate('activityFeed', idUser, limit, offset))
+            .populate(feedPopulate(idUser, limit, offset))
             .lean() // return plain json object
         return feed.activityFeed;
     }
 
     async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
         // TODO This is HORRIBLE, we have got to find a better way to accomplish unique activity list
+        //Specifically, initial query returns duplicates
+        //We use tally object to ensure unique id list
+        //And then sort in Object.values line
+        //And then populate that final list.
+        //Gross.
         await this.exists(idUser);
         const user = await this.userModel
             .findById(idUser)

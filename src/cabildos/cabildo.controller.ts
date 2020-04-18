@@ -39,7 +39,9 @@ export class CabildoController {
     async checkCabildoName(
         @Param('cabildoName') cabildoName: string,
     ) {
-        return await this.cabildoService.checkCabildoName(cabildoName);
+        if (await this.cabildoService.checkCabildoName(cabildoName))
+            return cabildoName
+        return "Could not find ${cabildoName}";
     }
 
     @Get('feed/:idCabildo') // http://localhost:3000/cabildo/feed/:id

@@ -57,7 +57,7 @@ export class CabildoService {
     async getCabildoFeed(idCabildo: string, idUser: string) {
         let cabildo =  await this.cabildoModel
             .findById(idCabildo)
-            .populate(feedPopulate('activityFeed', idUser, 20, 0))
+            .populate(feedPopulate(idUser, 20, 0))
             .lean();
         return cabildo.activityFeed;
     }
