@@ -10,7 +10,7 @@ import {
     actC,comC0,comC1,comC2,
     actD,comD0,comD1,comD2,
     actE,comE0,comE1,comE2,
-    reply
+    reply,cabB,
 } from './mockData';
 
 describe('AppController (e2e)', () => {
@@ -53,6 +53,10 @@ describe('AppController (e2e)', () => {
                 email: userB.user.email
             });
             const authB = {'Authorization': `Bearer ${authBRes.body.access_token}`};
+
+            // Get user by id
+            const getUserA = await request(srv).get('/user/' + idA).set(authA).expect(200); // found user A
+            const getUserFake = await request(srv).get('/user/fakeUserId').set(authA).expect(404); // not found
 
             // git an empty cabildo list
             const emptyCabildos = await request(srv).get('/cabildo').set(authA).expect(200)
@@ -316,6 +320,17 @@ describe('AppController (e2e)', () => {
             // new user follows cabildo check if feed updates
             // add things with id's that reference the wrong kind of object
             //console.error("finished")
+
+            // get activity public
+            const activityPublic = request(srv).get('activity/public').set(authA).expect(200);
+
+            // Cabildo to be deleted
+            cabB.cabildo.admin = idA;
+            const idCabB = await request(srv).post('/cabildo').set(authA).send(cabB).expect(201).then(idCheck);
+            // delete Cabildo
+            const deleteCabildoA = request(srv).delete('cabildo/' + idCabB).set(authA).expect(200); // return ok, cabildo deleted
+            const deleteCabildoB = request(srv).delete('cabildo/fakeIdCabildo').set(authA).expect(404); // return 404 cabildo not found
+
             done();
         } else {
 
@@ -334,6 +349,10 @@ describe('AppController (e2e)', () => {
                 email: userB.user.email
             });
             const authB = {'Authorization': `Bearer ${authBRes.body.access_token}`};
+
+            // get users
+            const getUserA  = await request(srv).get('/user/' + idA).set(authA).expect(200); // found user A
+            const getUserFake = await request(srv).get('/user/fakeUserId').set(authA).expect(404); // not found
 
             // A Cabildo
             const idCab = await request(srv).post('/cabildo').set(authA)
@@ -714,6 +733,13 @@ describe('AppController (e2e)', () => {
                 userBView = await request(srv).get(`/user/home`).set(authB).expect(200);
                 expect(userBView.body).toStrictEqual([]);
             }
+
+            // Cabildo to be deleted
+            cabB.cabildo.admin = idA;
+            const idCabB = await request(srv).post('/cabildo').set(authA).send(cabB).expect(201).then(idCheck);
+
+            const deleteCabildoA = request(srv).delete('cabildo/' + idCabB).set(authA).expect(200); // return ok, cabildo deleted
+            const deleteCabildoB = request(srv).delete('cabildo/fakeIdCabildo').set(authA).expect(404); // return 404 cabildo not found
 
             // Now we have an activity, a comment, a reply, and a reaction/vote on each.
 
