@@ -15,15 +15,6 @@ SSL_TOOL=${SSL_TOOL:-'openssl'}
 
 hecho "If asked for a password, type '${PSSWD}' and hit enter."
 hecho "Checking for tools..."
-if [ `uname` != 'Linux' ]; then
-    hecho
-    hecho "                                  Oh No!"
-    hecho "This is meant to be ran on a linux based os. You don't appear to be on one."
-    hecho "If you are on windows, contact the dev team for guidance."
-    hecho "If you are on a unix-like OS or OSX, go ahead and look over the script and modify as necessary,"
-    hecho "then turn this safety check off. Cheers -smonroe"
-    exit 1
-fi
 
 if [ -z `which ${SSL_TOOL}` ]; then
     hecho
