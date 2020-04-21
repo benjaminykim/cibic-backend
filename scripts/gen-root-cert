@@ -11,7 +11,7 @@ SSL_TOOL=${SSL_TOOL:-'openssl'}
 
 hecho "If asked for a password, type '${ROOT_PSSWD}' and hit enter."
 hecho "Checking for tools..."
-if [ `uname` != 'Linux' ]; then
+if [ `uname` != 'Linux' -a `uname` != 'Darwin']; then
     hecho
     hecho "                                  Oh No!"
     hecho "This is meant to be ran on a linux based os. You don't appear to be on one."
