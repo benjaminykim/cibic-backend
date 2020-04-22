@@ -352,6 +352,7 @@ describe('AppController (e2e)', () => {
 
             // get users
             const getUserA  = await request(srv).get('/user/' + idA).set(authA).expect(200); // found user A
+            expect(getUserA.body._id).toHaveLength(24);
             const getUserFake = await request(srv).get('/user/fakeUserId').set(authA).expect(404); // not found
 
             // A Cabildo
@@ -738,6 +739,7 @@ describe('AppController (e2e)', () => {
             cabB.cabildo.admin = idA;
             const idCabB = await request(srv).post('/cabildo').set(authA).send(cabB).expect(201).then(idCheck);
 
+            const deleteCabildoWrongUser = request(srv).delete('cabildo/' + idCabB).set(authB).expect(401); // return unauthorized
             const deleteCabildoA = request(srv).delete('cabildo/' + idCabB).set(authA).expect(200); // return ok, cabildo deleted
             const deleteCabildoB = request(srv).delete('cabildo/fakeIdCabildo').set(authA).expect(404); // return 404 cabildo not found
 
