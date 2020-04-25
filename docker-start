@@ -1,23 +1,28 @@
 #!/bin/bash
 USAGE=\
-"Usage: ./docker-start [ test | e2e | watche2e | shell | dev | prod | down ] [ up | build ]?\n\n"\
+"Usage: ./docker-start [ test | e2e | shell | dev | prod | down ] [ CMD ]?\n\n"\
 "\ttest: run jest test watcher on backend unit tests\n"\
 "\te2e: run jest/supertest end to end test on application\n"\
-"\twatche2e: run jest/supertest end to end test in watch mode -- dont use\n"\
 "\tshell: opens a shell on the backend container\n"\
 "\tdev: spin up backend in development mode\n"\
 "\tprod: spin up backend in production mode\n"\
 "\tdown: spin down all running containers and network\n"\
 "\n\tGo Cibic!\n"
 
-DC_DIR=scripts/docker-compose
+DC_DIR=docker-compose
+ARG=$1
+shift
 DEFAULT='up -d'
-CMD=${2:-$DEFAULT}
+CMD=${@:-$DEFAULT}
 
-if [ -z $1 ]
+if [ -z $ARG ]
 then
     echo -e $USAGE;
-elif [ $1 = "test" -o $1 = "e2e" -o $1 = "watche2e" -o $1 = "shell" ]
+elif [ $ARG = "certbot" ] # certbot is a hidden option for compatibility with init-letsencrypt.sh
+then
+    echo docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.prod.yml $CMD | bash
+    exit 0;
+elif [ $ARG = "test" -o $ARG = "e2e" -o $ARG = "watche2e" -o $ARG = "shell" ]
 then
     if [ $USER = "ubuntu" ]
     then
@@ -25,17 +30,16 @@ then
         exit;
     fi
     docker-compose down;
-    docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$1.yml $CMD;
+    docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$ARG.yml $CMD;
     if [ $? = '0' -a "${CMD}" = "${DEFAULT}" ]
     then
         docker attach $(docker ps -q | head -n1);
-        docker volume prune -f;
     fi
-elif [ $1 = "dev" -o $1 = "prod" ]
+elif [ $ARG = "dev" -o $ARG = "prod" ]
 then
     docker-compose down;
-    docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$1.yml $CMD;
-elif [ $1 = "down" ]
+    docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$ARG.yml $CMD;
+elif [ $ARG = "down" ]
 then
     docker-compose down;
 fi

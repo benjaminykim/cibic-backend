@@ -1,0 +1,4 @@
+version: "3.2"
+services:
+  api:
+    command: test:e2e

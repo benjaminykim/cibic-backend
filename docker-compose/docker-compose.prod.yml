@@ -1,0 +1,39 @@
+version: "3.2"
+services:
+  api:
+    command: start:prod
+    environment:
+      DEPLOY_ENV: production
+    expose:
+      - "3000"
+    stdin_open: false
+    depends_on:
+      - nginx
+    links:
+      - nginx
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: cibic_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - type: bind
+        source: ./data/nginx
+        target: /etc/nginx/conf.d
+      - type: bind
+        source: ./data/certbot/conf
+        target: /etc/letsencrypt
+      - type: bind
+        source: ./data/certbot/www
+        target: /var/www/certbot
+  certbot:
+    image: certbot/certbot
+    container_name: cibic_certbot
+    volumes:
+      - type: bind
+        source: ./data/certbot/conf
+        target: /etc/letsencrypt
+      - type: bind
+        source: ./data/certbot/www
+        target: /var/www/certbot

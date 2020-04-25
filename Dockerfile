@@ -1,8 +1,7 @@
 FROM node:12.16.1-alpine
 WORKDIR /app
-
+ARG DEPLOY_ENV
 COPY . /app
-RUN apk add git && npm install
-
+RUN if [ ! $DEPLOY_ENV = 'production' ]; then apk add git; npm install -g jest; fi; npm install
 EXPOSE 3000
-CMD [ "npm", "run", "start:dev" ]
+ENTRYPOINT [ "npm", "run" ]

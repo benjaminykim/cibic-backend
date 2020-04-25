@@ -26,38 +26,40 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[Cibic.io's](https://cibic.app) backend server. [Docker Compose](https://github.com/docker/compose), [MongoDB](https://github.com/mongodb/mongo) with [Mongoose](https://github.com/nestjs/mongoose), [Nest](https://github.com/nestjs/nest) with [Typescript](https://github.com/Microsoft/TypeScript).
 
 ## Installation
 
+We currently use [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security) in development and production. For a deveopment environment, run the following command only the first time you clone the repository.
+
 ```bash
-$ npm install
+$ cd scripts && ./dev-env-setup
 ```
+
+Read the instructions and type the password when prompted. You'll need your sudo password to install the root cert for curl and browser access to the REST api.
+This currently only works on Linux and OSX, though curl isn't working in OSX currently.
+We are fully dockerized, use the docker-start script to launch the app in your mode of choice once TLS is setup.
+
 
 ## Running the app
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
+# development watch mode
+$ ./docker-start dev
 
 # production mode
-$ npm run start:prod
+$ ./docker-start prod
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ ./docker-start test
 
 # e2e tests
-$ npm run test:e2e
+$ ./docker-start e2e
 
-# test coverage
-$ npm run test:cov
 ```
 
 ## Support

@@ -1,8 +1,0 @@
-version: "3"
-services:
-  api:
-    command: sh
-    environment:
-      DEPLOY_ENV: development
-    stdin_open: true
-    tty: true

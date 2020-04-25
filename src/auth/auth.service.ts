@@ -12,6 +12,8 @@ export class AuthService {
     async validateUser(email: string, pass: string): Promise<any> {
         const bcrypt = require('bcrypt');
         const user = await this.usersService.getUserByEmail(email);
+        if (!user)
+            return null;
 
         bcrypt.compare(pass, user.password).then(result => {
             if (result) {
@@ -25,6 +27,8 @@ export class AuthService {
     async login(user: any) {
         const bcrypt = require('bcrypt');
         const userByEmail = await this.usersService.getUserByEmail(user.email);
+        if (!userByEmail)
+            throw new UnauthorizedException('invalid email or password');
         const match = await bcrypt.compare(user.password, userByEmail.password);
 
         if (match) {

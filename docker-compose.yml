@@ -1,28 +1,29 @@
-version: "3"
+version: "3.2"
+volumes:
+  api_modules:
 services:
   api:
     build: .
+    image: cibic_api
     container_name: cibic_api
+    entrypoint: npm run
+    environment:
+      DEPLOY_ENV: development
     volumes:
-      - '.:/app'
-      - '/app/node_modules'
-    ports:
-      - "3000:3000"
+      - type: bind
+        source: .
+        target: /app
+      - type: volume
+        source: api_modules
+        target: /app/node_modules
     depends_on:
       - mongo_serve
     links:
       - mongo_serve
     tty: true
+    stdin_open: true
   mongo_serve:
-    container_name: cibic_mongodb
     image: mongo
-    ports:
-      - "27018:27017"
-  node_router:
-    build: node_router
-    container_name: node_router
-    volumes:
-     - './node_router:/srv'
-     - '/srv/node_modules'
-    ports:
-      - "443:443"
+    container_name: cibic_mongodb
+    expose:
+      - "27017"
