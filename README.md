@@ -1,6 +1,49 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
+  <a href="https://www.cibic.app/" target="blank"><img src="https://www.cibic.app/assets/logo.png" width="320" alt="Cibic Logo" /></a>
 </p>
+
+## Description
+
+[Cibic's](https://www.cibic.app) backend server. [Docker Compose](https://github.com/docker/compose), [MongoDB](https://github.com/mongodb/mongo) with [Mongoose](https://github.com/nestjs/mongoose), [Nest](https://github.com/nestjs/nest) with [Typescript](https://github.com/Microsoft/TypeScript) on [Node.js](https://nodejs.org), being served up by [Nginx](https://nginx.org/) currently if [this](https://www.cibic.app/api/) is working.
+
+## Installation
+
+### Production
+
+We currently use [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security) in production.
+For a first time install, edit `init-letsencrypt.sh` to contain your machine's public url and your own email, and edit data/nginx/app.conf in the same manner, then run the following command:
+
+```bash
+$ sudo ./init-letsencrypt.sh
+```
+
+This will create a dummy certificate, spin up nginx, complete an acme-challenge, and give you a real Lets Encrypt certificate.
+`./docker-start prod` to turn everything on, and `curl https://your-chosen-domain/api/` after a few seconds.
+You should get a Hello World! response once it's running.
+
+### Development
+
+We are fully dockerized, use the docker-start script to launch the app in your mode of choice.
+We run development without https, with the container ports exposed directly on the host machine.
+Run `./docker-start dev` to spin up the server, and `curl localhost:3000` after a few seconds.
+You should get a Hello World! response once it's running.
+
+### Testing
+
+```bash
+# unit tests
+$ ./docker-start test
+
+# e2e tests
+$ ./docker-start e2e
+
+```
+
+## Contact
+
+We take email is [cibic.media@gmail.com](cibic.media@gmail.com), and our site is [here](https://www.cibic.app) if our server is working.
+
+## Nest.js things
 
 [travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
 [travis-url]: https://travis-ci.org/nestjs/nest
@@ -24,54 +67,10 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
-
-[Cibic.io's](https://www.cibic.app) backend server. [Docker Compose](https://github.com/docker/compose), [MongoDB](https://github.com/mongodb/mongo) with [Mongoose](https://github.com/nestjs/mongoose), [Nest](https://github.com/nestjs/nest) with [Typescript](https://github.com/Microsoft/TypeScript).
-
-## Installation
-
-We currently use [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security) in development and production. For a deveopment environment, run the following command only the first time you clone the repository.
-
-```bash
-$ cd scripts && ./dev-env-setup
-```
-
-Read the instructions and type the password when prompted. You'll need your sudo password to install the root cert for curl and browser access to the REST api.
-This currently only works on Linux and OSX, though curl isn't working in OSX currently.
-We are fully dockerized, use the docker-start script to launch the app in your mode of choice once TLS is setup.
-
-
-## Running the app
-
-```bash
-# development watch mode
-$ ./docker-start dev
-
-# production mode
-$ ./docker-start prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ ./docker-start test
-
-# e2e tests
-$ ./docker-start e2e
-
-```
-
-## Support
-
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
 
 - Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
 - Website - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
-
-  Nest is [MIT licensed](LICENSE).
+Nest is [MIT licensed](LICENSE).
