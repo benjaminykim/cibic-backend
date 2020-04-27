@@ -41,7 +41,7 @@ $ ./docker-start e2e
 
 ## Contact
 
-We take email is [cibic.media@gmail.com](cibic.media@gmail.com), and our site is [here](https://www.cibic.app) if our server is working.
+We take email is [cibic.media@gmail.com](mailto:cibic.media@gmail.com), and our site is [here](https://www.cibic.app) if our server is working.
 
 ## Nest.js things
 
