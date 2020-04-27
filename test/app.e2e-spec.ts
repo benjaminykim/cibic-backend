@@ -37,11 +37,9 @@ describe('AppController (e2e)', () => {
 
         if (oldTest) {
             const idA = await request(srv).post('/user').send(userA).expect(201).then(idCheck);
-            //console.error(`idA: ${idA}`);
 
             // make a user
             const idB = await request(srv).post('/user').send(userB).expect(201).then(idCheck);
-            //console.error(`idB: ${idB}`);
 
             const authARes = await request(srv).post('/auth/login').send({
                 password: userA.user.password,
@@ -54,22 +52,10 @@ describe('AppController (e2e)', () => {
             });
             const authB = {'Authorization': `Bearer ${authBRes.body.access_token}`};
 
-            // Get user by id
-            const getUserA = await request(srv).get('/user/' + idA).set(authA).expect(200); // found user A
-            const getUserFake = await request(srv).get('/user/fakeUserId').set(authA).expect(404); // not found
-
-            // git an empty cabildo list
-            const emptyCabildos = await request(srv).get('/cabildo').set(authA).expect(200)
-            expect(emptyCabildos.body).toHaveLength(0);
-
             // make a cabildo
             cabA.cabildo.admin = idA;
             const idCab = await request(srv).post('/cabildo').set(authA).send(cabA).expect(201).then(idCheck);
             //console.error(`idCab: ${idCab}`);
-
-            // get a cabildo back
-            const oneCabildo = await request(srv).get('/cabildo').set(authA).expect(200)
-            expect(oneCabildo.body).toHaveLength(1);
 
             // first user follows second user
             const AfollowB = await request(srv).post('/user/followuser').set(authA)
@@ -102,15 +88,15 @@ describe('AppController (e2e)', () => {
 
             // post activites
             const idActA = await request(srv).post('/activity').set(authB).send(actA)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idActB = await request(srv).post('/activity').set(authB).send(actB)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idActC = await request(srv).post('/activity').set(authB).send(actC)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idActD = await request(srv).post('/activity').set(authB).send(actD)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idActE = await request(srv).post('/activity').set(authB).send(actE)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             //console.error("posted activities");
 
             // prapare comments with user and activity ids
@@ -139,36 +125,36 @@ describe('AppController (e2e)', () => {
             // post comments
             //console.error(comA0);
             const idComA0 = await request(srv).post('/activity/comment').set(authB).send(comA0)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             //console.error(idComA0);
             const idComA1 = await request(srv).post('/activity/comment').set(authB).send(comA1)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComA2 = await request(srv).post('/activity/comment').set(authB).send(comA2)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComB0 = await request(srv).post('/activity/comment').set(authB).send(comB0)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComB1 = await request(srv).post('/activity/comment').set(authB).send(comB1)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComB2 = await request(srv).post('/activity/comment').set(authB).send(comB2)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComC0 = await request(srv).post('/activity/comment').set(authB).send(comC0)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComC1 = await request(srv).post('/activity/comment').set(authB).send(comC1)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComC2 = await request(srv).post('/activity/comment').set(authB).send(comC2)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComD0 = await request(srv).post('/activity/comment').set(authB).send(comD0)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComD1 = await request(srv).post('/activity/comment').set(authB).send(comD1)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComD2 = await request(srv).post('/activity/comment').set(authB).send(comD2)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComE0 = await request(srv).post('/activity/comment').set(authB).send(comE0)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComE1 = await request(srv).post('/activity/comment').set(authB).send(comE1)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             const idComE2 = await request(srv).post('/activity/comment').set(authB).send(comE2)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
             //console.error("posted comments");
 
             // post 100 replies
@@ -184,7 +170,7 @@ describe('AppController (e2e)', () => {
                         idActivity: idActE,
 
                     }
-                ).expect(201).then(idCheck).catch(err => done(err));
+                ).expect(201).then(idCheck).catch(done);
             }
             const reactDos = {
                 idActivity: idActD,
@@ -194,26 +180,16 @@ describe('AppController (e2e)', () => {
                 }
             };
 
-            //console.error("idreact");
             const React = await request(srv).post('/activity/react').set(authB).send(reactDos).expect(201);
             const idReact = React.body.id
-            //console.error(idReact);
 
-            // get activity feed for first user
-            //console.error('feeda');
-            //const feedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
-            //        console.error(feedA.body);
-
-            //console.error("idreactagain");
             const idReactAgain = await request(srv).put(`/activity/react`).set(authB).send(
                 {
                     idReaction: idReact,
                     idActivity: idActD,
                     value: -2,
                 }).expect(200);
-            //        console.error(idReactAgain.body);
 
-            //console.error("voting on things");
             const upVote = {
                 idActivity: idActA,
                 vote: {
@@ -223,113 +199,11 @@ describe('AppController (e2e)', () => {
             };
             const res1 = await request(srv).post('/activity/vote').set(authA)
                 .send(upVote).expect(201)
-            // Getting async timeout error here, console.error in activity controller/spec, need to fix.
-            //const publicFeed = await request(srv).get(`/activity/public`).set(authA).expect(200);
-            //console.error("publicFeed:");
-            //console.error(publicFeed.body[0]);
-
-            //console.error("updating");
             const upd1 = await request(srv).put('/activity/vote').set(authA)
                 .send({idVote:res1.body.id,idActivity:idActA,value:-1}).expect(200)
-            //const publicFeed2 = await request(srv).get(`/activity/public`).set(authA).expect(200);
-            //console.error("publicFeed2:");
-            //console.error(publicFeed2.body[0]);
-            //console.error('votecomment');
             const voteComment = await request(srv).post('/activity/comment/vote').set(authB)
                 .send({idActivity: idActA,idComment: idComA0,vote:{idUser:idB,value:1}})
                 .expect(201)
-            //console.error('del1');
-            //const del1 = await request(srv).delete('/activity/vote').set(authA)
-            //    .send({idVote:res1.body.id,idActivity:idActA}).expect(200)
-            //console.error('p3');
-            // Getting async timeout error here, console.error in activity controller/spec, need to fix.
-            //const publicFeed3 = await request(srv).get(`/activity/public`).set(authA).expect(200);
-            //console.error("publicFeed3:");
-            //console.error(publicFeed3.body[0]);
-
-            // get activity feed for second user
-            //console.error('feedb');
-            //const feedB = await request(srv).get(`/user/feed/${idB}`).set(authA).expect(200);
-            //console.error(feedB.body);
-
-            // should have differing reactions and scores
-            //fails bc null??        expect(feedA.body.activityFeed).toMatchObject(feedB.body.activityFeed)
-            // make a new user
-            //const idC = await request(srv).post('/user').send(userC).expect(201).then(idCheck);
-            //console.error(`idC: ${idC}`);
-
-            // get a blank activity feed
-            // ASYNC TIMEOUT
-            //const feedC = await request(srv).get(`/user/feed/${idC}`).set(authA).expect(200)
-            // expect(feedC.body.activityFeed).toStrictEqual([]);
-
-            // third user follows a cabildo
-            //const CfollowC = await request(srv).post('/user/followcabildo').set(authA)
-            //    .send({idCabildo: idCab}).expect(/now follows cabildo/)
-            //console.error(`CfollowC`);
-
-            // get a populated activity feed
-            //const feedC2 = await request(srv).get(`/user/feed/${idC}`).set(authA).expect(200)
-            //console.error("feedC");
-            //        console.error(feedC.body);
-
-            // Need to add activityFeed update when a user follows a cabildo or another user
-            // to include the activities from that entity
-            //expect(feedC2.body.activityFeed).toStrictEqual(feedB.body.activityFeed)
-            // const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
-            // console.error("userFeedA:");
-            // console.error(userFeedA.body);
-            // const userFeedB = await request(srv).get(`/user/feed/${idB}`).set(authA).expect(200);
-            // console.error("userFeedB:");
-            // console.error(userFeedB.body);
-            //console.log("getting homeA");
-            const userHomeA = await request(srv).get(`/user/home`).set(authA).expect(200);
-            //console.error("userHomeA:");
-//            console.error(userHomeA.body);
-            //console.log("getting homeB");
-            const userHomeB = await request(srv).get(`/user/home`).set(authB).expect(200);
-            //console.error("userHomeB:");
-//            console.error(userHomeB.body);
-//            expect(userHomeA.body).toStrictEqual([]);
-            // const cabildoFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authA).expect(200);
-            // console.error("cabildoFeed:");
-            // console.error(cabildoFeed.body);
-
-
-            ////// Positive Tests Needed:
-            // add replies to comments
-            // react to all things
-            // vote on poll
-
-            // test for full population of nested object refs
-            // update an activity and ensure difference on everyones feed
-
-
-            ////// Negative Tests Needed:
-
-            /// TBD: should all negative tests go in unit test?
-            /// If they only deal with a single module, yes.
-            /// If we have multi-module negative tests, they happen here.
-
-            // move -- model level tests to unit testing
-            // add a conflicting user.email -- model level
-            // add a conflicting cabildo.name -- model level
-            // add an activity with bad fields -- model level
-            // add a comment with bad fields -- model level
-            // add a reply with bad fields -- model level
-            // new user follows cabildo check if feed updates
-            // add things with id's that reference the wrong kind of object
-            //console.error("finished")
-
-            // get activity public
-            const activityPublic = request(srv).get('activity/public').set(authA).expect(200);
-
-            // Cabildo to be deleted
-            cabB.cabildo.admin = idA;
-            const idCabB = await request(srv).post('/cabildo').set(authA).send(cabB).expect(201).then(idCheck);
-            // delete Cabildo
-            const deleteCabildoA = request(srv).delete('cabildo/' + idCabB).set(authA).expect(200); // return ok, cabildo deleted
-            const deleteCabildoB = request(srv).delete('cabildo/fakeIdCabildo').set(authA).expect(404); // return 404 cabildo not found
 
             done();
         } else {
@@ -369,13 +243,13 @@ describe('AppController (e2e)', () => {
             actA.activity.idUser = idA;
             actA.activity.idCabildo = idCab;
             const idActA = await request(srv).post('/activity').set(authA).send(actA)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
 
             // A comment
             comA0.comment.idUser = idA;
             comA0.idActivity = idActA;
             const idComA0 = await request(srv).post('/activity/comment').set(authA).send(comA0)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
 
             // A Reply
             const idReply = await request(srv).post('/activity/reply').set(authA).send(
@@ -388,7 +262,7 @@ describe('AppController (e2e)', () => {
                     idComment: idComA0,
                     idActivity: idActA,
                 }
-            ).expect(201).then(idCheck).catch(err => done(err));
+            ).expect(201).then(idCheck).catch(done);
 
             // A Reaction
             const react = {
@@ -551,13 +425,13 @@ describe('AppController (e2e)', () => {
             actA.activity.idUser = idA;
             actA.activity.idCabildo = idCab;
             const RidActA = await request(srv).post('/activity').set(authA).send(actA)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
 
             // A comment
             comA0.comment.idUser = idA;
             comA0.idActivity = RidActA;
             const RidComA0 = await request(srv).post('/activity/comment').set(authA).send(comA0)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
 
             // A Reply
             const RidReply = await request(srv).post('/activity/reply').set(authA).send(
@@ -570,7 +444,7 @@ describe('AppController (e2e)', () => {
                     idComment: RidComA0,
                     idActivity: RidActA,
                 }
-            ).expect(201).then(idCheck).catch(err => done(err));
+            ).expect(201).then(idCheck).catch(done);
 
             // A Reaction
             const Rreact = {
@@ -631,7 +505,7 @@ describe('AppController (e2e)', () => {
             comA0.comment.idUser = idA;
             comA0.idActivity = RidActA;
             const RRidComA0 = await request(srv).post('/activity/comment').set(authA).send(comA0)
-                .expect(201).then(idCheck).catch(err => done(err));
+                .expect(201).then(idCheck).catch(done);
 
             // Re-reply
             const RRidReply = await request(srv).post('/activity/reply').set(authA).send(
@@ -644,7 +518,7 @@ describe('AppController (e2e)', () => {
                     idComment: RRidComA0,
                     idActivity: RidActA,
                 }
-            ).expect(201).then(idCheck).catch(err => done(err));
+            ).expect(201).then(idCheck).catch(done);
             // A comment vote
             const RRvoteComment = await request(srv).post('/activity/comment/vote').set(authA)
                 .send({idActivity: RidActA,idComment: RRidComA0,vote:{idUser:idA,value:1}}).expect(201).then(idCheck);
@@ -735,6 +609,9 @@ describe('AppController (e2e)', () => {
                 expect(userBView.body).toStrictEqual([]);
             }
 
+            // get activity public
+            const activityPublic = request(srv).get('activity/public').set(authA).expect(200);
+
             // Cabildo to be deleted
             cabB.cabildo.admin = idA;
             const idCabB = await request(srv).post('/cabildo').set(authA).send(cabB).expect(201).then(idCheck);
@@ -742,24 +619,6 @@ describe('AppController (e2e)', () => {
             const deleteCabildoWrongUser = request(srv).delete('cabildo/' + idCabB).set(authB).expect(401); // return unauthorized
             const deleteCabildoA = request(srv).delete('cabildo/' + idCabB).set(authA).expect(200); // return ok, cabildo deleted
             const deleteCabildoB = request(srv).delete('cabildo/fakeIdCabildo').set(authA).expect(404); // return 404 cabildo not found
-
-            // Now we have an activity, a comment, a reply, and a reaction/vote on each.
-
-            // UserA made everything.
-
-            // if userA -> cabA and userA -> userB, then:
-            // userA makes these
-            // userA sees this in personal, follow, cabildo, public
-            // userB sees this in public, but not follow or personal, and can't see cabildo.
-
-            // then userB follows userA, and sees it in follow, but can't see cabildo
-            // then userB unfollows userA and can't see it
-            // then userB follows cabildoA and can see it
-            // then userB unfollows cabildoA and can't see it
-            // then userB tries to delete activityA and fails
-            // it still appears for userA
-            // then userA deletes activityA and succeeds
-            // then feeds are empty
 
             // Goodbye!
             done();
@@ -773,25 +632,25 @@ describe('AppController (e2e)', () => {
 
 x  Auth:
 x    Post   /auth/login
-  User:
+x  User:
 x    Post   /user
 x    Get    /user/feed/:idUser
 x    Get    /user/home
-    Get    /user/:idUser
+x    Get    /user/:idUser
 x    Post   /user/followcabildo
 x    Post   /user/followuser
 x    Post   /user/unfollowcabildo
 x    Post   /user/unfollowuser
-  Cabildo:
+x  Cabildo:
 x    Post   /cabildo
 x    Get    /cabildo
 x    Get    /cabildo/check/:cabildoName
 x    Get    /cabildo/feed/:idCabildo
 x    Get    /cabildo/profile/:idCabildo
-    Delete /cabildo
-  Activity:
+x    Delete /cabildo                      // Needs relational data check
+x  Activity:
 x    Post   /activity
-    Get    /activity/public
+x    Get    /activity/public
 x    Get    /activity/:idActivity
 x    Put    /activity
 x    Delete /activity
