@@ -177,9 +177,11 @@ export class ActivityController {
 
     @Get('comment/:idComment')
     async getCommentById(
+        @Headers() header: any,
         @Param('idComment') idComment: string,
     ) {
-        return await this.commentService.getCommentById(idComment);
+        const idUser = idFromToken(header.authorization);
+        return await this.commentService.getCommentById(idComment, idUser);
     }
 
     @Put('comment')
@@ -286,9 +288,11 @@ export class ActivityController {
 
     @Get('reply/:idReply')
     async getReplyById(
+        @Headers() header: any,
         @Param('idReply') idReply: string,
     ) {
-        return await this.replyService.getReplyById(idReply);
+        const idUser = idFromToken(header.authorization);
+        return await this.replyService.getReplyById(idReply, idUser);
     }
 
     @Put('reply')

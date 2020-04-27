@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
+import { commentPop } from '../../constants';
 import { validateId } from '../../utils';
 import { Comment } from './comment.schema';
 
@@ -9,7 +10,7 @@ import { Comment } from './comment.schema';
 export class CommentService {
     constructor(
         @InjectModel('Comment') private readonly commentModel: mongoose.Model<Comment>,
-	) {}
+    ) {}
 
     async insertComment(comment: Comment) {
         const newComment = new this.commentModel(comment);
@@ -38,26 +39,25 @@ export class CommentService {
         );
     }
 
-    async getCommentById(idComment: string) {
-        return await this.findComment(idComment);
-    }
-
-    async deleteComment(idComment: string) {
-        const comment = await this.commentModel.findByIdAndDelete(idComment).exec();
-        if (comment === null) {
+    async getCommentById(idComment: string, idUser: string) {
+        let comment;
+        try {
+            comment = await this.commentModel
+                .findById(idComment)
+                .populate(commentPop(idUser, 10))
+                .exec();
+        } catch (error) {
+            throw new NotFoundException('Could not find comment.');
+        }
+        if (!comment) {
             throw new NotFoundException('Could not find comment.');
         }
         return comment;
     }
 
-    private async findComment(idComment: string) {
-        let comment;
-        try {
-            comment = await this.commentModel.findById(idComment).exec();
-        } catch (error) {
-            throw new NotFoundException('Could not find comment.');
-        }
-        if (!comment) {
+    async deleteComment(idComment: string) {
+        const comment = await this.commentModel.findByIdAndDelete(idComment).exec();
+        if (comment === null) {
             throw new NotFoundException('Could not find comment.');
         }
         return comment;

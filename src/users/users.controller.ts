@@ -115,7 +115,7 @@ export class UserController {
         const follower = await this.userService.unfollowCabildo(idUser, idCabildo);
         const followed = await this.cabildoService.removeUser(idCabildo, idUser);
         if (follower && followed) {
-            return `user ${idUser} no longer follows cabildo ${idCabildo}`;
+            return `user no longer follows cabildo`;
         }
         throw new UnprocessableEntityException();
     }
@@ -132,7 +132,7 @@ export class UserController {
         }
         const success = await this.userService.unfollowUser(idUser, idOther);
         if (success) {
-            return `user ${idUser} no longer follows user ${idOther}`;
+            return `user no longer follows user`;
         }
         throw new UnprocessableEntityException();
     }

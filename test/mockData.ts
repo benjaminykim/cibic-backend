@@ -81,6 +81,20 @@ let cabA = {
         activityFeed: []
     }
 };
+let cabB = {
+    cabildo: {
+        name: "cabildo to be deleted",
+        members: [],
+        moderators: [],
+        admin: null, // fill
+        location: "to be deleted",
+        desc: 'the cabildo b',
+        issues: [],
+        meetings: [],
+        files: [],
+        activityFeed: []
+    }
+};
 let actA = {
     activity: {
         idUser: null,
@@ -284,7 +298,7 @@ let reply = {
 
 export {
     userA,userB,userC,
-    cabA,
+    cabA,cabB,
     actA,comA0,comA1,comA2,
     actB,comB0,comB1,comB2,
     actC,comC0,comC1,comC2,

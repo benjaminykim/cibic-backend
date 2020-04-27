@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
+import { replyPop } from '../../constants';
 import { validateId } from '../../utils';
 import { Reply } from './reply.schema';
 
@@ -26,27 +27,24 @@ export class ReplyService {
         return result;
     }
 
-    async getReplyById(idReply: string) {
-        const reply = await this.findReply(idReply);
+    async getReplyById(idReply: string, idUser: string) {
+        let reply;
+        try {
+            reply = await this.replyModel
+                .findById(idReply)
+                .populate(replyPop(idUser));
+        } catch (error) {
+            throw new NotFoundException('Could not find reply.');
+        }
+        if (!reply) {
+            throw new NotFoundException('Could not find reply.');
+        }
         return reply;
     }
 
     async deleteReply(idReply: string) {
         const reply = await this.replyModel.findByIdAndDelete(idReply);
         if (reply === null) {
-            throw new NotFoundException('Could not find reply.');
-        }
-        return reply;
-    }
-
-    private async findReply(idReply: string) {
-        let reply;
-        try {
-            reply = await this.replyModel.findById(idReply).exec();
-        } catch (error) {
-            throw new NotFoundException('Could not find reply.');
-        }
-        if (!reply) {
             throw new NotFoundException('Could not find reply.');
         }
         return reply;
