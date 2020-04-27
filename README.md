@@ -26,7 +26,7 @@
 
 ## Description
 
-[Cibic.io's](https://cibic.app) backend server. [Docker Compose](https://github.com/docker/compose), [MongoDB](https://github.com/mongodb/mongo) with [Mongoose](https://github.com/nestjs/mongoose), [Nest](https://github.com/nestjs/nest) with [Typescript](https://github.com/Microsoft/TypeScript).
+[Cibic.io's](https://www.cibic.app) backend server. [Docker Compose](https://github.com/docker/compose), [MongoDB](https://github.com/mongodb/mongo) with [Mongoose](https://github.com/nestjs/mongoose), [Nest](https://github.com/nestjs/nest) with [Typescript](https://github.com/Microsoft/TypeScript).
 
 ## Installation
 

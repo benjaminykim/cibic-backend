@@ -11,7 +11,7 @@ services:
       DEPLOY_ENV: development
     volumes:
       - type: bind
-        source: .
+        source: ./app
         target: /app
       - type: volume
         source: api_modules
