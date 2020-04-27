@@ -11,21 +11,34 @@
 ### Production
 
 We currently use [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security) in production.
-For a first time install, edit `init-letsencrypt.sh` to contain your machine's public url and your own email, and edit data/nginx/app.conf in the same manner, then run the following command:
+For a first time install, edit ./init-letsencrypt.sh to contain your machine's public url and your own email, and edit ./data/nginx/app.conf in the same manner, then run the following command:
 
 ```bash
 $ sudo ./init-letsencrypt.sh
 ```
 
 This will create a dummy certificate, spin up nginx, complete an acme-challenge, and give you a real Lets Encrypt certificate.
-`./docker-start prod` to turn everything on, and `curl https://your-chosen-domain/api/` after a few seconds.
+
+```bash
+# to turn everything on
+$ ./docker-start prod
+# and after a few seconds
+$ curl https://your-chosen-domain/api/
+```
 You should get a Hello World! response once it's running.
 
 ### Development
 
 We are fully dockerized, use the docker-start script to launch the app in your mode of choice.
 We run development without https, with the container ports exposed directly on the host machine.
-Run `./docker-start dev` to spin up the server, and `curl localhost:3000` after a few seconds.
+
+```bash
+# to spin up the server
+$ ./docker-start dev
+# and after a few seconds
+$ curl localhost:3000
+```
+
 You should get a Hello World! response once it's running.
 
 ### Testing
@@ -34,16 +47,15 @@ You should get a Hello World! response once it's running.
 # unit tests
 $ ./docker-start test
 
-# e2e tests
+# e2e test
 $ ./docker-start e2e
-
 ```
 
 ## Contact
 
 We take email is [cibic.media@gmail.com](mailto:cibic.media@gmail.com), and our site is [here](https://www.cibic.app) if our server is working.
 
-## Nest.js things
+## Nest.js Things
 
 [travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
 [travis-url]: https://travis-ci.org/nestjs/nest
