@@ -27,7 +27,6 @@ then
     if [ $USER = "ubuntu" ]
     then
         echo "DO NOT RUN THIS ON EC2 IT WILL DESTROY THE DATABASE"
-        exit;
     fi
     docker-compose down;
     docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$ARG.yml $CMD;

@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "sudo ./init-letsencrypt.sh && node dist/main",
+    "start:prod": "node dist/main",
     "start:populate": "jest --config ./test/jest-e2e.json --detectOpenHandles --forceExit && nest start --watch",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",

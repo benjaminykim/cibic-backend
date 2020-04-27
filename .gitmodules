@@ -1,0 +1,3 @@
+[submodule "cibic-web"]
+	path = cibic-web
+	url = https://github.com/cibic-io/cibic-web.git

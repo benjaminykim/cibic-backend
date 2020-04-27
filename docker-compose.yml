@@ -27,3 +27,4 @@ services:
     container_name: cibic_mongodb
     expose:
       - "27017"
+
