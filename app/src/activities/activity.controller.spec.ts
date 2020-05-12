@@ -31,13 +31,13 @@ describe('ActivityController', () => {
     let controller: ActivityController;
 
     beforeEach(async () => {
-        let activityModel = mongoose.model('Activity', ActivitySchema);
-        let userModel = mongoose.model('User', UserSchema);
-        let cabildoModel = mongoose.model('Cabildo', CabildoSchema);
-        let commentModel = mongoose.model('Comment', CommentSchema);
-        let replyModel = mongoose.model('Reply', ReplySchema);
-        let reactionModel = mongoose.model('Reaction', ReactionSchema);
-        let voteModel = mongoose.model('Vote', VoteSchema);
+        const activityModel = mongoose.model('Activity', ActivitySchema);
+        const userModel = mongoose.model('User', UserSchema);
+        const cabildoModel = mongoose.model('Cabildo', CabildoSchema);
+        const commentModel = mongoose.model('Comment', CommentSchema);
+        const replyModel = mongoose.model('Reply', ReplySchema);
+        const reactionModel = mongoose.model('Reaction', ReactionSchema);
+        const voteModel = mongoose.model('Vote', VoteSchema);
         const module: TestingModule = await Test.createTestingModule({
             controllers: [ActivityController],
             providers: [

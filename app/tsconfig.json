@@ -8,11 +8,11 @@
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
-        "target": "es2017",
+        "target": "es6",
         "sourceMap": true,
         "outDir": "./dist",
         "baseUrl": "./",
         "incremental": true
     },
-    "exclude": ["node_modules", "dist"]
+    "exclude": ["node_modules", "dist", "src/migration"]
 }

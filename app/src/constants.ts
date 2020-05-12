@@ -1,27 +1,27 @@
 
-export const userPopulate = {// use for idUser field subpopulation
-    path:'idUser',
+export const userPopulate = {// use for userId field subpopulation
+    path:'userId',
     model: 'User',
     select:'_id username citizenPoints'
 };
 
-export const votePopulate = idUser => ({ // to get a user's vote
+export const votePopulate = userId => ({ // to get a user's vote
     path: 'votes',
     model: 'Vote',
     match: {
-        idUser: idUser,
+        userId: userId,
     },
 });
 
 export const replyPop = (
-    idUser: string,
+    userId: string,
 ) => ([
         userPopulate,
-        votePopulate(idUser),
+        votePopulate(userId),
 ]);
 
 export const replyPopulate = (
-    idUser: string,
+    userId: string,
     replyNum: number = 10,
 ) => ({
     path: 'reply',
@@ -30,19 +30,19 @@ export const replyPopulate = (
         limit: replyNum,
         sort: 'field -score',
     },
-    populate: replyPop(idUser),
+    populate: replyPop(userId),
 });
 
 export const commentPop = (
-    idUser: string,
+    userId: string,
     replyNum: number,
 ) => ([
         userPopulate,
-        votePopulate(idUser),
-        replyPopulate(idUser, replyNum),
+        votePopulate(userId),
+        replyPopulate(userId, replyNum),
 ]);
 export const commentPopulate = (
-    idUser: string,
+    userId: string,
     comNum: number,
     replyNum: number,
 ) => ({
@@ -52,31 +52,31 @@ export const commentPopulate = (
         limit: comNum,
         sort: 'field -score'
     },
-    populate: commentPop(idUser, replyNum),
+    populate: commentPop(userId, replyNum),
 });
 
 export const activityPopulate = (
-    idUser: string,
+    userId: string,
     comNum: number = 100,
     replyNum: number = 10,
 ) => ([//use on any list of activity ids
     userPopulate,
-    votePopulate(idUser),
+    votePopulate(userId),
     { // info about cabildo posted to
-        path: 'idCabildo',
+        path: 'cabildoId',
         model: 'Cabildo',
         select: 'name _id',
     },
     { // the reaction of the user
         path: 'reactions',
         model: 'Reaction',
-        match: { idUser: idUser },
+        match: { userId: userId },
     },
-    commentPopulate(idUser, comNum, replyNum),
+    commentPopulate(userId, comNum, replyNum),
 ]);
 
 export const feedPopulate = (
-    idUser: string,
+    userId: string,
     lim: number,
     off: number,
     sort: string = '-ping',
@@ -88,11 +88,11 @@ export const feedPopulate = (
         offset: off,
         sort: sort,
     },
-    populate: activityPopulate(idUser),
+    populate: activityPopulate(userId),
 });
 
 export const followPopulate = (
-    idUser: string,
+    userId: string,
     lim: number,
     off: number,
 ) => ([
@@ -100,13 +100,13 @@ export const followPopulate = (
         path: 'following',
         model: 'User',
         select: 'activityFeed -_id',
-        populate: feedPopulate(idUser, lim, off),
+        populate: feedPopulate(userId, lim, off),
     },
     {
         path: 'cabildos',
         model: 'Cabildo',
         select: 'activityFeed -_id',
-        populate: feedPopulate(idUser, lim, off),
+        populate: feedPopulate(userId, lim, off),
     },
 ]);
 

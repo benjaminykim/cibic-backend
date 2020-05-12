@@ -63,7 +63,7 @@ describe('UserController', () => {
         it('should be defined', () => {
             expect(controller).toBeDefined();
         });
-        it('shouldn`t find an invalid idUser', () => {
+        it('shouldn`t find an invalid userId', () => {
             return controller.getUserProfile("4c6d7a6a5")
                 .catch(err => expect(err).toBeInstanceOf(NotFoundException));
         })

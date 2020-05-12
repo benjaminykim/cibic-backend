@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CabildoService } from './cabildo.service';
 import { CabildoController } from './cabildo.controller';
-import { CabildoSchema } from './cabildo.schema';
+import { Cabildo } from './cabildo.entity';
 
 @Module({
     imports: [
-        MongooseModule.forFeature([{name: 'Cabildo', schema: CabildoSchema}]),
+        TypeOrmModule.forFeature([Cabildo]),
     ],
     controllers: [CabildoController],
     providers: [CabildoService],
-    exports: [CabildoService,MongooseModule],
+    exports: [CabildoService,TypeOrmModule],
 })
 export class CabildoModule {}

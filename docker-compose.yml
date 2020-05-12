@@ -17,14 +17,15 @@ services:
         source: api_modules
         target: /app/node_modules
     depends_on:
-      - mongo_serve
+      - db
     links:
-      - mongo_serve
+      - db
     tty: true
     stdin_open: true
-  mongo_serve:
-    image: mongo
-    container_name: cibic_mongodb
+  db:
+    image: postgres:12.2-alpine
+    container_name: cibic_pg
     expose:
-      - "27017"
-
+      - "5432"
+    env_file:
+      - .env

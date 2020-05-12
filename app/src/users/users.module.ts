@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { UserSchema } from './users.schema';
+import { User } from './users.entity';
 import { UserService } from './users.service';
 import { UserController } from './users.controller';
 
@@ -9,11 +9,11 @@ import { CabildoModule } from '../cabildos/cabildo.module';
 
 @Module({
 	imports: [
-		MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+		TypeOrmModule.forFeature([User]),
 		  CabildoModule,
 	],
 	providers: [UserService],
 	controllers: [UserController],
-	exports: [UserService, MongooseModule],
+	exports: [UserService, TypeOrmModule],
 })
 export class UserModule { }

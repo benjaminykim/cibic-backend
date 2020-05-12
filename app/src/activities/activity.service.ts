@@ -3,104 +3,98 @@ import {
     NotFoundException,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { feedPopulate, activityPopulate } from '../constants'
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { validateId } from '../utils';
-//import { AuthService } from '../auth/auth.service';
-import { Activity } from './activity.schema';
+import { Activity } from './activity.entity';
 
 @Injectable()
 export class ActivityService {
     constructor(
-        @InjectModel('Activity') private readonly activityModel: mongoose.Model<Activity>,
+        @InjectRepository(Activity) private readonly repository: Repository<Activity>,
     ) {
     }
 
-    async incPing(idActivity: string, value: number) {
+    async incPing(activityId: number, value: number) {
         // Call this when an interaction requires change in ping
         // But isn't already updating Activity Document
         // Otherwise do this inline in query
-        return await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            { $inc: { ping: value }}
-        );
+        return await this.repository.increment(
+            {id: activityId},
+            'ping', value);
     }
 
     // Activity Flow
 
     async insertActivity(activity: Activity) {
-        const newActivity = new this.activityModel(activity);
-        const result = await newActivity.save();
+        const newActivity = await this.repository.create(activity);
+        const result = await this.repository.save(newActivity);
         const genId = result.id;
-        return genId as string;
+        return genId as number;
     }
 
-    async updateActivity(idActivity: string, content: string) {
-        const result = await this.activityModel.findByIdAndUpdate(
-            idActivity,
+    async updateActivity(activityId: number, content: string) {
+        const result = await this.repository.update(
+            {id: activityId},
             { text: content },
         );
         return result;
     }
 
-    async commentActivity(idComment: string, idActivity) {
-        const result = await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            {
-                $inc: {
-                    ping: 1,
-                    commentNumber: 1,
-                },
-                $addToSet: { comments: idComment }
-            },
-        );
-        return result;
+    async commentActivity(commentId: number, activityId) {
+        const incP = await this.repository.increment({id: activityId}, 'ping', 1);
+        const incCN = await this.repository.increment({id: activityId}, 'commentNumber', 1);
+        const result = await this.repository
+            .createQueryBuilder()
+            .relation(Activity, 'comments')
+            .of(activityId)
+            .add(commentId);
+        return true;
     }
-    async deleteComment(idComment: string, idActivity) {
-        const result = await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            {
-                $inc: {
-                    ping: -1,
-                    commentNumber: -1,
-                },
-                $pull: { comments: idComment }
-            },
-        );
-        return result;
+    async deleteComment(commentId: number, activityId) {
+        const incP = await this.repository.decrement({id: activityId}, 'ping', 1);
+        const incCN = await this.repository.decrement({id: activityId}, 'commentNumber', 1);
+        return true;
     }
 
-    async getPublicFeed(idUser: string, limit: number = 20, offset: number = 0) { // list all activities
-//        console.error("reentry");
-        let activities = await this.activityModel.find().skip(offset).limit(limit);
-//        console.error(activities[0]);
-//        console.error("returning inner");
-        let query = activityPopulate(idUser);
-//        console.error(query);
-        let ret = await this.activityModel.populate(activities, query);
-//        console.error(ret)
-        return ret;
+    async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) { // list all activities
+        const activities = await this.repository.find({skip: offset, take: limit});
+        return activities;
     }
 
-    async getActivityById(idUser: string, idActivity: string) {
-        const activity = await this.activityModel.findById(idActivity);
-        return await this.activityModel.populate(activity, activityPopulate(idUser));
-    }
-
-    async deleteActivity(idActivity: string) {
-        const activity = await this.activityModel.findByIdAndDelete(idActivity).exec();
-        //callback stuf here TODO SMONROE
-        if (activity === null) {
-            throw new NotFoundException('Could not find activity.');
-        }
-        return activity;
-    }
-
-    private async findActivity(idActivity: string) {
+    async getActivityById(activityId: number, userId?: number) {
         let activity;
         try {
-            activity = await this.activityModel.findById(idActivity).exec();
+            if (userId) {
+                activity = await this.repository
+                    .createQueryBuilder()
+                    .select("activity")
+                    .from(Activity, "activity")
+                    .where("activity.id = :activityId", {activityId: activityId})
+                    .leftJoinAndSelect("activity.cabildo", "cabildo")
+                    .leftJoinAndSelect("activity.comments", "comments")
+                    .leftJoinAndSelect("comments.replies", "replies")
+                    .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", {userId: userId})
+                    .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", {userId: userId})
+                    .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
+                    .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", {user: userId})
+                    .getOne()
+            }
+            else {
+                activity = await this.repository
+                    .createQueryBuilder()
+                    .select("activity")
+                    .from(Activity, "activity")
+                    .where("activity.id = :activityId", {activityId: activityId})
+                    .leftJoinAndSelect("activity.cabildo", "cabildo")
+                    .leftJoinAndSelect("activity.comments", "comments")
+                    .leftJoinAndSelect("comments.replies", "replies")
+                    .leftJoinAndSelect("replies.votes", "rvotes")
+                    .leftJoinAndSelect("comments.votes", "cvotes")
+                    .leftJoinAndSelect("activity.votes", "votes")
+                    .leftJoinAndSelect("activity.reactions", "reactions")
+                    .getOne()
+            }
         } catch (error) {
             throw new NotFoundException('Could not find activity.');
         }
@@ -110,115 +104,100 @@ export class ActivityService {
         return activity;
     }
 
-    async exists(idActivity: string) {
-        await validateId(idActivity);
-        let it = await this.activityModel.exists({_id: idActivity});
-        if (!it)
+    async deleteActivity(activityId: number) {
+        const activity = await this.repository.delete(activityId);
+        if (activity === null) {
+            throw new NotFoundException('Could not find activity.');
+        }
+        return activity;
+    }
+
+    private async findActivity(activityId: number, userId?: number) {
+    }
+
+    async exists(activityId: number) {
+        await validateId(activityId);
+        const it = await this.repository.count({id: activityId});
+        if (!it) {
             throw new NotFoundException('Could not find reaction');
+        }
     }
 
     // Reaction Flow
 
     async addReaction(
-        idActivity: string,
-        idReaction: string,
+        activityId: number,
+        idReaction: number,
         value: number,
     ) {
-        return await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            {
-                $inc: {
-                    ping: 1,
-                    score: value,
-                },
-                $addToSet: { reactions: idReaction },
-            },
-        );
+        await this.repository.increment({id: activityId}, 'score', value);
+        await this.repository.increment({id: activityId}, 'ping', 1);
+        await this.repository
+            .createQueryBuilder()
+            .relation(Activity, 'reactions')
+            .of(activityId)
+            .add(idReaction);
+        return true;
     }
 
     async updateReaction(
-        idActivity: string,
-        idReaction: string,
+        activityId: number,
+        idReaction: number,
         oldValue: number,
         newValue: number,
     ) {
         const diff: number = newValue - oldValue;
-        return await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            {
-                $inc: { score: diff }
-            },
-        );
+        return await this.repository.increment({id: activityId}, 'score', diff);
     }
 
     async deleteReaction(
-        idActivity: string,
-        idReaction: string,
+        activityId: number,
+        idReaction: number,
         oldValue: number,
     ) {
-        return await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            {
-                $inc: {
-                    ping: -1,
-                    score: -oldValue,
-                },
-                $pull: {
-                    reactions: idReaction,
-                },
-            },
-        );
+        await this.repository.decrement({id: activityId}, 'score', oldValue);
+        await this.repository.increment({id: activityId}, 'ping', -1);
+        await this.repository
+            .createQueryBuilder()
+            .relation(Activity, 'reactions')
+            .of(activityId)
+            .remove(idReaction);
+        return true;
     }
 
     // Vote Flow
     async addVote(
-        idActivity: string,
-        idVote: string,
+        activityId: number,
+        voteId: number,
         value: number,
     ) {
-        return await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            {
-                $inc: {
-                    ping: 1,
-                    score: value,
-                },
-                $addToSet: { votes: idVote },
-            },
-        );
+        await this.repository.increment({id: activityId}, 'score', value);
+        await this.repository.increment({id: activityId}, 'ping', 1);
+        await this.repository
+            .createQueryBuilder()
+            .relation(Activity, 'votes')
+            .of(activityId)
+            .add(voteId);
+        return true;
     }
 
     async updateVote(
-        idActivity: string,
-        idVote: string,
+        activityId: number,
+        voteId: number,
         oldValue: number,
         newValue: number,
     ) {
         const diff: number = newValue - oldValue;
-        return await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            {
-                $inc: { score: diff }
-            },
-        );
+        return await this.repository.increment({id: activityId}, 'score', diff);
     }
 
     async deleteVote(
-        idActivity: string,
-        idVote: string,
+        activityId: number,
+        voteId: number,
         oldValue: number,
     ) {
-        return await this.activityModel.findByIdAndUpdate(
-            idActivity,
-            {
-                $inc: {
-                    ping: -1,
-                    score: -oldValue,
-                },
-                $pull: {
-                    votes: idVote,
-                },
-            },
-        );
+        await this.repository.decrement({id: activityId}, 'score', oldValue);
+        await this.repository.increment({id: activityId}, 'ping', -1);
+        return true;
     }
 }

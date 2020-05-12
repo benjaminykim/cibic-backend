@@ -1,51 +1,70 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { commentPop } from '../../constants';
 import { validateId } from '../../utils';
-import { Comment } from './comment.schema';
+import { Comment } from './comment.entity';
 
 @Injectable()
 export class CommentService {
     constructor(
-        @InjectModel('Comment') private readonly commentModel: mongoose.Model<Comment>,
+        @InjectRepository(Comment) private readonly repository: Repository<Comment>,
     ) {}
 
     async insertComment(comment: Comment) {
-        const newComment = new this.commentModel(comment);
-        const result = await newComment.save();
-        return result.id as string;
+        const newComment = await this.repository.create(comment);
+        const result = await this.repository.save(newComment);
+        return result.id as number;
     }
 
-    async updateComment(idComment: string, content: string) {
-        return await this.commentModel.findByIdAndUpdate(
-            idComment,
+    async updateComment(commentId: number, content: string) {
+        return await this.repository.update(
+            {id: commentId},
             { content: content },
         );
     }
 
-    async reply(idComment: string, idReply: string) {
-        return await this.commentModel.findByIdAndUpdate(
-            idComment,
-            { $push: { reply: idReply}}, // only called from insertReply, known to be unique
-        );
+    async reply(commentId: number, replyId: number) {
+        return await this.repository
+            .createQueryBuilder()
+            .relation(Comment, 'replies')
+            .of(commentId)
+            .add(replyId);
     }
 
-    async deleteReply(idComment: string, idReply: string) {
-        return await this.commentModel.findByIdAndUpdate(
-            idComment,
-            { $pull: { reply: idReply}},
-        );
+    async deleteReply(commentId: number, replyId: number) {
+        return await this.repository
+            .createQueryBuilder()
+            .relation(Comment, 'replies')
+            .of(commentId)
+            .remove(replyId);
     }
 
-    async getCommentById(idComment: string, idUser: string) {
+    async getCommentById(commentId: number, userId?: number) {
         let comment;
         try {
-            comment = await this.commentModel
-                .findById(idComment)
-                .populate(commentPop(idUser, 10))
-                .exec();
+            if (userId) {
+                comment = await this.repository
+                    .createQueryBuilder()
+                    .select("comment")
+                    .from(Comment, "comment")
+                    .where("comment.id = :commentId", {commentId: commentId})
+                    .leftJoinAndSelect("comment.replies", "replies")
+                    .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", {userId: userId})
+                    .leftJoinAndSelect("comment.votes", "votes", "votes.userId = :userId", {userId: userId})
+                    .getOne()
+            }
+            else {
+                comment = await this.repository
+                    .createQueryBuilder()
+                    .select("comment")
+                    .from(Comment, "comment")
+                    .where("comment.id = :commentId", {commentId: commentId})
+                    .leftJoinAndSelect("comment.replies", "replies")
+                    .leftJoinAndSelect("replies.votes", "rvotes")
+                    .leftJoinAndSelect("comment.votes", "votes")
+                    .getOne()
+            }
         } catch (error) {
             throw new NotFoundException('Could not find comment.');
         }
@@ -55,68 +74,49 @@ export class CommentService {
         return comment;
     }
 
-    async deleteComment(idComment: string) {
-        const comment = await this.commentModel.findByIdAndDelete(idComment).exec();
-        if (comment === null) {
-            throw new NotFoundException('Could not find comment.');
-        }
+    async deleteComment(commentId: number) {
+        const comment = await this.repository.delete(commentId)
         return comment;
     }
 
-    async exists(idComment: string | object) {
-        await validateId(idComment as string);
-        let it = await this.commentModel.exists({_id: idComment});
+    async exists(commentId: number) {
+        await validateId(commentId as number);
+        let it = await this.repository.count({id: commentId});
         if (!it)
             throw new NotFoundException('Could not find comment');
     }
 
     // Vote Flow
     async addVote(
-        idComment: string,
-        idVote: string,
+        commentId: number,
+        voteId: number,
         value: number,
     ) {
-        return await this.commentModel.findByIdAndUpdate(
-            idComment,
-            {
-                $inc: {
-                    score: value,
-                },
-                $addToSet: { votes: idVote },
-            },
-        );
+        await this.repository.increment({id: commentId}, 'score', value);
+        await this.repository
+            .createQueryBuilder()
+            .relation(Comment, 'votes')
+            .of(commentId)
+            .add(voteId);
+        return true;
     }
 
     async updateVote(
-        idComment: string,
-        idVote: string,
+        commentId: number,
+        voteId: number,
         oldValue: number,
         newValue: number,
     ) {
         const diff: number = newValue - oldValue;
-        return await this.commentModel.findByIdAndUpdate(
-            idComment,
-            {
-                $inc: { score: diff }
-            },
-        );
+        return await this.repository.increment({id: commentId}, 'score', diff);
     }
 
     async deleteVote(
-        idComment: string,
-        idVote: string,
+        commentId: number,
+        voteId: number,
         oldValue: number,
     ) {
-        return await this.commentModel.findByIdAndUpdate(
-            idComment,
-            {
-                $inc: {
-                    score: -oldValue,
-                },
-                $pull: {
-                    votes: idVote,
-                },
-            },
-        );
+        await this.repository.decrement({id: commentId}, 'score', oldValue);
+        return true;
     }
 }

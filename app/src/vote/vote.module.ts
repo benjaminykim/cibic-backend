@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { VoteSchema } from './vote.schema';
-import { VoteService } from './vote.service';
+import { ActivityVote, CommentVote, ReplyVote } from './vote.entity';
+import { ActivityVoteService, CommentVoteService, ReplyVoteService } from './vote.service';
 
 @Module({
     imports: [
-        MongooseModule.forFeature([{name: 'Vote', schema: VoteSchema}]),
+        TypeOrmModule.forFeature([
+            ActivityVote,
+            CommentVote,
+            ReplyVote,
+        ]),
     ],
-    providers: [VoteService],
-    exports: [VoteService, MongooseModule],
+    providers: [ActivityVoteService, CommentVoteService, ReplyVoteService],
+    exports: [ActivityVoteService, CommentVoteService, ReplyVoteService, TypeOrmModule],
 })
 export class VoteModule {}

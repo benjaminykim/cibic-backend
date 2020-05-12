@@ -11,20 +11,21 @@ import {
 } from '../constants'
 import { validateId } from '../utils';
 import { activityPopulate } from '../constants';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Activity } from '../activities/activity.entity';
+import { Repository, getRepository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 const saltRounds = 10;
 
-import { User } from './users.schema';
+import { User } from './users.entity';
 
 @Injectable()
 export class UserService {
-    constructor(@InjectModel('User') private readonly userModel: mongoose.Model<User>) {}
+    constructor(@InjectRepository(User) private readonly repository: Repository<User>) {}
 
     private userView = data => ({
-        id: data._id,
+        id: data.id,
         username: data.username,
         email: data.email,
         firstname: data.firstName,
@@ -41,162 +42,144 @@ export class UserService {
     });
 
     async insertUser(user: User) {
-        let collision = await this.userModel.exists({email: user.email})
-            || await this.userModel.exists({username: user.username});
+        let collision = await this.repository.count({email: user.email})
+            + await this.repository.count({username: user.username});
         if (collision)
             throw new UnprocessableEntityException();
-        const idUser = bcrypt.hash(user.password, saltRounds)
+        const userId = bcrypt.hash(user.password, saltRounds)
             .then(async hash => {
                 user.password = hash;
-                const newUser = new this.userModel(user);
-                const result = await newUser.save();
-                return result.id as string;
+                const newUser = await this.repository.create(user);
+                const result = await this.repository.save(newUser);
+                return result.id as number;
             }).catch(err => console.log(err));
-        return idUser;
+        return userId;
     }
 
-    async getProfile(idUser: string) {
-        await this.exists(idUser);
-        return await this.userModel.findById(idUser)
-            .populate(userProfilePopulate)// get activities from user's feed list
-            .lean() // return plan json object
+    async getProfile(userId: number) {
+        await this.exists(userId);
+        const tmp = await this.repository.findOne(
+            userId,
+            {
+                relations: [ // "username firstname lastname desc citizenPoints cabildos following"
+                    'cabildos',
+                    'following',
+                ],
+            });
+        return tmp;
     }
 
-    async getFeed(idUser: string, limit: number = 20, offset: number = 0) {
-        await this.exists(idUser);
-        let feed = await this.userModel.findById(idUser)
-            .populate(feedPopulate(idUser, limit, offset))
-            .lean() // return plain json object
-        return feed.activityFeed;
+    async getFeed(userId: number, limit: number = 20, offset: number = 0) {
+        await this.exists(userId);
+        const feed = await getRepository(Activity)
+            .createQueryBuilder()
+            .select("activity")
+            .from(Activity, "activity")
+            .where('activity.user = :id', { id: userId})
+            .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("activity.reactions", "reactions")
+            .leftJoinAndSelect("activity.votes", "activityVotes")
+            .leftJoinAndSelect("comments.replies", "replies")
+            .leftJoinAndSelect("comments.votes", "commentVotes")
+            .leftJoinAndSelect("replies.votes", "replyVotes")
+            .getMany();
+        return feed;
     }
 
-    async getFollow(idUser: string, limit: number = 20, offset: number = 0) {
-        // TODO This is HORRIBLE, we have got to find a better way to accomplish unique activity list
-        //Specifically, initial query returns duplicates
-        //We use tally object to ensure unique id list
-        //And then sort in Object.values line
-        //And then populate that final list.
-        //Gross.
-        await this.exists(idUser);
-        const user = await this.userModel
-            .findById(idUser)
-            .populate(
-                [
-                    {
-                        path: 'following',
-                        select: 'activityFeed -_id',
-                        populate: { path: 'activityFeed' },
-                    },
-                    {
-                        path: 'cabildos',
-                        select: 'activityFeed -_id',
-                        populate: { path: 'activityFeed' },
-                    },
-                ]
-            )
-            .exec();
-        const ids = [...user.following, ...user.cabildos].map(obj => obj.activityFeed);
-        const feedIds = [].concat.apply([], ids);
-        let tally = {};
-        feedIds.forEach(id => {tally[id._id] = id});
-        const feed = await this.userModel.populate(
-            Object.values(tally).sort((a,b) => a['ping'] < b['ping'] ? 1 : -1),
-            activityPopulate(idUser));
+    async getFollow(userId: number, limit: number = 20, offset: number = 0) {
+        await this.exists(userId);
+        const user = await this.repository.findOne({id: userId})
+        const cabIds = user.cabildosIds.length ? user.cabildosIds : [0]
+        const folIds = user.followingIds.length ? user.followingIds : [0]
+        const feed = await getRepository(Activity)
+            .createQueryBuilder()
+            .select("activity")
+            .from(Activity, "activity")
+            .where("activity.cabildo IN (:...cabildos)", {cabildos: cabIds})
+            .orWhere("activity.user IN (:...following)", {following: folIds})
+            .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("comments.replies", "replies")
+            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
+            .orderBy("activity.ping", "DESC")
+            .skip(offset)
+            .take(limit)
+            .getMany()
         return feed;
     }
 
     // update idFollower's activityFeed with query of idFollowed
-    async followUser(idFollower: string, idFollowed: string) {
+    async followUser(idFollower: number, idFollowed: number) {
         await this.exists(idFollower);
         await this.exists(idFollowed);
-        const first = await this.userModel.findByIdAndUpdate(
-            idFollower,
-            { $addToSet: {following: idFollowed}},
-        );
-        const second = await this.userModel.findByIdAndUpdate(
-            idFollowed,
-            { $addToSet: {followers: idFollower}},
-        );
-        if (!first || !second) {
-            return false;
-        }
+        await this.repository
+            .createQueryBuilder()
+            .relation(User, 'following')
+            .of(idFollower)
+            .add(idFollowed);
         return true;
     }
 
-    async followCabildo(idUser: string, idCabildo: string) {
-        return await this.userModel.findByIdAndUpdate(
-            idUser,
-            { $addToSet: {cabildos: idCabildo}},
-        );
+    async followCabildo(userId: number, cabildoId: number) {
+        const ret = await this.repository
+            .createQueryBuilder()
+            .relation(User, 'cabildos')
+            .of(userId)
+            .add(cabildoId);
+        return true;
     }
 
     // update idFollower's activityFeed with query of idFollowed
-    async unfollowUser(idFollower: string, idFollowed: string) {
+    async unfollowUser(idFollower: number, idFollowed: number) {
         await this.exists(idFollower);
         await this.exists(idFollowed);
-        const first = await this.userModel.findByIdAndUpdate(
-            idFollower,
-            { $pull: {following: idFollowed}},
-        );
-        const second = await this.userModel.findByIdAndUpdate(
-            idFollowed,
-            { $pull: {followers: idFollower}},
-        );
-        if (!first || !second) {
-            return false;
-        }
+        const first = await this.repository
+            .createQueryBuilder()
+            .relation(User, 'following')
+            .of(idFollower)
+            .remove(idFollowed);
         return true;
     }
-    async unfollowCabildo(idUser: string, idCabildo: string) {
-        return await this.userModel.findByIdAndUpdate(
-            idUser,
-            { $pull: {cabildos: idCabildo}},
-        );
+    async unfollowCabildo(userId: number, cabildoId: number) {
+        await this.repository
+            .createQueryBuilder()
+            .relation(User, 'cabildos')
+            .of(userId)
+            .remove(cabildoId);
+        return true;
     }
 
-    async exists(idUser: string) {
-        await validateId(idUser);
-        let it = await this.userModel.exists({_id: idUser});
+    async exists(userId: number) {
+        let it = await this.repository.count({id: userId});
         if (!it)
             throw new NotFoundException('Could not find user.');
     }
 
-    async pushToFeed(idUser: string, idActivity: string) {//unused
-        return await this.userModel.findByIdAndUpdate(
-            idUser,
-            {$addToSet: {activityFeed: idActivity}},
-        );
+    async pushToFeed(userId: number, activityId: number) {
+         await this.repository
+            .createQueryBuilder()
+            .relation(User, 'activityFeed')
+            .of(userId)
+            .add(activityId)
+        return true;
     }
 
-    async pushToFollow(idFollower: string, idActivity: string) {
-        return await this.userModel.findByIdAndUpdate(
-            idFollower,
-            {$addToSet: {followFeed: idActivity}},
-        );
-    }
-
-    async addPoints(idUser: string | object, value: number) {
-        return await this.userModel.findByIdAndUpdate(
-            idUser,
-            { $inc: { citizenPoints: value } }
-        );
+    async addPoints(userId: number, value: number) {
+        return await this.repository
+            .increment({id: userId}, 'citizenPoints', value)
     }
 
     async getUserByEmail(email: string) {
-        return await this.userModel.findOne({ email });
+        return await this.repository.createQueryBuilder()
+            .from(User, "user")
+            .select("user")
+            .addSelect("user.password")
+            .where("user.email = :email", { email: email })
+            .getOne()
+//        return await this.repository.findOne(
 	  }
-
-    private async findUser(userId: string) {
-        let user;
-        try {
-            user = await this.userModel.findById(userId).lean().exec();
-        } catch (error) {
-            throw new NotFoundException('Could not find user.');
-        }
-        if (!user) {
-            throw new NotFoundException('Could not find user.');
-        }
-        return user;
-    }
-
 }

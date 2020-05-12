@@ -14,7 +14,7 @@ import {
 
 import { CabildoService } from '../cabildos/cabildo.service';
 import { UserService } from './users.service';
-import { User } from './users.schema';
+import { User } from './users.entity';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { idFromToken } from '../utils';
@@ -35,11 +35,11 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get('feed/:idUser') // http://localhost:3000/user/feed/:idUser
+    @Get('feed/:userId') // http://localhost:3000/user/feed/:userId
     async getUserFeed(
-        @Param('idUser') idUser: string,
+        @Param('userId') userId: number,
     ) {
-        return await this.userService.getFeed(idUser);
+        return await this.userService.getFeed(userId);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -47,36 +47,34 @@ export class UserController {
     async getUserHome(
         @Headers() headers: any,
     ) {
-        const idUser = idFromToken(headers.authorization);
-        return await this.userService.getFollow(idUser);
+        const userId = idFromToken(headers.authorization);
+        return await this.userService.getFollow(userId);
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get(':idUser')
+    @Get(':userId')
     async getUserProfile(
-        @Param('idUser') idUser: string,
+        @Param('userId') userId: number,
     ) {
-        return await this.userService.getProfile(idUser);
+        return await this.userService.getProfile(userId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('followcabildo') // http://localhost:3000/user/followcabildo
     async followCabildo(
         @Headers() h: any,
-        @Body('idCabildo') idCabildo: string,
+        @Body('cabildoId') cabildoId: number,
     ) {
-        const idUser = idFromToken(h.authorization);
-        if (!idUser || !idCabildo) {
+        const userId = idFromToken(h.authorization);
+        if (!userId || !cabildoId) {
             // Throw http exception here TODO
             throw new UnprocessableEntityException();
         }
-        await this.userService.exists(idUser);
-        await this.cabildoService.exists(idCabildo);
-
-        const follower = await this.userService.followCabildo(idUser, idCabildo);
-        const followed = await this.cabildoService.addUser(idCabildo, idUser);
-        if (follower && followed) {
-            return `user ${idUser} now follows cabildo ${idCabildo}`;
+        await this.userService.exists(userId);
+        await this.cabildoService.exists(cabildoId);
+        const follower = await this.userService.followCabildo(userId, cabildoId);
+        if (follower) {
+            return `user ${userId} now follows cabildo ${cabildoId}`;
         }
         throw new UnprocessableEntityException();
     }
@@ -85,15 +83,15 @@ export class UserController {
     @Post('followuser') // http://localhost:3000/user/followuser
     async followUser(
         @Headers() h: any,
-        @Body('idUser') idOther: string,
+        @Body('userId') idOther: number,
     ) {
-        const idUser = idFromToken(h.authorization);
-        if (!idUser || !idOther) {
+        const userId = idFromToken(h.authorization);
+        if (!userId || !idOther) {
             throw new UnprocessableEntityException();
         }
-        const success = await this.userService.followUser(idUser, idOther);
+        const success = await this.userService.followUser(userId, idOther);
         if (success) {
-            return `user ${idUser} now follows user ${idOther}: ${success}`;
+            return `user ${userId} now follows user ${idOther}: ${success}`;
         }
         throw new UnprocessableEntityException();
     }
@@ -102,18 +100,18 @@ export class UserController {
     @Post('unfollowcabildo') // http://localhost:3000/user/followcabildo
     async unfollowCabildo(
         @Headers() h: any,
-        @Body('idCabildo') idCabildo: string,
+        @Body('cabildoId') cabildoId: number,
     ) {
-        const idUser = idFromToken(h.authorization);
-        if (!idUser || !idCabildo) {
+        const userId = idFromToken(h.authorization);
+        if (!userId || !cabildoId) {
             // Throw http exception here TODO
             throw new UnprocessableEntityException();
         }
-        await this.userService.exists(idUser);
-        await this.cabildoService.exists(idCabildo);
+        await this.userService.exists(userId);
+        await this.cabildoService.exists(cabildoId);
 
-        const follower = await this.userService.unfollowCabildo(idUser, idCabildo);
-        const followed = await this.cabildoService.removeUser(idCabildo, idUser);
+        const follower = await this.userService.unfollowCabildo(userId, cabildoId);
+        const followed = await this.cabildoService.removeUser(cabildoId, userId);
         if (follower && followed) {
             return `user no longer follows cabildo`;
         }
@@ -124,13 +122,13 @@ export class UserController {
     @Post('unfollowuser') // http://localhost:3000/user/followuser
     async unfollowUser(
         @Headers() h: any,
-        @Body('idUser') idOther: string,
+        @Body('userId') idOther: number,
     ) {
-        const idUser = idFromToken(h.authorization);
-        if (!idUser || !idOther) {
+        const userId = idFromToken(h.authorization);
+        if (!userId || !idOther) {
             throw new UnprocessableEntityException();
         }
-        const success = await this.userService.unfollowUser(idUser, idOther);
+        const success = await this.userService.unfollowUser(userId, idOther);
         if (success) {
             return `user no longer follows user`;
         }

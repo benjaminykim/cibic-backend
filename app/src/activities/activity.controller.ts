@@ -17,13 +17,13 @@ import { ActivityService } from './activity.service';
 import { CommentService } from './comment/comment.service';
 import { ReplyService } from './reply/reply.service';
 import { ReactionService } from './reaction/reaction.service';
-import { VoteService } from '../vote/vote.service';
+import { ActivityVoteService, CommentVoteService, ReplyVoteService } from '../vote/vote.service';
 
-import { Activity } from './activity.schema';
-import { Comment } from './comment/comment.schema';
-import { Reply } from './reply/reply.schema';
-import { Reaction } from './reaction/reaction.schema';
-import { Vote } from '../vote/vote.schema';
+import { Activity } from './activity.entity';
+import { Comment } from './comment/comment.entity';
+import { Reply } from './reply/reply.entity';
+import { Reaction } from './reaction/reaction.entity';
+import { CommentVote, ReplyVote, ActivityVote } from '../vote/vote.entity';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { idFromToken } from '../utils';
@@ -38,7 +38,9 @@ export class ActivityController {
         private readonly commentService: CommentService,
         private readonly replyService: ReplyService,
         private readonly reactionService: ReactionService,
-        private readonly voteService: VoteService,
+        private readonly activityVoteService: ActivityVoteService,
+        private readonly commentVoteService: CommentVoteService,
+        private readonly replyVoteService: ReplyVoteService,
     ) {}
 
     // Activity Flow
@@ -48,73 +50,79 @@ export class ActivityController {
         @Headers() header: any,
         @Body('activity') activity: Activity,
     ) {
-        const idUser = idFromToken(header.authorization);
-        await this.usersService.exists(idUser);
-        if (activity.idCabildo) {
-            await this.cabildoService.exists(activity.idCabildo.toString());
+        const userId = idFromToken(header.authorization);
+        await this.usersService.exists(userId);
+        if (activity.cabildoId) {
+            await this.cabildoService.exists(activity.cabildoId);
         }
-        activity.idUser = idUser;
-        const idActivity = await this.activityService.insertActivity(activity);
-        const user = await this.usersService.pushToFeed(activity.idUser.toString(), idActivity);
-        if (activity.idCabildo) {
-            const cabildo = await this.cabildoService.pushToFeed(activity.idCabildo.toString(), idActivity);
+        activity.userId = userId;
+        const activityId = await this.activityService.insertActivity(activity);
+        const user = await this.usersService.pushToFeed(activity.userId, activityId);
+        if (activity.cabildoId) {
+            const cabildo = await this.cabildoService.pushToFeed(activity.cabildoId, activityId);
         }
-        await this.usersService.addPoints(idUser, 3);
-        return { id: idActivity };
+        await this.usersService.addPoints(userId, 3);
+        return { id: activityId };
     }
 
     @Get('public')
     async getPublicFeed(
         @Headers() h: any,
     ) {
-        let idUser = idFromToken(h.authorization);
-        const activities = await this.activityService.getPublicFeed(idUser);
+        const userId = idFromToken(h.authorization);
+        const activities = await this.activityService.getPublicFeed(userId);
         return activities;
     }
 
-    @Get(':idActivity')
+    @Get(':activityId')
     async getActivityById(
         @Headers() h: any,
-        @Param('idActivity') idActivity: string,
+        @Param('activityId') activityId: number,
     ) {
-        const idUser = idFromToken(h.authorization);
-        if (!idUser || !idActivity)
+        const userId = idFromToken(h.authorization);
+        if (!userId || !activityId) {
             throw new UnprocessableEntityException();
-        await this.activityService.exists(idActivity);
-        return await this.activityService.getActivityById(idUser, idActivity);
+        }
+        await this.activityService.exists(activityId);
+        return await this.activityService.getActivityById(userId, activityId);
     }
 
     @Put()
     async updateActivity(
-        @Body('idActivity') idActivity: string,
+        @Body('activityId') activityId: number,
         @Body('content') content: string) {
-        if (!idActivity || !content)
+        if (!activityId || !content) {
             throw new UnprocessableEntityException();
-        return await this.activityService.updateActivity(idActivity, content);
+        }
+        return await this.activityService.updateActivity(activityId, content);
     }
 
     @Delete()
     async deleteActivity(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
+        @Body('activityId') activityId: number,
     ) {
-        const idUser = idFromToken(header.authorization);
-        if (!idActivity || !idUser)
+        const userId = idFromToken(header.authorization);
+        if (!activityId || !userId) {
             throw new UnprocessableEntityException();
-        const activity = await this.activityService.deleteActivity(idActivity);
-        activity.comments.forEach(
-            async idComment => {
-                await this.activityService.deleteComment(idComment, idActivity);
-                const comment = await this.commentService.deleteComment(idComment);
-                comment.reply.forEach(async idReply => {
-                    const reply = await this.replyService.deleteReply(idReply)
-                    reply.votes.forEach(async idVote => this.voteService.deleteVote(idVote));
+        }
+        const activity = await this.activityService.getActivityById(activityId);
+        activity.commentsIds.forEach(
+            async commentId => {
+                await this.activityService.deleteComment(commentId, activityId);
+                const comment = await this.commentService.getCommentById(commentId);
+                comment.repliesIds.forEach(async replyId => {
+                    const reply = await this.replyService.getReplyById(replyId);
+                    reply.votesIds.forEach(async voteId => this.replyVoteService.deleteVote(voteId));
+                    await this.replyService.deleteReply(replyId);
                 });
-                comment.votes.forEach(async idVote => await this.voteService.deleteVote(idVote));
-            }
+                comment.votesIds.forEach(async voteId => await this.commentVoteService.deleteVote(voteId));
+                await this.commentService.deleteComment(commentId);
+            },
         );
-        activity.reactions.forEach(async idReact => await this.reactionService.deleteReaction(idReact));
-        activity.votes.forEach(async idVote => await this.voteService.deleteVote(idVote));
+        activity.reactionsIds.forEach(async idReact => await this.reactionService.deleteReaction(idReact));
+        activity.votesIds.forEach(async voteId => await this.activityVoteService.deleteVote(voteId));
+        await this.activityService.deleteActivity(activityId);
         return null;
     }
 
@@ -123,41 +131,41 @@ export class ActivityController {
     @Post('vote')
     async addVote(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('vote') vote: Vote,
+        @Body('vote') vote: ActivityVote,
     ) {
-        const idUser = idFromToken(header.authorization);
-        await this.activityService.exists(idActivity);
-        const idVote = await this.voteService.addVote(vote);
-        await this.activityService.addVote(idActivity, idVote, vote.value);
-        await this.usersService.addPoints(idUser, 1);
-        return {id: idVote as string};
+        const userId = idFromToken(header.authorization);
+        await this.activityService.exists(vote.activityId);
+        const voteId = await this.activityVoteService.addVote(vote);
+        await this.activityService.addVote(vote.activityId, voteId, vote.value);
+        await this.usersService.addPoints(userId, 1);
+        return {id: voteId as number};
     }
 
     @Put('vote')
     async updateVote(
-        @Body('idActivity') idActivity: string,
-        @Body('idVote') idVote: string,
+        @Body('activityId') activityId: number,
+        @Body('voteId') voteId: number,
         @Body('value') newValue: number,
     ) {
-        await this.voteService.exists(idVote);
-        await this.activityService.exists(idActivity);
-        let oldValue = await this.voteService.updateVote(idVote, newValue);
-        await this.activityService.updateVote(idActivity, idVote, oldValue, newValue);
+        await this.activityVoteService.exists(voteId);
+        await this.activityService.exists(activityId);
+        const oldValue = await this.activityVoteService.updateVote(voteId, newValue);
+        await this.activityService.updateVote(activityId, voteId, oldValue, newValue);
     }
 
     @Delete('vote')
     async deleteVote(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idVote') idVote: string,
+        @Body('activityId') activityId: number,
+        @Body('voteId') voteId: number,
     ) {
-        const idUser = idFromToken(header.authorization);
-        await this.voteService.exists(idVote);
-        await this.activityService.exists(idActivity);
-        const oldVote = await this.voteService.deleteVote(idVote);
-        await this.activityService.deleteVote(idActivity, idVote, oldVote.value);
-        await this.usersService.addPoints(idUser, -1);
+        const userId = idFromToken(header.authorization);
+        await this.activityVoteService.exists(voteId);
+        await this.activityService.exists(activityId);
+        const oldVote = await this.activityVoteService.getVote(voteId);
+        await this.activityService.deleteVote(activityId, voteId, oldVote.value);
+        await this.activityVoteService.deleteVote(voteId);
+        await this.usersService.addPoints(userId, -1);
     }
 
     // Comment Flow
@@ -165,57 +173,58 @@ export class ActivityController {
     @Post('comment')
     async addComment(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
+        @Body('activityId') activityId: number,
         @Body('comment') comment: Comment,
     ) {
-        const idUser = idFromToken(header.authorization);
-        const idComment = await this.commentService.insertComment(comment);
-        await this.activityService.commentActivity(idComment, idActivity);
-        await this.usersService.addPoints(idUser, 2);
-        return { id: idComment };
+        const userId = idFromToken(header.authorization);
+        const commentId = await this.commentService.insertComment(comment);
+        await this.activityService.commentActivity(commentId, activityId);
+        await this.usersService.addPoints(userId, 2);
+        return { id: commentId };
     }
 
-    @Get('comment/:idComment')
+    @Get('comment/:commentId')
     async getCommentById(
         @Headers() header: any,
-        @Param('idComment') idComment: string,
+        @Param('commentId') commentId: number,
     ) {
-        const idUser = idFromToken(header.authorization);
-        return await this.commentService.getCommentById(idComment, idUser);
+        const userId = idFromToken(header.authorization);
+        return await this.commentService.getCommentById(commentId, userId);
     }
 
     @Put('comment')
     async updateComment(
-        @Body('idComment') idComment: string,
+        @Body('commentId') commentId: number,
         @Body('content') content: string,
     ) {
-        return await this.commentService.updateComment(idComment, content);
+        return await this.commentService.updateComment(commentId, content);
     }
 
     @Delete('comment')
     async deleteComment(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idComment') idComment: string,
+        @Body('activityId') activityId: number,
+        @Body('commentId') commentId: number,
     ) {
-        const idUser = idFromToken(header.authorization);
-        if (!idComment || !idActivity || !idUser)
+        const userId = idFromToken(header.authorization);
+        if (!commentId || !activityId || !userId) {
             throw new UnprocessableEntityException();
-        await this.activityService.deleteComment(idComment, idActivity);
-        const comment = await this.commentService.deleteComment(idComment);
-        comment.reply.forEach(async idReply => {
-            const reply = await this.replyService.deleteReply(idReply);
-            reply.votes.forEach(async idVote => {
-                await this.voteService.deleteVote(idVote);
-                await this.activityService.incPing(idActivity, -1);
+        }
+        await this.activityService.deleteComment(commentId, activityId);
+        const comment = await this.commentService.getCommentById(commentId);
+        await comment.replies.forEach(async reply => {
+            await reply.votes.forEach(async vote => {
+                await this.replyVoteService.deleteVote(vote.id);
             });
-            await this.activityService.incPing(idActivity, -1);
+            await this.activityService.incPing(activityId, -(reply.votes.length + 1));
+            await this.replyService.deleteReply(reply.id);
         });
-        comment.votes.forEach(async idVote => {
-            await this.voteService.deleteVote(idVote);
-            await this.activityService.incPing(idActivity, -1);
+        await comment.votes.forEach(async vote => {
+            await this.commentVoteService.deleteVote(vote.id);
         });
-        await this.usersService.addPoints(idUser, -2);
+        await this.activityService.incPing(activityId, -(comment.votes.length));
+        await this.commentService.deleteComment(commentId);
+        await this.usersService.addPoints(userId, -2);
         return null;
     }
 
@@ -224,45 +233,45 @@ export class ActivityController {
     @Post('comment/vote')
     async addCommentVote(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idComment') idComment: string,
-        @Body('vote') vote: Vote,
+        @Body('activityId') activityId: number,
+        @Body('vote') vote: CommentVote,
     ) {
-        const idUser = idFromToken(header.authorization);
-        await this.commentService.exists(idComment);
-        const idVote = await this.voteService.addVote(vote);
-        await this.commentService.addVote(idComment, idVote, vote.value);
-        await this.activityService.incPing(idActivity, 1);
-        await this.usersService.addPoints(idUser, 1);
-        return {id: idVote as string};
+        const userId = idFromToken(header.authorization);
+        await this.commentService.exists(vote.commentId);
+        const voteId = await this.commentVoteService.addVote(vote);
+        await this.commentService.addVote(vote.commentId, voteId, vote.value);
+        await this.activityService.incPing(activityId, 1);
+        await this.usersService.addPoints(userId, 1);
+        return {id: voteId as number};
     }
 
     @Put('comment/vote')
     async updateCommentVote(
-        @Body('idComment') idComment: string,
-        @Body('idVote') idVote: string,
+        @Body('commentId') commentId: number,
+        @Body('voteId') voteId: number,
         @Body('value') newValue: number,
     ) {
-        await this.voteService.exists(idVote);
-        await this.commentService.exists(idComment);
-        let oldValue = await this.voteService.updateVote(idVote, newValue);
-        await this.commentService.updateVote(idComment, idVote, oldValue, newValue);
+        await this.commentVoteService.exists(voteId);
+        await this.commentService.exists(commentId);
+        const oldValue = await this.commentVoteService.updateVote(voteId, newValue);
+        await this.commentService.updateVote(commentId, voteId, oldValue, newValue);
     }
 
     @Delete('comment/vote')
     async deleteCommentVote(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idComment') idComment: string,
-        @Body('idVote') idVote: string,
+        @Body('activityId') activityId: number,
+        @Body('commentId') commentId: number,
+        @Body('voteId') voteId: number,
     ) {
-        const idUser = idFromToken(header.authorization);
-        await this.voteService.exists(idVote);
-        await this.commentService.exists(idComment);
-        const oldVote = await this.voteService.deleteVote(idVote);
-        await this.commentService.deleteVote(idComment, idVote, oldVote.value);
-        await this.usersService.addPoints(idUser, -1);
-        await this.activityService.incPing(idActivity, -1);
+        const userId = idFromToken(header.authorization);
+        await this.commentVoteService.exists(voteId);
+        await this.commentService.exists(commentId);
+        const oldVote = await this.commentVoteService.getVote(voteId);
+        await this.commentService.deleteVote(commentId, voteId, oldVote.value);
+        await this.commentVoteService.deleteVote(voteId);
+        await this.usersService.addPoints(userId, -1);
+        await this.activityService.incPing(activityId, -1);
     }
 
     // Reply Flow
@@ -270,54 +279,56 @@ export class ActivityController {
     @Post('reply')
     async addReply(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idComment') idComment: string,
+        @Body('activityId') activityId: number,
+        @Body('commentId') commentId: number,
         @Body('reply') reply: Reply,
     ) {
-        const idUser = idFromToken(header.authorization);
-        if (!reply || !idComment || !idActivity || !idUser)
+        const userId = idFromToken(header.authorization);
+        if (!reply || !commentId || !activityId || !userId) {
             throw new UnprocessableEntityException();
-        await this.commentService.exists(idComment);
-        reply.idUser = idUser;
-        const idReply = await this.replyService.insertReply(reply);
-        const comment = await this.commentService.reply(idComment, idReply);
-        await this.usersService.addPoints(idUser, 2);
-        await this.activityService.incPing(idActivity, 1);
-        return { id: idReply };
+        }
+        await this.commentService.exists(commentId);
+        reply.userId = userId;
+        const replyId = await this.replyService.insertReply(reply);
+        const comment = await this.commentService.reply(commentId, replyId);
+        await this.usersService.addPoints(userId, 2);
+        await this.activityService.incPing(activityId, 1);
+        return { id: replyId };
     }
 
-    @Get('reply/:idReply')
+    @Get('reply/:replyId')
     async getReplyById(
         @Headers() header: any,
-        @Param('idReply') idReply: string,
+        @Param('replyId') replyId: number,
     ) {
-        const idUser = idFromToken(header.authorization);
-        return await this.replyService.getReplyById(idReply, idUser);
+        const userId = idFromToken(header.authorization);
+        return await this.replyService.getReplyById(replyId, userId);
     }
 
     @Put('reply')
     async updateReply(
-        @Body('idReply') idReply: string,
+        @Body('replyId') replyId: number,
         @Body('content') content: string) {
-        return await this.replyService.updateReply(idReply, content);
+        return await this.replyService.updateReply(replyId, content);
     }
 
     @Delete('reply')
     async deleteReply(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idComment') idComment: string,
-        @Body('idReply') idReply: string,
+        @Body('activityId') activityId: number,
+        @Body('commentId') commentId: number,
+        @Body('replyId') replyId: number,
     ) {
-        const idUser = idFromToken(header.authorization);
-        const reply = await this.replyService.deleteReply(idReply);
-        reply.votes.forEach(async idVote => {
-            await this.voteService.deleteVote(idVote);
-            await this.activityService.incPing(idActivity, -1);
+        const userId = idFromToken(header.authorization);
+        const reply = await this.replyService.getReplyById(replyId);
+        reply.votes.forEach(async voteId => {
+            await this.replyVoteService.deleteVote(voteId);
+            await this.activityService.incPing(activityId, -1);
         });
-        await this.commentService.deleteReply(idComment, idReply);
-        await this.usersService.addPoints(idUser, -2);
-        await this.activityService.incPing(idActivity, -1);
+        await this.commentService.deleteReply(commentId, replyId);
+        await this.replyService.deleteReply(replyId);
+        await this.usersService.addPoints(userId, -2);
+        await this.activityService.incPing(activityId, -1);
         return null;
     }
 
@@ -326,45 +337,45 @@ export class ActivityController {
     @Post('reply/vote')
     async addReplyVote(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idReply') idReply: string,
-        @Body('vote') vote: Vote,
+        @Body('activityId') activityId: number,
+        @Body('vote') vote: ReplyVote,
     ) {
-        const idUser = idFromToken(header.authorization);
-        await this.replyService.exists(idReply);
-        const idVote = await this.voteService.addVote(vote);
-        await this.replyService.addVote(idReply, idVote, vote.value);
-        await this.activityService.incPing(idActivity, 1);
-        await this.usersService.addPoints(idUser, 1);
-        return {id: idVote as string};
+        const userId = idFromToken(header.authorization);
+        await this.replyService.exists(vote.replyId);
+        const voteId = await this.replyVoteService.addVote(vote);
+        await this.replyService.addVote(vote.replyId, voteId, vote.value);
+        await this.activityService.incPing(activityId, 1);
+        await this.usersService.addPoints(userId, 1);
+        return {id: voteId as number};
     }
 
     @Put('reply/vote')
     async updateReplyVote(
-        @Body('idReply') idReply: string,
-        @Body('idVote') idVote: string,
+        @Body('replyId') replyId: number,
+        @Body('voteId') voteId: number,
         @Body('value') newValue: number,
     ) {
-        await this.voteService.exists(idVote);
-        await this.replyService.exists(idReply);
-        let oldValue = await this.voteService.updateVote(idVote, newValue);
-        await this.replyService.updateVote(idReply, idVote, oldValue, newValue);
+        await this.replyVoteService.exists(voteId);
+        await this.replyService.exists(replyId);
+        const oldValue = await this.replyVoteService.updateVote(voteId, newValue);
+        await this.replyService.updateVote(replyId, voteId, oldValue, newValue);
     }
 
     @Delete('reply/vote')
     async deleteReplyVote(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idReply') idReply: string,
-        @Body('idVote') idVote: string,
+        @Body('activityId') activityId: number,
+        @Body('replyId') replyId: number,
+        @Body('voteId') voteId: number,
     ) {
-        const idUser = idFromToken(header.authorization);
-        await this.voteService.exists(idVote);
-        await this.replyService.exists(idReply);
-        const oldVote = await this.voteService.deleteVote(idVote);
-        await this.replyService.deleteVote(idReply, idVote, oldVote.value);
-        await this.usersService.addPoints(idUser, -1);
-        await this.activityService.incPing(idActivity, -1);
+        const userId = idFromToken(header.authorization);
+        await this.replyVoteService.exists(voteId);
+        await this.replyService.exists(replyId);
+        const oldVote = await this.replyVoteService.getVote(voteId);
+        await this.replyService.deleteVote(replyId, voteId, oldVote.value);
+        await this.replyVoteService.deleteVote(voteId);
+        await this.usersService.addPoints(userId, -1);
+        await this.activityService.incPing(activityId, -1);
     }
 
     // Reaction Flow
@@ -372,40 +383,41 @@ export class ActivityController {
     @Post('react')
     async addReaction(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
+        @Body('activityId') activityId: number,
         @Body('reaction') reaction: Reaction,
     ) {
-        const idUser = idFromToken(header.authorization);
-        await this.activityService.exists(idActivity);
+        const userId = idFromToken(header.authorization);
+        await this.activityService.exists(activityId);
         const idReaction = await this.reactionService.addReaction(reaction);
-        await this.activityService.addReaction(idActivity, idReaction, reaction.value);
-        await this.usersService.addPoints(idUser, 1);
-        return {id: idReaction as string};
+        await this.activityService.addReaction(activityId, idReaction, reaction.value);
+        await this.usersService.addPoints(userId, 1);
+        return {id: idReaction as number};
     }
 
     @Put('react')
     async updateReaction(
-        @Body('idActivity') idActivity: string,
-        @Body('idReaction') idReaction: string,
+        @Body('activityId') activityId: number,
+        @Body('idReaction') idReaction: number,
         @Body('value') newValue: number,
     ) {
         await this.reactionService.exists(idReaction);
-        await this.activityService.exists(idActivity);
-        let oldValue = await this.reactionService.updateReaction(idReaction, newValue);
-        await this.activityService.updateReaction(idActivity, idReaction, oldValue, newValue);
+        await this.activityService.exists(activityId);
+        const oldValue = await this.reactionService.updateReaction(idReaction, newValue);
+        await this.activityService.updateReaction(activityId, idReaction, oldValue, newValue);
     }
 
     @Delete('react')
     async deleteReaction(
         @Headers() header: any,
-        @Body('idActivity') idActivity: string,
-        @Body('idReaction') idReaction: string,
+        @Body('activityId') activityId: number,
+        @Body('idReaction') idReaction: number,
     ) {
-        const idUser = idFromToken(header.authorization);
+        const userId = idFromToken(header.authorization);
         await this.reactionService.exists(idReaction);
-        await this.activityService.exists(idActivity);
-        const oldReaction = await this.reactionService.deleteReaction(idReaction);
-        await this.activityService.deleteReaction(idActivity, idReaction, oldReaction.value);
-        await this.usersService.addPoints(idUser, -1);
+        await this.activityService.exists(activityId);
+        const oldReaction = await this.reactionService.getReaction(idReaction);
+        await this.activityService.deleteReaction(activityId, idReaction, oldReaction.value);
+        await this.reactionService.deleteReaction(idReaction);
+        await this.usersService.addPoints(userId, -1);
     }
 }

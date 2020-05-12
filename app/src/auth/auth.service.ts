@@ -33,7 +33,7 @@ export class AuthService {
 
         if (match) {
             const { password, ...response } = userByEmail;
-            const payload = { username: response.username, sub: response._id, id: userByEmail._id };
+            const payload = { username: response.username, sub: response.id, id: userByEmail.id };
             return {
                 access_token: this.jwtService.sign(payload),
             };

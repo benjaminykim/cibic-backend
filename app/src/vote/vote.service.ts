@@ -1,41 +1,113 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { validateId } from '../utils';
-import { VoteSchema, Vote } from './vote.schema';
+import { ActivityVote, CommentVote, ReplyVote } from './vote.entity';
 
 @Injectable()
-export class VoteService {
+export class ActivityVoteService {
     constructor(
-        @InjectModel('Vote') private readonly voteModel: mongoose.Model<Vote>,
+        @InjectRepository(ActivityVote) private readonly repository: Repository<ActivityVote>,
     ) {
     }
 
-    async exists(idVote: string) {
-        await validateId(idVote);
-        return await this.voteModel.exists({_id: idVote});
+    async exists(activityIdVote: number) {
+        await validateId(activityIdVote);
+        return await this.repository.count({id: activityIdVote});
     }
 
-    async addVote(vote: Vote) {
-        const newVote = new this.voteModel(vote);
-        const result = await newVote.save();
-        return result.id as string;
+    async addVote(vote: ActivityVote) {
+        const newActivityVote = await this.repository.create(vote);
+        const result = await this.repository.save(newActivityVote);
+        return result.id as number;
     }
 
-    async getVote(idVote: string) {
-        return await this.voteModel.findById(idVote);
+    async getVote(activityIdVote: number) {
+        return await this.repository.findOne(activityIdVote);
     }
 
-    async updateVote(idVote: string, value: number) {
-        const oldValue = await this.voteModel.findById(idVote);
-        const success = await this.voteModel.findByIdAndUpdate(
-            idVote,
+    async updateVote(activityIdVote: number, value: number) {
+        const oldValue = await this.repository.findOne(activityIdVote);
+        const success = await this.repository.update(
+            {id: activityIdVote},
             { value: value },
         );
         return oldValue.value as number;
     }
 
-    async deleteVote(idVote: string) {
-        return await this.voteModel.findByIdAndDelete(idVote);
+    async deleteVote(activityIdVote: number) {
+        return await this.repository.delete(activityIdVote);
     }
- }
+}
+
+@Injectable()
+export class CommentVoteService {
+    constructor(
+        @InjectRepository(CommentVote) private readonly repository: Repository<CommentVote>,
+    ) {
+    }
+
+    async exists(commentIdVote: number) {
+        await validateId(commentIdVote);
+        return await this.repository.count({id: commentIdVote});
+    }
+
+    async addVote(vote: CommentVote) {
+        const newCommentVote = await this.repository.create(vote);
+        const result = await this.repository.save(newCommentVote);
+        return result.id as number;
+    }
+
+    async getVote(commentIdVote: number) {
+        return await this.repository.findOne(commentIdVote);
+    }
+
+    async updateVote(commentIdVote: number, value: number) {
+        const oldValue = await this.repository.findOne(commentIdVote);
+        const success = await this.repository.update(
+            {id: commentIdVote},
+            { value: value },
+        );
+        return oldValue.value as number;
+    }
+
+    async deleteVote(commentIdVote: number) {
+        return await this.repository.delete(commentIdVote);
+    }
+}
+
+@Injectable()
+export class ReplyVoteService {
+    constructor(
+        @InjectRepository(ReplyVote) private readonly repository: Repository<ReplyVote>,
+    ) {
+    }
+
+    async exists(replyIdVote: number) {
+        await validateId(replyIdVote);
+        return await this.repository.count({id: replyIdVote});
+    }
+
+    async addVote(vote: ReplyVote) {
+        const newReplyVote = await this.repository.create(vote);
+        const result = await this.repository.save(newReplyVote);
+        return result.id as number;
+    }
+
+    async getVote(replyIdVote: number) {
+        return await this.repository.findOne(replyIdVote);
+    }
+
+    async updateVote(replyIdVote: number, value: number) {
+        const oldValue = await this.repository.findOne(replyIdVote);
+        const success = await this.repository.update(
+            {id: replyIdVote},
+            { value: value },
+        );
+        return oldValue.value as number;
+    }
+
+    async deleteVote(replyIdVote: number) {
+        return await this.repository.delete(replyIdVote);
+    }
+}

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule} from '@nestjs/mongoose';
-
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { configService } from './config/config.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './users/users.module';
@@ -10,14 +10,8 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
     imports: [
-        MongooseModule.forRoot(
-            'mongodb://mongo_serve:27017/cibic',
-            {
-                useUnifiedTopology: true,
-                useNewUrlParser: true,
-                useFindAndModify: false,
-                useCreateIndex: true,
-            },
+        TypeOrmModule.forRoot(
+            configService.getTypeOrmConfig(),
         ),
         UserModule,
         CabildoModule,
