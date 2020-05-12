@@ -8,7 +8,6 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "prestart": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -23,7 +22,7 @@
     "pretypeorm": "(rm ormconfig.json || true) && ts-node -r tsconfig-paths/register gen-ormconfig.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "typeorm:migration:generate": "npm run typeorm -- migration:generate -n",
-    "typeorm:migration:run": "npm run typeorm -- migration:run"
+    "typeorm:migration:run": "npm run build && npm run typeorm -- migration:run"
   },
   "dependencies": {
     "@nestjs/common": "^6.11.11",
