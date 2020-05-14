@@ -30,7 +30,7 @@ export class UserController {
     async addUser(@Body('user') user: User)
 
     {
-        const generatedId = await this.userService.insertUser(user);
+	    const generatedId = await this.userService.insertUser(user);
         return {id: generatedId};
     }
 
@@ -73,7 +73,8 @@ export class UserController {
         await this.userService.exists(userId);
         await this.cabildoService.exists(cabildoId);
         const follower = await this.userService.followCabildo(userId, cabildoId);
-        if (follower) {
+        // const followed = await this.cabildoService.addUser(cabildoId, userId);
+        if (follower/* && followed*/) {
             return `user ${userId} now follows cabildo ${cabildoId}`;
         }
         throw new UnprocessableEntityException();
@@ -97,7 +98,7 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('unfollowcabildo') // http://localhost:3000/user/followcabildo
+    @Post('unfollowcabildo') // http://localhost:3000/user/unfollowcabildo
     async unfollowCabildo(
         @Headers() h: any,
         @Body('cabildoId') cabildoId: number,
@@ -109,7 +110,6 @@ export class UserController {
         }
         await this.userService.exists(userId);
         await this.cabildoService.exists(cabildoId);
-
         const follower = await this.userService.unfollowCabildo(userId, cabildoId);
         const followed = await this.cabildoService.removeUser(cabildoId, userId);
         if (follower && followed) {
@@ -119,7 +119,7 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('unfollowuser') // http://localhost:3000/user/followuser
+    @Post('unfollowuser') // http://localhost:3000/user/unfollowuser
     async unfollowUser(
         @Headers() h: any,
         @Body('userId') idOther: number,

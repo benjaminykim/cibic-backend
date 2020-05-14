@@ -420,4 +420,48 @@ export class ActivityController {
         await this.reactionService.deleteReaction(idReaction);
         await this.usersService.addPoints(userId, -1);
     }
+
+    // Save Activity Flow
+
+    @UseGuards(JwtAuthGuard)
+    @Post('saveactivity') // http://localhost:3000/activity/saveactivity
+    async saveActivity(
+        @Headers() h: any,
+        @Body('activityId') activityId: number,
+    ) {
+        const userId = idFromToken(h.authorization);
+        if (!userId || !activityId) {
+            // Throw http exception here TODO
+            throw new UnprocessableEntityException();
+        }
+        await this.usersService.exists(userId);
+        await this.activityService.exists(activityId);
+        const saver = await this.activityService.saveActivity(userId, activityId);
+        // const saved = await this.activityService.addUser(activityId, userId);
+        if (saver/* && saved*/) {
+            return `user ${userId} now saves activity ${activityId}`;
+        }
+        throw new UnprocessableEntityException();
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('unsaveactivity') // http://localhost:3000/activity/unsaveactivity
+    async unsaveActivity(
+        @Headers() h: any,
+        @Body('activityId') activityId: number,
+    ) {
+        const userId = idFromToken(h.authorization);
+        if (!userId || !activityId) {
+            // Throw http exception here TODO
+            throw new UnprocessableEntityException();
+        }
+        await this.usersService.exists(userId);
+        await this.activityService.exists(activityId);
+        const saver = await this.activityService.unsaveActivity(userId, activityId);
+        // const saved = await this.activityService.removeUser(activityId, userId);
+        if (saver/* && saved*/) {
+            return `user no longer saves activity`;
+        }
+        throw new UnprocessableEntityException();
+    }
 }

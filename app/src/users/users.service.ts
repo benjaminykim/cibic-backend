@@ -144,6 +144,7 @@ export class UserService {
             .remove(idFollowed);
         return true;
     }
+
     async unfollowCabildo(userId: number, cabildoId: number) {
         await this.repository
             .createQueryBuilder()
@@ -181,5 +182,5 @@ export class UserService {
             .where("user.email = :email", { email: email })
             .getOne()
 //        return await this.repository.findOne(
-	  }
+    }
 }

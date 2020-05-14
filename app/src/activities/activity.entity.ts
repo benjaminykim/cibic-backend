@@ -7,6 +7,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    ManyToMany,
 } from 'typeorm';
 
 import { User } from '../users/users.entity';
@@ -111,6 +112,17 @@ export class Activity {
         (activity: Activity) => activity.votes,
     )
     public votesIds: number[];
+
+    @ManyToMany(
+    	() => User,
+	    (user: User) => user.activitySaved,
+    )
+    public savers: User[];
+    
+    @RelationId(
+    	(activity: Activity) => activity.savers,
+    )
+    public saversIds: number[];
 }
 
 // Rough example, needs to be fitted to Activity and checked with frontend exposed API,

@@ -222,4 +222,16 @@ export class User {
         default: 0,
     })
     public citizenPoints: number;
+
+    @ManyToMany(
+        () => Activity,
+        (activity: Activity) => activity.savers,
+    )
+    @JoinTable()
+    public activitySaved: Activity[];
+
+    @RelationId(
+        (user: User) => user.activitySaved,
+    )
+    public activitySavedIds: number[];
 }

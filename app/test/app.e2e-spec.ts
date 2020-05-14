@@ -208,36 +208,60 @@ describe('AppController (e2e)', () => {
         } else {
             // To turn messsages on and off
             const debug = (s: string) => {
-//                console.error(s);
+            console.error(s);
             }
 
             // First user
+            debug("once")
+            debug("once")
+            debug("once")
             const idA = await request(srv).post('/user').send(userA).expect(201).then(idCheck);
+            debug("twice")
+            debug("twice")
+            debug("twice")
             const authARes = await request(srv).post('/auth/login').send({
                 password: userA.user.password,
                 email: userA.user.email
             }).expect(201);
             debug("got userA");
+            debug("got userA");
+            debug("got userA");
             const authA = {'Authorization': `Bearer ${authARes.body.access_token}`};
+            debug("got auth");
+            debug("got auth");
+            debug("got auth");
 
             // Second user
             const idB = await request(srv).post('/user').send(userB).expect(201).then(idCheck);
+            debug("once")
+            debug("once")
+            debug("once")
             const authBRes = await request(srv).post('/auth/login').send({
                 password: userB.user.password,
                 email: userB.user.email
             }).expect(201);
+            debug("twice")
+            debug("twice")
+            debug("twice")
             debug("got userB");
             const authB = {'Authorization': `Bearer ${authBRes.body.access_token}`};
+            debug("twice")
+            debug("twice")
+            debug("twice")
 
             // get users
             const getUserA  = await request(srv).get('/user/' + idA).set(authA).expect(200); // found user A
             const getUserFake = await request(srv).get('/user/99999999').set(authA).expect(404); // not found
             debug("tested user gets");
+            debug("tested user gets");
+            debug("tested user gets");
             // A Cabildo
             const idCab = await request(srv).post('/cabildo').set(authA)
                 .send(cabA).expect(201).then(idCheck);
-            debug("made cabildo");
-            // First user follows second user
+                debug("made cabildo");
+                debug("made cabildo");
+                debug("made cabildo");
+                // First user follows second user
             const AfollowB = await request(srv).post('/user/followuser').set(authA)
                 .send({userId: idB}).expect(/now follows user/)
             debug("followed user");

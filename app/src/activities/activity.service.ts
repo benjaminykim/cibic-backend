@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { validateId } from '../utils';
 import { Activity } from './activity.entity';
+import { User } from '../users/users.entity';
 
 @Injectable()
 export class ActivityService {
@@ -198,6 +199,42 @@ export class ActivityService {
     ) {
         await this.repository.decrement({id: activityId}, 'score', oldValue);
         await this.repository.increment({id: activityId}, 'ping', -1);
+        return true;
+    }
+
+    async saveActivity(userId: number, activityId: number) {
+        const ret = await this.repository
+            .createQueryBuilder()
+            .relation(User, 'activitySaved')
+            .of(userId)
+            .add(activityId);
+        return true;
+    }
+
+    async unsaveActivity(userId: number, activityId: number) {
+        await this.repository
+            .createQueryBuilder()
+            .relation(User, 'activitySaved')
+            .of(userId)
+            .remove(activityId);
+        return true;
+    }
+
+    async addUser(activityId: number, userId: number) {
+        await this.repository
+            .createQueryBuilder()
+            .relation(Activity, 'savers')
+            .of(activityId)
+            .add(userId)
+        return true;
+    }
+
+    async removeUser(activityId: number, userId: number) {
+          await this.repository
+            .createQueryBuilder()
+            .relation(Activity, 'savers')
+            .of(activityId)
+            .remove(userId)
         return true;
     }
 }
