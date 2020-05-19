@@ -20,8 +20,12 @@ class ConfigService {
         return this;
     }
 
-    public getPort() {
+    public getDbPort() {
         return this.getValue('POSTGRES_PORT', true);
+    }
+
+    public getApiPort() {
+        return this.getValue('API_PORT', true);
     }
 
     public isProduction() {
@@ -43,12 +47,12 @@ class ConfigService {
             migrationsTableName: 'migration',
             migrations: ['dist/src/migration/*.{t,j}s'],
             cli: {
-                migrationsDir: 'dist/src/migration',
+                migrationsDir: 'src/migration',
             },
             ssl: this.isProduction(),
+            synchronize: !this.isProduction(),
         };
     }
-
 }
 
 const configService = new ConfigService(process.env)
@@ -57,7 +61,8 @@ const configService = new ConfigService(process.env)
         'POSTGRES_PORT',
         'POSTGRES_USER',
         'POSTGRES_PASSWORD',
-        'POSTGRES_DB'
+        'POSTGRES_DB',
+        'API_PORT',
     ]);
 
 export { configService };

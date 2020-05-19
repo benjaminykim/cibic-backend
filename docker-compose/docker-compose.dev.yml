@@ -3,4 +3,4 @@ services:
   api:
     command: start:populate
     ports:
-      - "3000:3000"
+      - "${API_PORT}:${API_PORT}"

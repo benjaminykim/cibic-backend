@@ -20,64 +20,68 @@ import { ActivityVote, CommentVote, ReplyVote } from '../vote/vote.entity';
 
 @Entity()
 export class User {
-
-    @PrimaryGeneratedColumn()
+    // always get id, cp, name
+    @PrimaryGeneratedColumn() // select always
     public id: number;
 
-    //@ApiProperty({required: true})
-    @Column()
+    @ApiProperty()
+    @Column() // select always
     public username: string;
 
-    @Column(
-        {select: false},
-    )
+    @ApiProperty()
+    @Column() // select prof
+    public desc: string;
+
+    @Column({
+        default: 0,
+    }) // select always
+    public citizenPoints: number;
+
+    @ApiProperty()
+    @Column({select: false})
     @Index({unique: true})
     public email: string;
 
-    @Column(
-        {select: false},
-    )
+    @ApiProperty()
+    @Column({select: false})
     @Index()
     public password: string;
 
-    @Column(
-        {select: false},
-    )
+    @ApiProperty()
+    @Column({select: false})
     public firstName: string;
 
-    @Column(
-        {select: false},
-    )
+    @ApiProperty()
+    @Column({select: false})
     public middleName: string;
 
-    @Column(
-        {select: false},
-    )
+    @ApiProperty()
+    @Column({select: false})
     public lastName: string;
 
-    @Column(
-        {select: false},
-    )
+    @ApiProperty()
+    @Column({select: false})
     public maidenName: string;
 
-    @Column(
-        {select: false},
-    )
+    @ApiProperty()
+    @Column({select: false})
     public phone: string;
 
-    @Column(
-        {select: false},
-    )
+    @ApiProperty()
+    @Column({select: false})
     public rut: string;
 
-    @Column(
-        {select: false},
-    )
-    public desc: string;
+    // @Column({
+    //     array: true,
+    // })
+    // public files: string[];
 
-    @ManyToMany(
+    //// Relations ////
+
+    @ManyToMany( // select prof
         () => Cabildo,
         (cabildo: Cabildo) => cabildo.members,
+        {eager: true}, // CHECK
     )
     @JoinTable()
     public cabildos: Cabildo[];
@@ -111,12 +115,7 @@ export class User {
     )
     public ownedCabildosIds: number[];
 
-    // @Column({
-    //     array: true,
-    // })
-    // public files: string[];
-
-    @ManyToMany(
+    @ManyToMany( // select prof
         () => User,
         (user: User) => user.following,
     )
@@ -217,9 +216,4 @@ export class User {
         (user: User) => user.replyVotes,
         )
     public replyVotesIds: number[];
-
-    @Column({
-        default: 0,
-    })
-    public citizenPoints: number;
 }

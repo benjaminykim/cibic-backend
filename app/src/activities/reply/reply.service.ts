@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { replyPop } from '../../constants';
-import { validateId } from '../../utils';
 import { Reply } from './reply.entity';
 
 @Injectable()
@@ -63,7 +62,6 @@ export class ReplyService {
     }
 
     async exists(replyId: number) {
-        await validateId(replyId);
         let it = await this.repository.count({id: replyId});
         if (!it)
             throw new NotFoundException('Could not find reply');

@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { validateId } from '../utils';
 import { Activity } from './activity.entity';
 
 @Injectable()
@@ -34,32 +33,29 @@ export class ActivityService {
     }
 
     async updateActivity(activityId: number, content: string) {
-        const result = await this.repository.update(
+        return await this.repository.update(
             {id: activityId},
             { text: content },
         );
-        return result;
     }
 
     async commentActivity(commentId: number, activityId) {
-        const incP = await this.repository.increment({id: activityId}, 'ping', 1);
-        const incCN = await this.repository.increment({id: activityId}, 'commentNumber', 1);
-        const result = await this.repository
+        await this.repository.increment({id: activityId}, 'ping', 1);
+        await this.repository.increment({id: activityId}, 'comment_number', 1);
+        await this.repository
             .createQueryBuilder()
             .relation(Activity, 'comments')
             .of(activityId)
             .add(commentId);
-        return true;
     }
     async deleteComment(commentId: number, activityId) {
-        const incP = await this.repository.decrement({id: activityId}, 'ping', 1);
-        const incCN = await this.repository.decrement({id: activityId}, 'commentNumber', 1);
+        await this.repository.decrement({id: activityId}, 'ping', 1);
+        await this.repository.decrement({id: activityId}, 'comment_number', 1);
         return true;
     }
 
     async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) { // list all activities
-        const activities = await this.repository.find({skip: offset, take: limit});
-        return activities;
+        return await this.repository.find({skip: offset, take: limit});
     }
 
     async getActivityById(activityId: number, userId?: number) {
@@ -112,11 +108,7 @@ export class ActivityService {
         return activity;
     }
 
-    private async findActivity(activityId: number, userId?: number) {
-    }
-
     async exists(activityId: number) {
-        await validateId(activityId);
         const it = await this.repository.count({id: activityId});
         if (!it) {
             throw new NotFoundException('Could not find reaction');

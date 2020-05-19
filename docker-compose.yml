@@ -4,11 +4,12 @@ volumes:
 services:
   api:
     build: .
-    image: cibic_api
-    container_name: cibic_api
+    image: ${USER}_api
+    container_name: ${USER}_api
     entrypoint: npm run
     environment:
-      DEPLOY_ENV: development
+      - DEPLOY_ENV=development
+      - API_PORT=${API_PORT}
     volumes:
       - type: bind
         source: ./app
@@ -24,7 +25,7 @@ services:
     stdin_open: true
   db:
     image: postgres:12.2-alpine
-    container_name: cibic_pg
+    container_name: ${USER}_pg
     expose:
       - "5432"
     env_file:

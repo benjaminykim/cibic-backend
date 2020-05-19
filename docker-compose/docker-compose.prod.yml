@@ -3,7 +3,7 @@ services:
   api:
     command: start:populate
     environment:
-      DEPLOY_ENV: production
+      - DEPLOY_ENV: production
     expose:
       - "3000"
     stdin_open: false

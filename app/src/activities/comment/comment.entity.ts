@@ -14,45 +14,55 @@ import { Activity } from '../activity.entity';
 import { Reply } from '../reply/reply.entity';
 import { CommentVote } from '../../vote/vote.entity';
 
+import { ApiProperty } from '@nestjs/swagger';
+
 @Entity()
 export class Comment {
 
+    @ApiProperty()
     @PrimaryGeneratedColumn()
     public id: number;
 
+    @CreateDateColumn()
+    public publishDate: Date;
+
+    @Column() // select
+    public content: string;
+
+    @Column({ // select
+        default: 0,
+    })
+    @Index()
+    public score: number;
+
+    //// Relations ////
+
+    @ApiProperty()
     @ManyToOne(
         () => User,
         (user: User) => user.comments,
     )
     public user: User;
 
+    @ApiProperty()
     @RelationId(
         (comment: Comment) => comment.user,
     )
-    public userId: User;
+    public userId: number;
 
+    @ApiProperty()
     @ManyToOne(
         () => Activity,
         (activity: Activity) => activity.comments,
+        { onDelete: 'CASCADE' },
     )
     public activity: Activity;
 
+    @ApiProperty()
     @RelationId(
         (comment: Comment) => comment.activity,
     )
     public activityId: number;
-
-    @CreateDateColumn()
-    public publishDate: Date;
-
-    @Column()
-    public content: string;
-
-    @Column({
-        default: 0,
-    })
-    @Index()
-    public score: number;
 
     @OneToMany(
         () => Reply,
@@ -69,6 +79,7 @@ export class Comment {
     @OneToMany(
         () => CommentVote,
         (vote: CommentVote) => vote.comment,
+        {onDelete: 'CASCADE'},
     )
     public votes: CommentVote[];
 

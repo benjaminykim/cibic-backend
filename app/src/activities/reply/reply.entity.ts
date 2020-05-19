@@ -8,9 +8,10 @@ import {
     PrimaryGeneratedColumn,
     Entity,
 } from 'typeorm';
-
+import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/users.entity';
 import { Comment } from '../../activities/comment/comment.entity';
+import { Activity } from '../../activities/activity.entity';
 import { ReplyVote } from '../../vote/vote.entity';
 
 @Entity()
@@ -19,7 +20,19 @@ export class Reply {
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @ManyToOne(
+    @CreateDateColumn()
+    public publishDate: Date;
+
+    @Column() // select
+    public content: string;
+
+    @Column({default: 0}) // select
+    @Index()
+    public score: number;
+
+    //// Relations ////
+
+    @ManyToOne( // select
         () => User,
         (user: User) => user.replies,
     )
@@ -31,8 +44,20 @@ export class Reply {
     public userId: number;
 
     @ManyToOne(
+        () => Activity,
+        (activity: Activity) => activity.replies,
+    )
+    public activity: Activity;
+
+    @RelationId(
+        (reply: Reply) => reply.activity,
+    )
+    public activityId: number;
+
+    @ManyToOne(
         () => Comment,
         (comment: Comment) => comment.replies,
+        {onDelete: 'CASCADE'},
     )
     public comment: Comment;
 
@@ -41,24 +66,14 @@ export class Reply {
     )
     public commentId: number;
 
-    @CreateDateColumn()
-    public publishDate: Date;
-
-    @Column()
-    public content: string;
-
-    @Column()
-    @Index()
-    public score: number;
-
-    @RelationId(
-        (reply: Reply) => reply.votes,
-    )
-    public votesIds: number[];
-
     @OneToMany(
         () => ReplyVote,
         (vote: ReplyVote) => vote.reply,
     )
     public votes: ReplyVote[];
+
+    @RelationId(
+        (reply: Reply) => reply.votes,
+    )
+    public votesIds: number[];
 }

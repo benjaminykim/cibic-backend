@@ -7,7 +7,6 @@ import {
     Delete,
     UseGuards,
     Headers,
-    ForbiddenException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { idFromToken } from '../utils';
@@ -60,19 +59,16 @@ export class CabildoController {
         return this.cabildoService.getCabildoProfile(cabildoId);
     }
 
-    @Delete() // http://localhost:3000/cabildo/:id
+    @Delete(':cabildoId') // http://localhost:3000/cabildo/:id
     async deleteCabildo(
         @Headers() headers: any,
-        @Body('cabildoId') cabildoId: number,
+        @Param('cabildoId') cabildoId: number,
     ) {
         // We'll have to pull other data, like this id from other lists, and transfer activities to global maybe
         // Big design choice here
         const userId = idFromToken(headers.authorization);
-        const idAdmin = (await this.cabildoService.getCabildoAdmin(cabildoId)).admin.id;
-        console.error(userId);
-        console.error(idAdmin);
-        if (userId !== idAdmin)
-            throw new ForbiddenException('You are not the admin of this cabildo');
+        await this.cabildoService.exists(cabildoId);
+        await this.cabildoService.verifyCabildoAdmin(cabildoId, userId)
         await this.cabildoService.deleteCabildo(cabildoId);
     }
 }

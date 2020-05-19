@@ -135,6 +135,7 @@ export class ActivityController {
     ) {
         const userId = idFromToken(header.authorization);
         await this.activityService.exists(vote.activityId);
+        vote.userId = userId;
         const voteId = await this.activityVoteService.addVote(vote);
         await this.activityService.addVote(vote.activityId, voteId, vote.value);
         await this.usersService.addPoints(userId, 1);
@@ -177,6 +178,7 @@ export class ActivityController {
         @Body('comment') comment: Comment,
     ) {
         const userId = idFromToken(header.authorization);
+        comment.userId = userId
         const commentId = await this.commentService.insertComment(comment);
         await this.activityService.commentActivity(commentId, activityId);
         await this.usersService.addPoints(userId, 2);
@@ -216,14 +218,14 @@ export class ActivityController {
             await reply.votes.forEach(async vote => {
                 await this.replyVoteService.deleteVote(vote.id);
             });
-            await this.activityService.incPing(activityId, -(reply.votes.length + 1));
             await this.replyService.deleteReply(reply.id);
+            await this.activityService.incPing(activityId, -(reply.votes.length))
         });
         await comment.votes.forEach(async vote => {
             await this.commentVoteService.deleteVote(vote.id);
         });
-        await this.activityService.incPing(activityId, -(comment.votes.length));
-        await this.commentService.deleteComment(commentId);
+        await this.commentService.deleteComment(comment.id);
+        await this.activityService.incPing(activityId, -(comment.votes.length + comment.replies.length))
         await this.usersService.addPoints(userId, -2);
         return null;
     }
@@ -233,14 +235,14 @@ export class ActivityController {
     @Post('comment/vote')
     async addCommentVote(
         @Headers() header: any,
-        @Body('activityId') activityId: number,
         @Body('vote') vote: CommentVote,
     ) {
         const userId = idFromToken(header.authorization);
         await this.commentService.exists(vote.commentId);
+        vote.userId = userId;
         const voteId = await this.commentVoteService.addVote(vote);
         await this.commentService.addVote(vote.commentId, voteId, vote.value);
-        await this.activityService.incPing(activityId, 1);
+        await this.activityService.incPing(vote.activityId, 1);
         await this.usersService.addPoints(userId, 1);
         return {id: voteId as number};
     }
@@ -337,14 +339,14 @@ export class ActivityController {
     @Post('reply/vote')
     async addReplyVote(
         @Headers() header: any,
-        @Body('activityId') activityId: number,
         @Body('vote') vote: ReplyVote,
     ) {
         const userId = idFromToken(header.authorization);
         await this.replyService.exists(vote.replyId);
+        vote.userId = userId;
         const voteId = await this.replyVoteService.addVote(vote);
         await this.replyService.addVote(vote.replyId, voteId, vote.value);
-        await this.activityService.incPing(activityId, 1);
+        await this.activityService.incPing(vote.activityId, 1);
         await this.usersService.addPoints(userId, 1);
         return {id: voteId as number};
     }
@@ -388,6 +390,7 @@ export class ActivityController {
     ) {
         const userId = idFromToken(header.authorization);
         await this.activityService.exists(activityId);
+        reaction.userId = userId;
         const idReaction = await this.reactionService.addReaction(reaction);
         await this.activityService.addReaction(activityId, idReaction, reaction.value);
         await this.usersService.addPoints(userId, 1);

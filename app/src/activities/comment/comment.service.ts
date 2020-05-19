@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { validateId } from '../../utils';
 import { Comment } from './comment.entity';
 
 @Injectable()
@@ -75,12 +74,10 @@ export class CommentService {
     }
 
     async deleteComment(commentId: number) {
-        const comment = await this.repository.delete(commentId)
-        return comment;
+        return await this.repository.delete(commentId);
     }
 
     async exists(commentId: number) {
-        await validateId(commentId as number);
         let it = await this.repository.count({id: commentId});
         if (!it)
             throw new NotFoundException('Could not find comment');

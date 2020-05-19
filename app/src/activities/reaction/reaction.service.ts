@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { validateId } from '../../utils';
 import { Reaction } from './reaction.entity';
 
 @Injectable()
@@ -12,7 +11,6 @@ export class ReactionService {
     }
 
     async exists(idReaction: number) {
-        await validateId(idReaction);
         return await this.repository.count({id: idReaction});
     }
 

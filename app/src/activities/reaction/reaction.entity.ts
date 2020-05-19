@@ -15,7 +15,7 @@ import { Activity } from '../activity.entity';
 export class Reaction {
 
     @PrimaryGeneratedColumn()
-    public id: number;
+    public id: number; // select
 
     @ManyToOne(
         () => User,
@@ -31,6 +31,7 @@ export class Reaction {
     @ManyToOne(
         () => Activity,
         (activity: Activity) => activity.reactions,
+        {onDelete: 'CASCADE'},
     )
     public activity: Activity;
 
@@ -39,6 +40,6 @@ export class Reaction {
     )
     public activityId: number;
 
-    @Column()
+    @Column() // select
     public value: number;
 }

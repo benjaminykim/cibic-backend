@@ -6,12 +6,13 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     if (!configService.isProduction()) {
-        const docs = SwaggerModule.createDocument(app, new DocumentBuilder()
-                                                  .setTitle('Cibic API')
-                                                  .setDescription('Cibic Api')
-                                                  .build());
+        const builder = new DocumentBuilder()
+            .setTitle('Cibic API')
+            .setDescription('This is what our Frontend talks to.')
+            .build()
+        const docs = SwaggerModule.createDocument(app, builder);
         SwaggerModule.setup('docs', app, docs);
     }
-    await app.listen(3000);
+    await app.listen(configService.getApiPort());
 }
 bootstrap();

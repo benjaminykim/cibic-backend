@@ -11,7 +11,7 @@ import {
     NotFoundException,
     UnprocessableEntityException,
 } from '@nestjs/common';
-
+import { ApiBody } from '@nestjs/swagger';
 import { CabildoService } from '../cabildos/cabildo.service';
 import { UserService } from './users.service';
 import { User } from './users.entity';
@@ -27,9 +27,8 @@ export class UserController {
     ) {}
 
     @Post() // http://localhost:3000/user
-    async addUser(@Body('user') user: User)
-
-    {
+    @ApiBody({type: User})
+    async addUser(@Body('user') user: User) {
         const generatedId = await this.userService.insertUser(user);
         return {id: generatedId};
     }
@@ -61,6 +60,7 @@ export class UserController {
 
     @UseGuards(JwtAuthGuard)
     @Post('followcabildo') // http://localhost:3000/user/followcabildo
+    @ApiBody({})
     async followCabildo(
         @Headers() h: any,
         @Body('cabildoId') cabildoId: number,
@@ -81,6 +81,7 @@ export class UserController {
 
     @UseGuards(JwtAuthGuard)
     @Post('followuser') // http://localhost:3000/user/followuser
+    @ApiBody({})
     async followUser(
         @Headers() h: any,
         @Body('userId') idOther: number,

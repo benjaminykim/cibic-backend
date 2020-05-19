@@ -1,10 +1,6 @@
 import {
-    NotFoundException,
     ForbiddenException
 } from '@nestjs/common';
-
-export async function validateId(id: number) {
-}
 
 export function idFromToken(token: string) {
     if (!token)

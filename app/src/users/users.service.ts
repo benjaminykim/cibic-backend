@@ -4,13 +4,6 @@ import {
     UnprocessableEntityException,
     InternalServerErrorException,
 } from '@nestjs/common';
-import {
-    userProfilePopulate,
-    feedPopulate,
-    followPopulate,
-} from '../constants'
-import { validateId } from '../utils';
-import { activityPopulate } from '../constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../activities/activity.entity';
 import { Repository, getRepository } from 'typeorm';
@@ -49,8 +42,7 @@ export class UserService {
         const userId = bcrypt.hash(user.password, saltRounds)
             .then(async hash => {
                 user.password = hash;
-                const newUser = await this.repository.create(user);
-                const result = await this.repository.save(newUser);
+                const result = await this.repository.save(user);
                 return result.id as number;
             }).catch(err => console.log(err));
         return userId;

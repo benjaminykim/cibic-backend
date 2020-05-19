@@ -12,8 +12,9 @@ import {
 import { User } from '../users/users.entity';
 import { Cabildo } from '../cabildos/cabildo.entity';
 import { Comment } from './comment/comment.entity';
+import { Reply } from './reply/reply.entity';
 import { Reaction } from './reaction/reaction.entity';
-import { ActivityVote } from '../vote/vote.entity';
+import { ActivityVote, CommentVote, ReplyVote } from '../vote/vote.entity';
 
 export enum ActivityType {'discussion', 'proposal', 'poll'}
 
@@ -23,7 +24,41 @@ export class Activity {
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @ManyToOne(
+    @Column({ // select
+        type: 'enum',
+        enum: ActivityType,
+    })
+    public activityType: ActivityType;
+
+    @Column({ // select
+        default: 0,
+    })
+    @Index()
+    public score: number;
+
+    @Column({ // select
+        default: 0,
+    })
+    @Index()
+    public ping: number;
+
+    @Column({ // select
+        default: 0,
+    })
+    public comment_number: number;
+
+    @CreateDateColumn() // select
+    public publishDate: Date;
+
+    @Column() // select
+    public title: string;
+
+    @Column() // select
+    public text: string;
+
+    //// Relations ////
+
+    @ManyToOne( // select
         () => User,
         (user: User) => user.activityFeed,
     )
@@ -34,49 +69,18 @@ export class Activity {
     )
     public userId: number;
 
-    @ManyToOne(
+    @ManyToOne( // select
         () => Cabildo,
         (cabildo: Cabildo) => cabildo.activityFeed,
         {eager: true},
     )
-    public cabildo: Cabildo; // Cabildo
+    public cabildo: Cabildo;
 
     @RelationId(
         (activity: Activity) => activity.cabildo,
     )
+    @Column({select: false})
     public cabildoId: number;
-
-    @Column({
-        type: 'enum',
-        enum: ActivityType,
-    })
-    public activityType: ActivityType;
-
-    @Column({
-        default: 0,
-    })
-    @Index()
-    public score: number;
-
-    @Column({
-        default: 0,
-    })
-    @Index()
-    public ping: number;
-
-    @Column({
-        default: 0,
-    })
-    public commentNumber: number;
-
-    @CreateDateColumn()
-    public publishDate: Date;
-
-    @Column()
-    public title: string;
-
-    @Column()
-    public text: string;
 
     @OneToMany(
         () => Comment,
@@ -89,6 +93,17 @@ export class Activity {
         (activity: Activity) => activity.comments,
     )
     public commentsIds: number[];
+
+    @OneToMany(
+        () => Reply,
+        (reply: Reply) => reply.activity,
+    )
+    public replies: Reply[];
+
+    @RelationId(
+        (activity: Activity) => activity.replies,
+    )
+    public repliesIds: number[];
 
     @OneToMany(
         () => Reaction,
@@ -111,6 +126,28 @@ export class Activity {
         (activity: Activity) => activity.votes,
     )
     public votesIds: number[];
+
+    @OneToMany(
+        () => CommentVote,
+        (vote: CommentVote) => vote.comment,
+    )
+    public commentVotes: CommentVote[];
+
+    @RelationId(
+        (activity: Activity) => activity.commentVotes,
+    )
+    public commentVotesIds: number[];
+
+    @OneToMany(
+        () => ReplyVote,
+        (vote: ReplyVote) => vote.reply,
+    )
+    public replyVotes: ReplyVote[];
+
+    @RelationId(
+        (activity: Activity) => activity.replyVotes,
+    )
+    public replyVotesIds: number[];
 }
 
 // Rough example, needs to be fitted to Activity and checked with frontend exposed API,

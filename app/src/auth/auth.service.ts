@@ -24,12 +24,12 @@ export class AuthService {
         });
     }
 
-    async login(user: any) {
+    async login(email: string, pass: string) {
         const bcrypt = require('bcrypt');
-        const userByEmail = await this.usersService.getUserByEmail(user.email);
+        const userByEmail = await this.usersService.getUserByEmail(email);
         if (!userByEmail)
             throw new UnauthorizedException('invalid email or password');
-        const match = await bcrypt.compare(user.password, userByEmail.password);
+        const match = await bcrypt.compare(pass, userByEmail.password);
 
         if (match) {
             const { password, ...response } = userByEmail;

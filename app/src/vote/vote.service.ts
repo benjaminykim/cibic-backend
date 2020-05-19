@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { validateId } from '../utils';
 import { ActivityVote, CommentVote, ReplyVote } from './vote.entity';
 
 @Injectable()
@@ -12,13 +11,11 @@ export class ActivityVoteService {
     }
 
     async exists(activityIdVote: number) {
-        await validateId(activityIdVote);
         return await this.repository.count({id: activityIdVote});
     }
 
     async addVote(vote: ActivityVote) {
-        const newActivityVote = await this.repository.create(vote);
-        const result = await this.repository.save(newActivityVote);
+        const result = await this.repository.save(vote);
         return result.id as number;
     }
 
@@ -48,7 +45,6 @@ export class CommentVoteService {
     }
 
     async exists(commentIdVote: number) {
-        await validateId(commentIdVote);
         return await this.repository.count({id: commentIdVote});
     }
 
@@ -84,7 +80,6 @@ export class ReplyVoteService {
     }
 
     async exists(replyIdVote: number) {
-        await validateId(replyIdVote);
         return await this.repository.count({id: replyIdVote});
     }
 
