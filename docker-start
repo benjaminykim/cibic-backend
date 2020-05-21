@@ -42,4 +42,6 @@ then
 elif [ $ARG = "down" ]
 then
     docker-compose down;
+else
+	echo -e $USAGE
 fi
