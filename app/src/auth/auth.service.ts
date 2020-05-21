@@ -30,7 +30,6 @@ export class AuthService {
         if (!userByEmail)
             throw new UnauthorizedException('invalid email or password');
         const match = await bcrypt.compare(user.password, userByEmail.password);
-
         if (match) {
             const { password, ...response } = userByEmail;
             const payload = { username: response.username, sub: response.id, id: userByEmail.id };

@@ -423,45 +423,40 @@ export class ActivityController {
 
     // Save Activity Flow
 
-    @UseGuards(JwtAuthGuard)
-    @Post('saveactivity') // http://localhost:3000/activity/saveactivity
+    @Post('save') // http://localhost:3000/activity/save
     async saveActivity(
         @Headers() h: any,
         @Body('activityId') activityId: number,
     ) {
         const userId = idFromToken(h.authorization);
         if (!userId || !activityId) {
-            // Throw http exception here TODO
             throw new UnprocessableEntityException();
         }
         await this.usersService.exists(userId);
         await this.activityService.exists(activityId);
-        const saver = await this.activityService.saveActivity(userId, activityId);
-        // const saved = await this.activityService.addUser(activityId, userId);
-        if (saver/* && saved*/) {
-            return `user ${userId} now saves activity ${activityId}`;
-        }
-        throw new UnprocessableEntityException();
+        await this.activityService.saveActivity(userId, activityId);
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Post('unsaveactivity') // http://localhost:3000/activity/unsaveactivity
+    @Get('save/feed') // http://localhost:3000/activity/save/feed
+    async getActSaved(
+        @Headers() h: any,
+    ) {
+        const userId = idFromToken(h.authorization);
+        await this.usersService.exists(userId);
+        return await this.activityService.getActivitySaved(userId);
+    }
+
+    @Post('unsave') // http://localhost:3000/activity/unsave
     async unsaveActivity(
         @Headers() h: any,
         @Body('activityId') activityId: number,
     ) {
         const userId = idFromToken(h.authorization);
         if (!userId || !activityId) {
-            // Throw http exception here TODO
             throw new UnprocessableEntityException();
         }
         await this.usersService.exists(userId);
         await this.activityService.exists(activityId);
-        const saver = await this.activityService.unsaveActivity(userId, activityId);
-        // const saved = await this.activityService.removeUser(activityId, userId);
-        if (saver/* && saved*/) {
-            return `user no longer saves activity`;
-        }
-        throw new UnprocessableEntityException();
+        await this.activityService.unsaveActivity(userId, activityId);
     }
 }

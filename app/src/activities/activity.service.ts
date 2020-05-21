@@ -4,7 +4,7 @@ import {
     InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getRepository } from 'typeorm';
 import { validateId } from '../utils';
 import { Activity } from './activity.entity';
 import { User } from '../users/users.entity';
@@ -167,6 +167,7 @@ export class ActivityService {
     }
 
     // Vote Flow
+
     async addVote(
         activityId: number,
         voteId: number,
@@ -202,8 +203,10 @@ export class ActivityService {
         return true;
     }
 
+    // Save Activity Flow
+
     async saveActivity(userId: number, activityId: number) {
-        const ret = await this.repository
+        await getRepository(User)
             .createQueryBuilder()
             .relation(User, 'activitySaved')
             .of(userId)
@@ -211,30 +214,35 @@ export class ActivityService {
         return true;
     }
 
+    async getActivitySaved(userId: number, limit: number = 20, offset: number = 0) {
+        const user = await getRepository(User).findOne({id: userId})
+        if (!user.activitySavedIds.length)
+            return [];
+        const savfeed = await this.repository
+            .createQueryBuilder()
+            .select("activity")
+            .from(Activity, "activity")
+            .where("activity.id IN (:...activitySaved)", {activitySaved: user.activitySavedIds})
+            .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("comments.replies", "replies")
+            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
+            .orderBy("activity.ping", "DESC")
+            .skip(offset)
+            .take(limit)
+            .getMany()
+        return savfeed;
+    }
+
     async unsaveActivity(userId: number, activityId: number) {
-        await this.repository
+        await getRepository(User)
             .createQueryBuilder()
             .relation(User, 'activitySaved')
             .of(userId)
             .remove(activityId);
-        return true;
-    }
-
-    async addUser(activityId: number, userId: number) {
-        await this.repository
-            .createQueryBuilder()
-            .relation(Activity, 'savers')
-            .of(activityId)
-            .add(userId)
-        return true;
-    }
-
-    async removeUser(activityId: number, userId: number) {
-          await this.repository
-            .createQueryBuilder()
-            .relation(Activity, 'savers')
-            .of(activityId)
-            .remove(userId)
         return true;
     }
 }

@@ -206,66 +206,44 @@ describe('AppController (e2e)', () => {
 
             done();
         } else {
-            // To turn messsages on and off
+            // To turn messages on and off
             const debug = (s: string) => {
             console.error(s);
             }
 
             // First user
-            debug("once")
-            debug("once")
-            debug("once")
             const idA = await request(srv).post('/user').send(userA).expect(201).then(idCheck);
-            debug("twice")
-            debug("twice")
-            debug("twice")
+            debug("userA registered")
             const authARes = await request(srv).post('/auth/login').send({
                 password: userA.user.password,
                 email: userA.user.email
             }).expect(201);
-            debug("got userA");
-            debug("got userA");
-            debug("got userA");
+            debug("userA logged-in");
             const authA = {'Authorization': `Bearer ${authARes.body.access_token}`};
-            debug("got auth");
-            debug("got auth");
-            debug("got auth");
 
             // Second user
             const idB = await request(srv).post('/user').send(userB).expect(201).then(idCheck);
-            debug("once")
-            debug("once")
-            debug("once")
+            debug("userB registered")
             const authBRes = await request(srv).post('/auth/login').send({
                 password: userB.user.password,
                 email: userB.user.email
             }).expect(201);
-            debug("twice")
-            debug("twice")
-            debug("twice")
-            debug("got userB");
+            debug("userB logged-in");
             const authB = {'Authorization': `Bearer ${authBRes.body.access_token}`};
-            debug("twice")
-            debug("twice")
-            debug("twice")
 
-            // get users
+            // Get users
             const getUserA  = await request(srv).get('/user/' + idA).set(authA).expect(200); // found user A
             const getUserFake = await request(srv).get('/user/99999999').set(authA).expect(404); // not found
             debug("tested user gets");
-            debug("tested user gets");
-            debug("tested user gets");
-            // A Cabildo
+            // A cabildo
             const idCab = await request(srv).post('/cabildo').set(authA)
                 .send(cabA).expect(201).then(idCheck);
-                debug("made cabildo");
-                debug("made cabildo");
-                debug("made cabildo");
-                // First user follows second user
+            debug("made cabildo");
+            // First user follows second user
             const AfollowB = await request(srv).post('/user/followuser').set(authA)
                 .send({userId: idB}).expect(/now follows user/)
             debug("followed user");
-            // Second user follows cabildo
+            // First user follows cabildo
             const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
                 .send({cabildoId: idCab}).expect(/now follows cabildo/);
             debug("followed cabildo");
@@ -317,9 +295,10 @@ describe('AppController (e2e)', () => {
             const voteReply = await request(srv).post('/activity/reply/vote').set(authA)
                 .send({activityId: idActA,vote:{replyId: replyId, userId: idA, value: 1}}).expect(201).then(idCheck);
             debug("voted on reply");
+
+            // Check that everything was added properly
             {
                 debug("checking user feed");
-                // Check that everything was added properly
                 const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200);
                 debug(userFeedA.body);
                 let act = userFeedA.body[0];
@@ -328,6 +307,7 @@ describe('AppController (e2e)', () => {
                 expect(act.commentNumber).toBe(1);
                 expect(act.text).toBe('Content');
                 expect(act.comments).toHaveLength(1);
+                expect(act.saversIds).toHaveLength(0);
                 let com = act.comments[0];
                 expect(com.score).toBe(1);
                 expect(com.replies).toHaveLength(1);
@@ -337,6 +317,120 @@ describe('AppController (e2e)', () => {
                 expect(rep.content).toBe('This is a reply');
                 debug("user feed is good");
             }
+
+            // First user save activity
+            await request(srv).post('/activity/save').set(authA).send({activityId: idActA}).expect(201);
+            debug("user A saved activity");
+
+            // Check that activity was saved
+            const gUserA  = await request(srv).get('/user/' + idA).set(authA).expect(200);
+            const bodyUserA = gUserA.body;
+            expect(bodyUserA.activitySavedIds).toHaveLength(1);
+            debug("activity is properly related to user");
+
+            // Check that activity feed was saved
+            {
+                debug("getting activity saved feed");
+                const userASavFeed = await request(srv).get('/activity/save/feed').set(authA).expect(200);
+                debug("got activity saved feed");
+                debug(userASavFeed.body);
+                const act = userASavFeed.body[0];
+                expect(act.ping).toBe(6);
+                expect(act.score).toBe(3);
+                expect(act.commentNumber).toBe(1);
+                expect(act.text).toBe('Content');
+                expect(act.comments).toHaveLength(1);
+                expect(act.saversIds).toHaveLength(1);
+                const com = act.comments[0];
+                expect(com.score).toBe(1);
+                expect(com.replies).toHaveLength(1);
+                expect(com.content).toBe('Comment');
+                const rep = com.replies[0];
+                expect(rep.score).toBe(1);
+                expect(rep.content).toBe('This is a reply');
+                debug("activity saved feed is good");
+            }
+
+            // First user try to re-save activity
+            await request(srv).post('/activity/save').set(authA).send({activityId: idActA}).expect(500);
+            debug("user A couldn´t re-save activity");
+
+            // First user try to save a fake activity
+            const idActX = 99999;
+            await request(srv).post('/activity/save').set(authA).send({activityId: idActX}).expect(404);
+            debug("user A couldn´t save fake activity");
+
+            // Fake user try to save activity
+            const authX = {'Authorization': `9999`};
+            await request(srv).post('/activity/save').set(authX).send({activityId: idActA}).expect(401);
+            debug("fake user couldn´t save activity");
+
+            let userASavFeed = await request(srv).get('/activity/save/feed').set(authX).expect(200);
+
+
+            // first check of how many savers have the activity
+            let gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
+            let savAct = gSavAct.body;
+            expect(savAct.saversIds).toHaveLength(1);
+            debug("activity properly have one saver");
+
+            // Second user save activity
+            await request(srv).post('/activity/save').set(authB).send({activityId: idActA}).expect(201);
+            debug("user B saved activity");
+
+            // second check of how many savers have the activity
+            gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
+            savAct = gSavAct.body;
+            expect(savAct.saversIds).toHaveLength(2);
+            debug("activity properly have two savers");
+
+            // First user try to unsave fake activity
+            await request(srv).post('/activity/unsave').set(authA).send({activityId: idActX}).expect(404);
+            debug("user A can't unsaved fake activity");
+
+            // Fake user try to unsave activity
+            await request(srv).post('/activity/save').set(authX).send({activityId: idActA}).expect(401);
+            debug("fake user couldn´t unsave activity");
+
+            // First user unsave activity
+            await request(srv).post('/activity/unsave').set(authA).send({activityId: idActA}).expect(201);
+            debug("user A unsaved activity");
+
+            // check if user A saved activity feed is empty
+            userASavFeed = await request(srv).get(`/activity/save/feed`).set(authA).expect(200);
+            expect(userASavFeed.body).toStrictEqual([]);
+
+            // third check of how many savers have the activity
+            gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
+            savAct = gSavAct.body;
+            expect(savAct.saversIds).toHaveLength(1);
+            debug("activity properly have one saver");
+
+            // First user try to re-unsave activity
+            await request(srv).post('/activity/unsave').set(authA).send({activityId: idActA}).expect(201);
+            debug("user A re-unsave activity");
+
+            // fourth check of how many savers have the activity
+            gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
+            savAct = gSavAct.body;
+            expect(savAct.saversIds).toHaveLength(1);
+            debug("activity properly have one saver");
+
+            // check second user save activity
+            const gUserB  = await request(srv).get('/user/' + idB).set(authB).expect(200);
+            const bodyUserB = gUserB.body;
+            expect(bodyUserB.activitySavedIds).toHaveLength(1);
+            debug("user B save activity");
+
+            // Second user unsave activity
+            await request(srv).post('/activity/unsave').set(authB).send({activityId: idActA}).expect(201);
+            debug("user B unsaved activity");
+
+            // fifth check of how many savers have the activity
+            gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
+            savAct = gSavAct.body;
+            expect(savAct.saversIds).toHaveLength(0);
+
             // Update everything
             const upAct = await request(srv).put('/activity').set(authA)
                 .send({activityId:idActA,content:'Update'}).expect(200);
@@ -372,6 +466,7 @@ describe('AppController (e2e)', () => {
                 expect(act.score).toBe(-3);
                 expect(act.text).toBe('Update');
                 expect(act.comments).toHaveLength(1);
+                expect(act.saversIds).toHaveLength(0);
                 const com = act.comments[0];
                 expect(com.score).toBe(-1);
                 expect(com.replies).toHaveLength(1);
