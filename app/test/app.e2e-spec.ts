@@ -247,13 +247,48 @@ describe('AppController (e2e)', () => {
                     reply: {
                         userId: idA,
                         content: 'This is a reply',
-                        score: 0,
                     },
                     commentId: idComA0,
                     activityId: idActA,
                 }
             ).expect(201).then(idCheck).catch(done);
             debug("made reply");
+
+            // Post reply with valid Id tag
+            const replyTagValid = await request(srv).post('/activity/reply').set(authA).send(
+                {
+                    reply: {
+                        userId: idA,
+                        content: 'This is a reply with a valid ID',
+                        taggedUserId: idB,
+                    },
+                    commentId: idComA0,
+                    activityId: idActA,
+                }
+            ).expect(201).then(idCheck).catch(done);
+            debug("made reply with valid tag");
+            // Post reply with invalid Id tag
+            const replyTagInvalid = await request(srv).post('/activity/reply').set(authA).send(
+                {
+                    reply: {
+                        userId: idA,
+                        content: 'This is a reply with an invalid ID',
+                        taggedUserId: 12345,
+                    },
+                    commentId: idComA0,
+                    activityId: idActA,
+                }
+            ).expect(404).then(idCheck).catch(done);
+            debug("made reply with invalid tag");
+            // Get reply with valid Id tag
+            const gCheckRepTagId = await request(srv).get(`/activity/reply/${replyTagValid}`).set(authA).expect(200);
+            const gRepTagId = gCheckRepTagId.body.taggedUserId;
+            expect(gRepTagId).toBe(idB);
+            debug("getting tagged user id");
+
+            const tagcleanup = await request(srv).delete('/activity/reply').set(authA)
+                .send({replyId: replyTagValid, commentId: idComA0, activityId: idActA}).expect(200).catch(done);
+            debug("removed tagged user reply")
             // A Reaction
             const react = {
                 activityId: idActA,
@@ -576,7 +611,6 @@ describe('AppController (e2e)', () => {
                 {
                     reply: {
                         content: 'This is a reply',
-                        score: 0,
                     },
                     commentId: RidComA0,
                     activityId: RidActA,
@@ -653,7 +687,6 @@ describe('AppController (e2e)', () => {
                 {
                     reply: {
                         content: 'This is a reply',
-                        score: 0,
                     },
                     commentId: RRidComA0,
                     activityId: RidActA,

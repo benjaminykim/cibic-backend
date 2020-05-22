@@ -208,4 +208,16 @@ export class User {
         (user: User) => user.activitySaved,
     )
     public activitySavedIds: number[];
+
+    @OneToMany(
+        () => Reply,
+        (reply: Reply) => reply.taggedUser,
+    )
+    @JoinColumn()
+    public taggedReplies: Reply[];
+
+    @RelationId(
+        (user: User) => user.taggedReplies,
+    )
+    public taggedRepliesIds: number[];
 }

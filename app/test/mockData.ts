@@ -66,21 +66,18 @@ const actB = {
 const comB0 = {
     comment: {
         content: 'Igual tiene que agregar un dato importante que es la cobertura.',
-        score: 0,
     },
     activityId: null,
 };
 const comB1 = {
     comment: {
         content: 'En la pag del Jumbo y del Lider dice que el despacho se puede demorar días por alta demanda.',
-        score: 0,
     },
     activityId: null,
 };
 const comB2 = {
     comment: {
         content: 'Agregada la cobertura.',
-        score: 0,
     },
     activityId: null,
 };
@@ -96,21 +93,18 @@ const actC = {
 const comC0 = {
     comment: {
         content: 'Viva la revolucion',
-        score: 0,
     },
     activityId: null,
 };
 const comC1 = {
     comment: {
         content: 'No es de Chile, pero encontré este hilo en twitter para desarrolladores dónde estan compartiendo datos y perfiles para trabajos remotos...',
-        score: 0,
     },
     activityId: null,
 };
 const comC2 = {
     comment: {
         content: 'Me mandan una peguita xfa',
-        score: 0,
     },
     activityId: null,
 };
@@ -125,21 +119,18 @@ const actD = {
 const comD0 = {
     comment: {
         content: 'Si, esto es muy importante.',
-        score: 0,
     },
     activityId: null,
 };
 const comD1 = {
     comment: {
         content: 'No es de Chile, pero encontré este hilo en twitter para desarrolladores dónde estan compartiendo datos y perfiles para trabajos remotos...',
-        score: 0,
     },
     activityId: null,
 };
 const comD2 = {
     comment: {
         content: 'Me mandan una peguita xfa',
-        score: 0,
     },
     activityId: null,
 };
@@ -154,21 +145,18 @@ const actE = {
 const comE0 = {
     comment: {
         content: 'Mi mamá se lo hizo, después nací yo (?)',
-        score: 0,
     },
     activityId: null,
 };
 const comE1 = {
     comment: {
         content: 'De repente preguntando en la discusión random vas a obtener más respuestas.',
-        score: 0,
     },
     activityId: null,
 };
 const comE2 = {
     comment: {
         content: 'Creo que nunca he visto una ooforectomia sin alegar la “paridad cumplida” y este año por primera vez vi una histerectomia por temas de genero. Está difícil que te resulte sin esas condiciones xq los médicos asumen que tienes algún drama sicológico por pedirlo. No, no es chiste, lo he escuchado.',
-        score: 0,
     },
     activityId: null,
 };
@@ -176,7 +164,6 @@ const comE2 = {
 const reply = {
     reply: {
         content: 'REPLYTIME',
-        score: 0,
     },
     commentId: null,
 };

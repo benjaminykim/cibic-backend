@@ -76,4 +76,14 @@ export class Reply {
         (reply: Reply) => reply.votes,
     )
     public votesIds: number[];
+
+    @ManyToOne(
+        () => User,
+        (taggedUser: User) => taggedUser.taggedReplies,
+        { nullable: true }
+    )
+    public taggedUser: User;
+
+    @Column({nullable: true})
+    public taggedUserId: number;
 }

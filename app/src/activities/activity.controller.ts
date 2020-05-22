@@ -268,6 +268,9 @@ export class ActivityController {
     ) {
         await this.activityService.exists(activityId);
         await this.commentService.exists(commentId);
+        if (reply.taggedUserId){
+            await this.usersService.exists(reply.taggedUserId);
+        }
         reply.userId = userId;
         const replyId = await this.replyService.insertReply(reply);
         const comment = await this.commentService.reply(commentId, replyId);
