@@ -15,28 +15,19 @@ export class ActivityService {
     }
 
     async incPing(activityId: number, value: number) {
-        // Call this when an interaction requires change in ping
-        // But isn't already updating Activity Document
-        // Otherwise do this inline in query
-        return await this.repository.increment(
-            {id: activityId},
-            'ping', value);
+        return await this.repository.increment({id: activityId}, 'ping', value);
     }
 
     // Activity Flow
 
     async insertActivity(activity: Activity) {
-        const newActivity = await this.repository.create(activity);
-        const result = await this.repository.save(newActivity);
+        const result = await this.repository.save(activity);
         const genId = result.id;
         return genId as number;
     }
 
     async updateActivity(activityId: number, content: string) {
-        return await this.repository.update(
-            {id: activityId},
-            { text: content },
-        );
+        return await this.repository.update({id: activityId}, { text: content });
     }
 
     async commentActivity(commentId: number, activityId) {
@@ -109,8 +100,7 @@ export class ActivityService {
     }
 
     async exists(activityId: number) {
-        const it = await this.repository.count({id: activityId});
-        if (!it) {
+        if (!activityId || !await this.repository.count({id: activityId})) {
             throw new NotFoundException('Could not find reaction');
         }
     }
@@ -129,7 +119,6 @@ export class ActivityService {
             .relation(Activity, 'reactions')
             .of(activityId)
             .add(idReaction);
-        return true;
     }
 
     async updateReaction(
@@ -148,13 +137,12 @@ export class ActivityService {
         oldValue: number,
     ) {
         await this.repository.decrement({id: activityId}, 'score', oldValue);
-        await this.repository.increment({id: activityId}, 'ping', -1);
+        await this.repository.decrement({id: activityId}, 'ping', 1);
         await this.repository
             .createQueryBuilder()
             .relation(Activity, 'reactions')
             .of(activityId)
             .remove(idReaction);
-        return true;
     }
 
     // Vote Flow
@@ -170,7 +158,6 @@ export class ActivityService {
             .relation(Activity, 'votes')
             .of(activityId)
             .add(voteId);
-        return true;
     }
 
     async updateVote(
@@ -189,7 +176,6 @@ export class ActivityService {
         oldValue: number,
     ) {
         await this.repository.decrement({id: activityId}, 'score', oldValue);
-        await this.repository.increment({id: activityId}, 'ping', -1);
-        return true;
+        await this.repository.decrement({id: activityId}, 'ping', 1);
     }
 }

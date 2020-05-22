@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { replyPop } from '../../constants';
 import { Reply } from './reply.entity';
 
 @Injectable()
@@ -12,18 +11,13 @@ export class ReplyService {
 	) {}
 
     async insertReply(reply: Reply) {
-        const newReply = await this.repository.create(reply);
-        const result = await this.repository.save(newReply);
+        const result = await this.repository.save(reply);
         const replyId = result.id;
         return replyId as number;
     }
 
     async updateReply(replyId: number, content: string) {
-        const result = await this.repository.update(
-            {id: replyId},
-            {content: content},
-        );
-        return result;
+        return await this.repository.update({id: replyId}, {content: content});
     }
 
     async getReplyById(replyId: number, userId?: number) {
@@ -57,14 +51,13 @@ export class ReplyService {
     }
 
     async deleteReply(replyId: number) {
-        const reply = await this.repository.delete(replyId);
-        return reply;
+        return await this.repository.delete(replyId);
     }
 
     async exists(replyId: number) {
-        let it = await this.repository.count({id: replyId});
-        if (!it)
+        if (!replyId || !await this.repository.count({id: replyId})) {
             throw new NotFoundException('Could not find reply');
+        }
     }
 
     // Vote Flow

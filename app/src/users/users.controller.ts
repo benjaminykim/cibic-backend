@@ -6,18 +6,18 @@ import {
     Delete,
     Body,
     Param,
-    Headers,
     UseGuards,
     NotFoundException,
     UnprocessableEntityException,
 } from '@nestjs/common';
+
 import { ApiBody } from '@nestjs/swagger';
 import { CabildoService } from '../cabildos/cabildo.service';
 import { UserService } from './users.service';
 import { User } from './users.entity';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { idFromToken } from '../utils';
+import { UserId } from './users.decorator';
 
 @Controller('user') // http://localhost:3000/user
 export class UserController {
@@ -38,15 +38,16 @@ export class UserController {
     async getUserFeed(
         @Param('userId') userId: number,
     ) {
+        await this.userService.exists(userId);
         return await this.userService.getFeed(userId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Get('home') // http://localhost:3000/
     async getUserHome(
-        @Headers() headers: any,
+        @UserId() userId: number,
     ) {
-        const userId = idFromToken(headers.authorization);
+        await this.userService.exists(userId);
         return await this.userService.getFollow(userId);
     }
 
@@ -55,6 +56,7 @@ export class UserController {
     async getUserProfile(
         @Param('userId') userId: number,
     ) {
+        await this.userService.exists(userId);
         return await this.userService.getProfile(userId);
     }
 
@@ -62,77 +64,46 @@ export class UserController {
     @Post('followcabildo') // http://localhost:3000/user/followcabildo
     @ApiBody({})
     async followCabildo(
-        @Headers() h: any,
+        @UserId() userId: number,
         @Body('cabildoId') cabildoId: number,
     ) {
-        const userId = idFromToken(h.authorization);
-        if (!userId || !cabildoId) {
-            // Throw http exception here TODO
-            throw new UnprocessableEntityException();
-        }
         await this.userService.exists(userId);
         await this.cabildoService.exists(cabildoId);
-        const follower = await this.userService.followCabildo(userId, cabildoId);
-        if (follower) {
-            return `user ${userId} now follows cabildo ${cabildoId}`;
-        }
-        throw new UnprocessableEntityException();
+        await this.userService.followCabildo(userId, cabildoId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('followuser') // http://localhost:3000/user/followuser
     @ApiBody({})
     async followUser(
-        @Headers() h: any,
-        @Body('userId') idOther: number,
+        @UserId() userId: number,
+        @Body('userId') otherId: number,
     ) {
-        const userId = idFromToken(h.authorization);
-        if (!userId || !idOther) {
-            throw new UnprocessableEntityException();
-        }
-        const success = await this.userService.followUser(userId, idOther);
-        if (success) {
-            return `user ${userId} now follows user ${idOther}: ${success}`;
-        }
-        throw new UnprocessableEntityException();
+        await this.userService.exists(userId);
+        await this.userService.exists(otherId);
+        await this.userService.followUser(userId, otherId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('unfollowcabildo') // http://localhost:3000/user/followcabildo
     async unfollowCabildo(
-        @Headers() h: any,
+        @UserId() userId: number,
         @Body('cabildoId') cabildoId: number,
     ) {
-        const userId = idFromToken(h.authorization);
-        if (!userId || !cabildoId) {
-            // Throw http exception here TODO
-            throw new UnprocessableEntityException();
-        }
         await this.userService.exists(userId);
         await this.cabildoService.exists(cabildoId);
-
-        const follower = await this.userService.unfollowCabildo(userId, cabildoId);
-        const followed = await this.cabildoService.removeUser(cabildoId, userId);
-        if (follower && followed) {
-            return `user no longer follows cabildo`;
-        }
-        throw new UnprocessableEntityException();
+        await this.userService.unfollowCabildo(userId, cabildoId);
+        await this.cabildoService.removeUser(cabildoId, userId);
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('unfollowuser') // http://localhost:3000/user/followuser
+    @Post('unfollowuser') // http://localhost:3000/user/unfollowuser
     async unfollowUser(
-        @Headers() h: any,
-        @Body('userId') idOther: number,
+        @UserId() userId: number,
+        @Body('userId') otherId: number,
     ) {
-        const userId = idFromToken(h.authorization);
-        if (!userId || !idOther) {
-            throw new UnprocessableEntityException();
-        }
-        const success = await this.userService.unfollowUser(userId, idOther);
-        if (success) {
-            return `user no longer follows user`;
-        }
-        throw new UnprocessableEntityException();
+        await this.userService.exists(userId);
+        await this.userService.exists(otherId);
+        await this.userService.unfollowUser(userId, otherId);
     }
 }

@@ -20,12 +20,16 @@ class ConfigService {
         return this;
     }
 
+    public getJwtSecret() {
+        return this.getValue('JWT_SECRET');
+    }
+
     public getDbPort() {
-        return this.getValue('POSTGRES_PORT', true);
+        return this.getValue('POSTGRES_PORT');
     }
 
     public getApiPort() {
-        return this.getValue('API_PORT', true);
+        return this.getValue('API_PORT');
     }
 
     public isProduction() {
@@ -36,7 +40,6 @@ class ConfigService {
     public getTypeOrmConfig(): TypeOrmModuleOptions {
         return {
             type: 'postgres',
-
             host: this.getValue('POSTGRES_HOST'),
             port: parseInt(this.getValue('POSTGRES_PORT')),
             username: this.getValue('POSTGRES_USER'),
@@ -63,6 +66,7 @@ const configService = new ConfigService(process.env)
         'POSTGRES_PASSWORD',
         'POSTGRES_DB',
         'API_PORT',
+        'JWT_SECRET',
     ]);
 
 export { configService };

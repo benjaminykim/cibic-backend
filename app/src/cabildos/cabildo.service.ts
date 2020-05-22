@@ -4,7 +4,7 @@ import {
     ForbiddenException,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { cabildoProfilePopulate, feedPopulate } from '../constants';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
 import { Activity } from '../activities/activity.entity';
@@ -14,7 +14,10 @@ import { Cabildo } from './cabildo.entity';
 export class CabildoService {
     constructor(@InjectRepository(Cabildo) private readonly repository: Repository<Cabildo>) {}
 
-    async checkCabildoName(cabildoName: string) { return await this.repository.count({name: cabildoName}); }
+    async checkCabildoName(cabildoName: string) {
+        return await this.repository.count({name: cabildoName});
+    }
+
     async verifyCabildoAdmin(cabildoId: number, userId: number) {
         const cabildo = await this.repository.findOne(cabildoId)
         if (cabildo.adminId !== userId) {
@@ -23,8 +26,7 @@ export class CabildoService {
     }
 
     async exists(cabildoId: number) {
-        let it = await this.repository.count({id: cabildoId});
-        if (!it)
+        if (!cabildoId || !await this.repository.count({id: cabildoId}))
             throw new NotFoundException('Could not find cabildo.');
     }
 

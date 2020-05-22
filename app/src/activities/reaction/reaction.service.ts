@@ -15,8 +15,7 @@ export class ReactionService {
     }
 
     async addReaction(reaction: Reaction) {
-        const newReaction = await this.repository.create(reaction);
-        const result = await this.repository.save(newReaction);
+        const result = await this.repository.save(reaction);
         return result.id as number;
     }
 

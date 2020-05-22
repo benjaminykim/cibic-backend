@@ -11,8 +11,7 @@ export class CommentService {
     ) {}
 
     async insertComment(comment: Comment) {
-        const newComment = await this.repository.create(comment);
-        const result = await this.repository.save(newComment);
+        const result = await this.repository.save(comment);
         return result.id as number;
     }
 

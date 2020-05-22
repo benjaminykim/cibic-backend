@@ -6,12 +6,13 @@ import {
     Get,
     Delete,
     UseGuards,
-    Headers,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { idFromToken } from '../utils';
+
 import { Cabildo } from './cabildo.entity';
 import { CabildoService } from './cabildo.service';
+
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UserId } from '../users/users.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('cabildo') // http://localhost:3000/cabildo
@@ -20,10 +21,9 @@ export class CabildoController {
 
     @Post() // http://localhost:3000/cabildo
     async addCabildo(
-        @Headers() headers: any,
+        @UserId() userId: number,
         @Body('cabildo') cabildo: Cabildo,
     ) {
-        const userId = idFromToken(headers.authorization);
         cabildo.adminId = userId;
         const generatedId = await this.cabildoService.insertCabildo(cabildo);
         return { id: generatedId };
@@ -45,10 +45,9 @@ export class CabildoController {
 
     @Get('feed/:cabildoId') // http://localhost:3000/cabildo/feed/:id
     async getCabildoFeed(
-        @Headers() headers: any,
+        @UserId() userId: number,
         @Param('cabildoId') cabildoId: number,
     ) {
-        const userId = idFromToken(headers.authorization);
         return this.cabildoService.getCabildoFeed(cabildoId, userId);
     }
 
@@ -61,12 +60,11 @@ export class CabildoController {
 
     @Delete(':cabildoId') // http://localhost:3000/cabildo/:id
     async deleteCabildo(
-        @Headers() headers: any,
+        @UserId() userId: number,
         @Param('cabildoId') cabildoId: number,
     ) {
         // We'll have to pull other data, like this id from other lists, and transfer activities to global maybe
         // Big design choice here
-        const userId = idFromToken(headers.authorization);
         await this.cabildoService.exists(cabildoId);
         await this.cabildoService.verifyCabildoAdmin(cabildoId, userId)
         await this.cabildoService.deleteCabildo(cabildoId);

@@ -19,14 +19,10 @@ export class UserService {
 
     private userView = data => ({
         id: data.id,
-        username: data.username,
         email: data.email,
         firstname: data.firstName,
-        middleName: data. middleName,
         lastName: data.lastName,
-        maidenName: data.maidenName,
         phone: data.phone,
-        rut: data.rut,
         desc: data.desc,
         cabildos: data.cabildos,
         followers: data.followers,
@@ -36,7 +32,7 @@ export class UserService {
 
     async insertUser(user: User) {
         let collision = await this.repository.count({email: user.email})
-            + await this.repository.count({username: user.username});
+            + await this.repository.count({phone: user.phone});
         if (collision)
             throw new UnprocessableEntityException();
         const userId = bcrypt.hash(user.password, saltRounds)
@@ -49,7 +45,6 @@ export class UserService {
     }
 
     async getProfile(userId: number) {
-        await this.exists(userId);
         const tmp = await this.repository.findOne(
             userId,
             {
@@ -62,8 +57,7 @@ export class UserService {
     }
 
     async getFeed(userId: number, limit: number = 20, offset: number = 0) {
-        await this.exists(userId);
-        const feed = await getRepository(Activity)
+        return await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
             .from(Activity, "activity")
@@ -76,15 +70,13 @@ export class UserService {
             .leftJoinAndSelect("comments.votes", "commentVotes")
             .leftJoinAndSelect("replies.votes", "replyVotes")
             .getMany();
-        return feed;
     }
 
     async getFollow(userId: number, limit: number = 20, offset: number = 0) {
-        await this.exists(userId);
         const user = await this.repository.findOne({id: userId})
         const cabIds = user.cabildosIds.length ? user.cabildosIds : [0]
         const folIds = user.followingIds.length ? user.followingIds : [0]
-        const feed = await getRepository(Activity)
+        return await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
             .from(Activity, "activity")
@@ -101,40 +93,32 @@ export class UserService {
             .skip(offset)
             .take(limit)
             .getMany()
-        return feed;
     }
 
     // update idFollower's activityFeed with query of idFollowed
     async followUser(idFollower: number, idFollowed: number) {
-        await this.exists(idFollower);
-        await this.exists(idFollowed);
         await this.repository
             .createQueryBuilder()
             .relation(User, 'following')
             .of(idFollower)
             .add(idFollowed);
-        return true;
     }
 
     async followCabildo(userId: number, cabildoId: number) {
-        const ret = await this.repository
+        await this.repository
             .createQueryBuilder()
             .relation(User, 'cabildos')
             .of(userId)
             .add(cabildoId);
-        return true;
     }
 
     // update idFollower's activityFeed with query of idFollowed
     async unfollowUser(idFollower: number, idFollowed: number) {
-        await this.exists(idFollower);
-        await this.exists(idFollowed);
-        const first = await this.repository
+        await this.repository
             .createQueryBuilder()
             .relation(User, 'following')
             .of(idFollower)
             .remove(idFollowed);
-        return true;
     }
     async unfollowCabildo(userId: number, cabildoId: number) {
         await this.repository
@@ -142,12 +126,10 @@ export class UserService {
             .relation(User, 'cabildos')
             .of(userId)
             .remove(cabildoId);
-        return true;
     }
 
     async exists(userId: number) {
-        let it = await this.repository.count({id: userId});
-        if (!it)
+        if (!userId || !await this.repository.count({id: userId}))
             throw new NotFoundException('Could not find user.');
     }
 
@@ -157,7 +139,6 @@ export class UserService {
             .relation(User, 'activityFeed')
             .of(userId)
             .add(activityId)
-        return true;
     }
 
     async addPoints(userId: number, value: number) {
@@ -172,6 +153,5 @@ export class UserService {
             .addSelect("user.password")
             .where("user.email = :email", { email: email })
             .getOne()
-//        return await this.repository.findOne(
 	  }
 }

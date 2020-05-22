@@ -25,11 +25,9 @@ export class User {
     public id: number;
 
     @ApiProperty()
-    @Column() // select always
-    public username: string;
-
-    @ApiProperty()
-    @Column() // select prof
+    @Column("text", {
+        default: "Ciudadano Nuevo",
+    }) // select prof
     public desc: string;
 
     @Column({
@@ -53,35 +51,17 @@ export class User {
 
     @ApiProperty()
     @Column({select: false})
-    public middleName: string;
-
-    @ApiProperty()
-    @Column({select: false})
     public lastName: string;
 
     @ApiProperty()
     @Column({select: false})
-    public maidenName: string;
-
-    @ApiProperty()
-    @Column({select: false})
     public phone: string;
-
-    @ApiProperty()
-    @Column({select: false})
-    public rut: string;
-
-    // @Column({
-    //     array: true,
-    // })
-    // public files: string[];
 
     //// Relations ////
 
     @ManyToMany( // select prof
         () => Cabildo,
         (cabildo: Cabildo) => cabildo.members,
-        {eager: true}, // CHECK
     )
     @JoinTable()
     public cabildos: Cabildo[];

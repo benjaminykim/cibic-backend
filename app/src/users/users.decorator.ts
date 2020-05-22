@@ -1,6 +1,5 @@
-import {
-    ForbiddenException
-} from '@nestjs/common';
+import { createParamDecorator } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 
 export function idFromToken(token: string) {
     if (!token)
@@ -9,3 +8,7 @@ export function idFromToken(token: string) {
     const userId = JSON.parse(body.toString('ascii')).id;
     return userId as number;
 }
+
+export const UserId = createParamDecorator((data, req) => {
+    return idFromToken(req.headers.authorization);
+});

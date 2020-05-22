@@ -1,43 +1,19 @@
 const userA = {
     user: {
-        username: 'smonroe',
         email: 'smonroe@gmail.fake',
         password: 'arealpassword',
         firstName: 'Steven',
-        middleName: 'Christopher',
         lastName: 'Monroe',
-        maidenName: 'Rose',
         phone: 9417261303,
-        rut: '1234567891',
-        desc: 'first user',
     },
 };
 const userB = {
     user: {
-        username: 'bekim',
         email: 'bekim@gmail.fake',
         password: 'anotherrealpassword',
         firstName: 'Benjamin',
-        middleName: 'Y',
         lastName: 'Kim',
-        maidenName: 'Boris',
         phone: 9412346543,
-        rut: '1234567892',
-        desc: 'second user',
-    },
-};
-const userC = {
-    user: {
-        username: 'mschmidt',
-        email: 'mschmidt@gmail.fake',
-        password: 'agreatpassword',
-        firstName: 'Mikey',
-        middleName: 'The',
-        lastName: 'Schmidt',
-        maidenName: 'Snowflake',
-        phone: 9412346765,
-        rut: '1234567893',
-        desc: 'third user',
     },
 };
 const cabA = {
@@ -56,7 +32,6 @@ const cabB = {
 };
 const actA = {
     activity: {
-        cabildoId: null,
         activityType: 0,//'discussion', this means frontend changes to int from string
         title: 'Actvidad Uno',
         text: 'Content',
@@ -83,8 +58,7 @@ const comA2 = {
 
 const actB = {
     activity: {
-        cabildoId: null,
-        activityType: 'discussion',
+        activityType: 0,
         title: 'Datos empresas de delivery (Stgo principalmente)',
         text: 'hice una planillita con datos para pedir productos a domicilio, para el que no pueda salir a abastecerse. Hay que chequear la disponibilidad de entrega en las comunas. Se agradece su aporte con datos para agregarlos o correcciones en alguna info: https://docs.google.com/spreadsheets/d/1HCgcxJXbxsc7zTGW8UM5TaAC9CtvnjO5aPmXcqAoxaE/',
         comments: [],
@@ -114,8 +88,7 @@ const comB2 = {
 
 const actC = {
     activity: {
-        cabildoId: null,
-        activityType: 'discussion',
+        activityType: 0,
         title: 'datos Teletrabajos en Chile por covid19',
         text: 'abro este post para ayudar a gente desempleada con datos de trabajos free lance, teletrabajos, homework en Chile, para poder prevenir el contagio de covid19 y hacer cuarentena trabajando. desde nombres de empresas que hagan homework, entrevistas que se estén realizando, sitios webs de empleos homework, hasta nombre de los trabajos que se ofrecen como freelance o homework. Muchas Gracias',
         comments: [],
@@ -145,8 +118,7 @@ const comC2 = {
 };
 const actD = {
     activity: {
-        cabildoId: null,
-        activityType: 'discussion',
+        activityType: 0,
         title: 'datos Teletrabajos en Chile por covid19',
         text: 'abro este post para ayudar a gente desempleada con datos de trabajos free lance, teletrabajos, homework en Chile, para poder prevenir el contagio de covid19 y hacer cuarentena trabajando. desde nombres de empresas que hagan homework, entrevistas que se estén realizando, sitios webs de empleos homework, hasta nombre de los trabajos que se ofrecen como freelance o homework. Muchas Gracias',
         comments: [],
@@ -176,8 +148,7 @@ const comD2 = {
 };
 const actE = {
     activity: {
-        cabildoId: null,
-        activityType: 'discussion',
+        activityType: 0,
         title: 'Post by Alejandro Guzman',
         text: 'Hola. Primero perdonen mis faltas de ortografía. Siempre fui nula en eso en clases. Acabo de crear mi cuenta presisamente para preguntar esto aqui. Quisiera saber lo que pasaron para conseguir la cirugía aqui en chile El lugar en el que la consiguieron. Si les pusieron muchas trabas etc. Pregunto para saber cuanto prepararme. Yo no quiero hijos. Nunca quise y planeo operarme para no tener jamas hijos biológicos. "Pero y si cambias de opinion?" Pues si cambio de opinión tratare de adoptar. Pero dudo cambiar de opinión. Muchas gracias de ante mano. Por favor comentenme sus historias',
         comments: [],
@@ -215,8 +186,7 @@ const reply = {
 };
 
 export {
-    userA, userB, userC,
-    cabA, cabB,
+    userA, userB, cabA, cabB,
     actA, comA0, comA1, comA2,
     actB, comB0, comB1, comB2,
     actC, comC0, comC1, comC2,

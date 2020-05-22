@@ -1,6 +1,10 @@
-version: "3.2"
+version: "3.6"
 volumes:
   api_modules:
+networks:
+  user_net:
+    name: ${USER}_net
+  
 services:
   api:
     build: .
@@ -23,6 +27,8 @@ services:
       - db
     tty: true
     stdin_open: true
+    networks:
+      - user_net
   db:
     image: postgres:12.2-alpine
     container_name: ${USER}_pg
@@ -30,3 +36,5 @@ services:
       - "5432"
     env_file:
       - .env
+    networks:
+      - user_net

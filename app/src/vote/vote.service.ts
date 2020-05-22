@@ -49,8 +49,7 @@ export class CommentVoteService {
     }
 
     async addVote(vote: CommentVote) {
-        const newCommentVote = await this.repository.create(vote);
-        const result = await this.repository.save(newCommentVote);
+        const result = await this.repository.save(vote);
         return result.id as number;
     }
 
@@ -84,8 +83,7 @@ export class ReplyVoteService {
     }
 
     async addVote(vote: ReplyVote) {
-        const newReplyVote = await this.repository.create(vote);
-        const result = await this.repository.save(newReplyVote);
+        const result = await this.repository.save(vote);
         return result.id as number;
     }
 
