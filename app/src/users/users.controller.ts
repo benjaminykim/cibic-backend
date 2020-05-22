@@ -85,7 +85,7 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('unfollowcabildo') // http://localhost:3000/user/followcabildo
+    @Post('unfollowcabildo') // http://localhost:3000/user/unfollowcabildo
     async unfollowCabildo(
         @UserId() userId: number,
         @Body('cabildoId') cabildoId: number,

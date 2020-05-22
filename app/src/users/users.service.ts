@@ -120,6 +120,7 @@ export class UserService {
             .of(idFollower)
             .remove(idFollowed);
     }
+
     async unfollowCabildo(userId: number, cabildoId: number) {
         await this.repository
             .createQueryBuilder()

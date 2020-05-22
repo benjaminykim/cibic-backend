@@ -196,4 +196,16 @@ export class User {
         (user: User) => user.replyVotes,
         )
     public replyVotesIds: number[];
+
+    @ManyToMany(
+        () => Activity,
+        (activity: Activity) => activity.savers,
+    )
+    @JoinTable()
+    public activitySaved: Activity[];
+
+    @RelationId(
+        (user: User) => user.activitySaved,
+    )
+    public activitySavedIds: number[];
 }

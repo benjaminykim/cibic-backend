@@ -4,8 +4,9 @@ import {
     InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getRepository } from 'typeorm';
 import { Activity } from './activity.entity';
+import { User } from '../users/users.entity';
 
 @Injectable()
 export class ActivityService {
@@ -146,6 +147,7 @@ export class ActivityService {
     }
 
     // Vote Flow
+
     async addVote(
         activityId: number,
         voteId: number,
@@ -177,5 +179,48 @@ export class ActivityService {
     ) {
         await this.repository.decrement({id: activityId}, 'score', oldValue);
         await this.repository.decrement({id: activityId}, 'ping', 1);
+    }
+
+    // Save Activity Flow
+
+    async saveActivity(userId: number, activityId: number) {
+        await getRepository(User)
+            .createQueryBuilder()
+            .relation(User, 'activitySaved')
+            .of(userId)
+            .add(activityId);
+        return true;
+    }
+
+    async getActivitySaved(userId: number, limit: number = 20, offset: number = 0) {
+        const user = await getRepository(User).findOne({id: userId})
+        if (!user.activitySavedIds.length)
+            return [];
+        const savfeed = await this.repository
+            .createQueryBuilder()
+            .select("activity")
+            .from(Activity, "activity")
+            .where("activity.id IN (:...activitySaved)", {activitySaved: user.activitySavedIds})
+            .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("comments.replies", "replies")
+            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
+            .orderBy("activity.ping", "DESC")
+            .skip(offset)
+            .take(limit)
+            .getMany()
+        return savfeed;
+    }
+
+    async unsaveActivity(userId: number, activityId: number) {
+        await getRepository(User)
+            .createQueryBuilder()
+            .relation(User, 'activitySaved')
+            .of(userId)
+            .remove(activityId);
+        return true;
     }
 }
