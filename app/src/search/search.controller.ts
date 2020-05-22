@@ -19,13 +19,15 @@ export class SearchController {
 
 	@Get()
 	async emptySearch() {
-		return "TEST2";
+		return "NO SEARCH REQUESTED";
 	}
-	@Get(':userQuery')
+	@Get(':userQuery/:flags')
 	async reqSearch(
 		//@Headers() headers: any,
 		@Param('userQuery') userQuery: string,
+		@Param('flags') flags: number,
 	) {
-		return this.searchService.getSearchResults(userQuery);
+		
+		return this.searchService.getSearchResults(userQuery, flags);
 	}
 }
