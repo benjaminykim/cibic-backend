@@ -13,6 +13,7 @@ import {
     reply,cabB,
 } from './mockData';
 Error.stackTraceLimit=100;
+jest.setTimeout(60000)
 describe('AppController (e2e)', () => {
     let app: INestApplication;
 
@@ -270,6 +271,45 @@ describe('AppController (e2e)', () => {
                 }
             ).expect(201).then(idCheck).catch(done);
             debug("made reply");
+
+            // Post reply with valid Id tag
+            const replyTagValid = await request(srv).post('/activity/reply').set(authA).send(
+                {
+                    reply: {
+                        userId: idA,
+                        content: 'This is a reply with a valid ID',
+                        score: 0,
+                        taggedUserId: idB,
+                    },
+                    commentId: idComA0,
+                    activityId: idActA,
+                }
+            ).expect(201).then(idCheck).catch(done);
+            debug("made reply with valid tag");
+            // Post reply with invalid Id tag
+            const replyTagInvalid = await request(srv).post('/activity/reply').set(authA).send(
+                {
+                    reply: {
+                        userId: idA,
+                        content: 'This is a reply with an invalid ID',
+                        score: 0,
+                        taggedUserId: 12345,
+                    },
+                    commentId: idComA0,
+                    activityId: idActA,
+                }
+            ).expect(404).then(idCheck).catch(done);
+            debug("made reply with invalid tag");    
+            // Get reply with valid Id tag
+            const gCheckRepTagId = await request(srv).get(`/activity/reply/${replyTagValid}`).set(authA).expect(200);
+            // console.error(gCheckRepTagId.body)
+            // console.error(gCheckRepTagId.body)
+            // console.error(gCheckRepTagId.body)
+            // done()
+            const gRepTagId = gCheckRepTagId.body.taggedUserId;
+            expect(gRepTagId).toBe(idB);
+            debug("getting tagged user id");
+            
             // A Reaction
             const react = {
                 activityId: idActA,

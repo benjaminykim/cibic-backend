@@ -222,4 +222,16 @@ export class User {
         default: 0,
     })
     public citizenPoints: number;
+
+    @OneToMany(
+        () => Reply,
+        (reply: Reply) => reply.taggedUser,
+    )
+    @JoinColumn()
+    public taggedReplies: Reply[];
+
+    @RelationId(
+        (user: User) => user.taggedReplies,
+    )
+    public taggedRepliesIds: number[];
 }

@@ -45,7 +45,7 @@ export class Reply {
     public publishDate: Date;
 
     @Column()
-    public content: string;
+    public content: string; 
 
     @Column()
     @Index()
@@ -61,4 +61,16 @@ export class Reply {
         (vote: ReplyVote) => vote.reply,
     )
     public votes: ReplyVote[];
+    
+    @ManyToOne(
+        () => User,
+        (taggedUser: User) => taggedUser.taggedReplies,
+        { nullable: true }
+    )
+    public taggedUser: User;
+
+    @Column(
+        (reply: Reply) => reply.taggedUser,
+    )
+    public taggedUserId: number;
 }
