@@ -13,6 +13,7 @@ import {
     reply,cabB,
 } from './mockData';
 Error.stackTraceLimit=100;
+jest.setTimeout(60000);
 describe('AppController (e2e)', () => {
     let app: INestApplication;
 
@@ -365,10 +366,11 @@ describe('AppController (e2e)', () => {
             await request(srv).post('/activity/save').set(authX).send({activityId: idActA}).expect(401);
             debug("fake user couldn´t save activity");
 
-            let userASavFeed = await request(srv).get('/activity/save/feed').set(authX).expect(200);
+            // Fake user try to request an activity feed
+            let userASavFeed = await request(srv).get('/activity/save/feed').set(authX).expect(401);
+            debug("fake user couldn´t get activity feed");
 
-
-            // first check of how many savers have the activity
+            // First check of how many savers have the activity
             let gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
             let savAct = gSavAct.body;
             expect(savAct.saversIds).toHaveLength(1);
@@ -378,7 +380,7 @@ describe('AppController (e2e)', () => {
             await request(srv).post('/activity/save').set(authB).send({activityId: idActA}).expect(201);
             debug("user B saved activity");
 
-            // second check of how many savers have the activity
+            // Second check of how many savers have the activity
             gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
             savAct = gSavAct.body;
             expect(savAct.saversIds).toHaveLength(2);
@@ -396,11 +398,11 @@ describe('AppController (e2e)', () => {
             await request(srv).post('/activity/unsave').set(authA).send({activityId: idActA}).expect(201);
             debug("user A unsaved activity");
 
-            // check if user A saved activity feed is empty
-            userASavFeed = await request(srv).get(`/activity/save/feed`).set(authA).expect(200);
+            // Check if user A saved activity feed is empty
+            const userASavFeed = await request(srv).get(`/activity/save/feed`).set(authA).expect(200);
             expect(userASavFeed.body).toStrictEqual([]);
 
-            // third check of how many savers have the activity
+            // Third check of how many savers have the activity
             gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
             savAct = gSavAct.body;
             expect(savAct.saversIds).toHaveLength(1);
@@ -410,13 +412,13 @@ describe('AppController (e2e)', () => {
             await request(srv).post('/activity/unsave').set(authA).send({activityId: idActA}).expect(201);
             debug("user A re-unsave activity");
 
-            // fourth check of how many savers have the activity
+            // Fourth check of how many savers have the activity
             gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
             savAct = gSavAct.body;
             expect(savAct.saversIds).toHaveLength(1);
             debug("activity properly have one saver");
 
-            // check second user save activity
+            // Check second user save activity
             const gUserB  = await request(srv).get('/user/' + idB).set(authB).expect(200);
             const bodyUserB = gUserB.body;
             expect(bodyUserB.activitySavedIds).toHaveLength(1);
@@ -426,7 +428,7 @@ describe('AppController (e2e)', () => {
             await request(srv).post('/activity/unsave').set(authB).send({activityId: idActA}).expect(201);
             debug("user B unsaved activity");
 
-            // fifth check of how many savers have the activity
+            // Fifth check of how many savers have the activity
             gSavAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200);
             savAct = gSavAct.body;
             expect(savAct.saversIds).toHaveLength(0);
