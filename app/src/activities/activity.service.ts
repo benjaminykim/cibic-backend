@@ -184,12 +184,18 @@ export class ActivityService {
     // Save Activity Flow
 
     async saveActivity(userId: number, activityId: number) {
-        await getRepository(User)
-            .createQueryBuilder()
-            .relation(User, 'activitySaved')
-            .of(userId)
-            .add(activityId);
-        return true;
+        const user = await getRepository(User)
+            .findOne({id: userId});
+        if (user.activitySavedIds.indexOf(activityId) === -1) {
+            await getRepository(User)
+                .createQueryBuilder()
+                .relation(User, 'activitySaved')
+                .of(userId)
+                .add(activityId);
+        }
+        else {
+            throw new InternalServerErrorException("Cannot save same activity twice");
+        }
     }
 
     async getActivitySaved(userId: number, limit: number = 20, offset: number = 0) {

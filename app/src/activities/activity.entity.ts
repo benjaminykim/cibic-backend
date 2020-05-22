@@ -151,13 +151,13 @@ export class Activity {
     public replyVotesIds: number[];
 
     @ManyToMany(
-    	() => User,
-	    (user: User) => user.activitySaved,
+      () => User,
+      (user: User) => user.activitySaved,
     )
     public savers: User[];
 
     @RelationId(
-    	(activity: Activity) => activity.savers,
+      (activity: Activity) => activity.savers,
     )
     public saversIds: number[];
 }

@@ -61,8 +61,6 @@ const actB = {
         activityType: 0,
         title: 'Datos empresas de delivery (Stgo principalmente)',
         text: 'hice una planillita con datos para pedir productos a domicilio, para el que no pueda salir a abastecerse. Hay que chequear la disponibilidad de entrega en las comunas. Se agradece su aporte con datos para agregarlos o correcciones en alguna info: https://docs.google.com/spreadsheets/d/1HCgcxJXbxsc7zTGW8UM5TaAC9CtvnjO5aPmXcqAoxaE/',
-        comments: [],
-        savers: [],
     },
 };
 const comB0 = {
@@ -92,8 +90,6 @@ const actC = {
         activityType: 0,
         title: 'datos Teletrabajos en Chile por covid19',
         text: 'abro este post para ayudar a gente desempleada con datos de trabajos free lance, teletrabajos, homework en Chile, para poder prevenir el contagio de covid19 y hacer cuarentena trabajando. desde nombres de empresas que hagan homework, entrevistas que se estén realizando, sitios webs de empleos homework, hasta nombre de los trabajos que se ofrecen como freelance o homework. Muchas Gracias',
-        comments: [],
-        savers: [],
     },
 };
 
@@ -123,8 +119,6 @@ const actD = {
         activityType: 0,
         title: 'datos Teletrabajos en Chile por covid19',
         text: 'abro este post para ayudar a gente desempleada con datos de trabajos free lance, teletrabajos, homework en Chile, para poder prevenir el contagio de covid19 y hacer cuarentena trabajando. desde nombres de empresas que hagan homework, entrevistas que se estén realizando, sitios webs de empleos homework, hasta nombre de los trabajos que se ofrecen como freelance o homework. Muchas Gracias',
-        comments: [],
-        savers: [],
     },
 };
 
@@ -154,8 +148,6 @@ const actE = {
         activityType: 0,
         title: 'Post by Alejandro Guzman',
         text: 'Hola. Primero perdonen mis faltas de ortografía. Siempre fui nula en eso en clases. Acabo de crear mi cuenta presisamente para preguntar esto aqui. Quisiera saber lo que pasaron para conseguir la cirugía aqui en chile El lugar en el que la consiguieron. Si les pusieron muchas trabas etc. Pregunto para saber cuanto prepararme. Yo no quiero hijos. Nunca quise y planeo operarme para no tener jamas hijos biológicos. "Pero y si cambias de opinion?" Pues si cambio de opinión tratare de adoptar. Pero dudo cambiar de opinión. Muchas gracias de ante mano. Por favor comentenme sus historias',
-        comments: [],
-        savers: [],
     },
 };
 

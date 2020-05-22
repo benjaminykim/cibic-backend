@@ -400,37 +400,25 @@ export class ActivityController {
 
     @Post('save') // http://localhost:3000/activity/save
     async saveActivity(
-        @Headers() h: any,
+        @UserId() userId: number,
         @Body('activityId') activityId: number,
     ) {
-        const userId = idFromToken(h.authorization);
-        if (!userId || !activityId) {
-            throw new UnprocessableEntityException();
-        }
-        await this.usersService.exists(userId);
         await this.activityService.exists(activityId);
         await this.activityService.saveActivity(userId, activityId);
     }
 
     @Get('save/feed') // http://localhost:3000/activity/save/feed
     async getActSaved(
-        @Headers() h: any,
+        @UserId() userId: number,
     ) {
-        const userId = idFromToken(h.authorization);
-        await this.usersService.exists(userId);
         return await this.activityService.getActivitySaved(userId);
     }
 
     @Post('unsave') // http://localhost:3000/activity/unsave
     async unsaveActivity(
-        @Headers() h: any,
+        @UserId() userId: number,
         @Body('activityId') activityId: number,
     ) {
-        const userId = idFromToken(h.authorization);
-        if (!userId || !activityId) {
-            throw new UnprocessableEntityException();
-        }
-        await this.usersService.exists(userId);
         await this.activityService.exists(activityId);
         await this.activityService.unsaveActivity(userId, activityId);
     }
