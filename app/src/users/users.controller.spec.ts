@@ -15,7 +15,6 @@ describe('UserController', () => {
     setupDB('test', true);
     let controller: UserController;
     let mockUser: User = {
-        username: "smonroe",
         email: "smonroe@gmail.fake",
         password: "arealpassword",
         firstName: "Steven",
