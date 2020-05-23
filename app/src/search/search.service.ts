@@ -16,7 +16,44 @@ export enum SearchTypes {
 	Users = 4
 }
 
+@Injectable()
 export class SearchService {
+
+	async searchUsers(userQuery: string) {
+		return await getRepository(User)
+			.createQueryBuilder()
+			.select("user")
+			.from(User, "user")
+			.where('user.firstName like :q', {q: `%${userQuery}%`})
+			.orWhere('user.lastName like :q', {q: `%${userQuery}%`})
+			.orWhere('user.desc like :q', {q: `%${userQuery}%`})
+			.cache(60000)
+			.getMany();
+	}
+
+	async searchActivities(userQuery: string) {
+		return await getRepository(Activity)
+			.createQueryBuilder()
+			.select("activity")
+			.from(Activity, "activity")
+			.where('activity.title like :q', {q: `%${userQuery}%`})
+			.orWhere('activity.text like :q', {q: `%${userQuery}%`})
+			.cache(60000)
+			.getMany();
+	}
+
+	async searchCabildos(userQuery: string) {
+		return await getRepository(Cabildo)
+			.createQueryBuilder()
+			.select("cabildo")
+			.from(Cabildo, "cabildo")
+			.where('cabildo.name like :q', {q: `%${userQuery}%`})
+			.orWhere('cabildo.desc like :q', {q: `%${userQuery}%`})
+			.cache(60000)
+			.getMany();
+	}
+
+	/*
 	async getSearchResults(userQuery: string, flags: number) {
 		let response;
 		if ((flags & SearchTypes.Activities) == SearchTypes.Activities)
@@ -45,21 +82,21 @@ export class SearchService {
 			response = await getRepository(User)
 				.find({
 					where: [
-						{ username: Like(`%${userQuery}%`) },
 						{ firstName: Like(`%${userQuery}%`) },
-						{ middleName: Like(`${userQuery}%`) },
 						{ lastName: Like(`${userQuery}%`) },
 						{ desc: Like(`${userQuery}%`) },
 					]
 				});
 
 		}
-		/*
-		const response = await getRepository(Activity)
-			.createQueryBuilder("activity")
-			.where("activity.text like :query", {query: `%${userQuery}%`});
-			.getMany();
-		*/
-		return response;
+		else
+		{
+			response = await getRepository(Activity)
+				.createQueryBuilder()
+				.select("activity")
+				.from(Activity, "activity")
+				.where('activity.text like :q OR activity.title like :q', {q: userQuery})
+		}
 	}
+	*/
 }

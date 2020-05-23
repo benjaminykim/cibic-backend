@@ -17,11 +17,31 @@ import { SearchService } from './search.service';
 export class SearchController {
 	constructor(private readonly searchService: SearchService) {}
 
-	@Get()
-	async emptySearch() {
-		return "NO SEARCH REQUESTED";
+	@Post('users')
+	async reqSearchUsers(
+		@Headers() header: any,
+		@Body('query') query: string,
+	) {
+		return this.searchService.searchUsers(query);
 	}
-	@Get(':userQuery/:flags')
+
+	@Post('activities')
+	async reqSearchActivities(
+		@Headers() header: any,
+		@Body('query') query: string,
+	) {
+		return this.searchService.searchActivities(query);
+	}
+
+	@Post('cabildos')
+	async reqSearchCabildos(
+		@Headers() header: any,
+		@Body('query') query: string,
+	) {
+		return this.searchService.searchCabildos(query);
+	}
+
+	/*@Get(':userQuery/:flags')
 	async reqSearch(
 		//@Headers() headers: any,
 		@Param('userQuery') userQuery: string,
@@ -29,5 +49,5 @@ export class SearchController {
 	) {
 		
 		return this.searchService.getSearchResults(userQuery, flags);
-	}
+	}*/
 }
