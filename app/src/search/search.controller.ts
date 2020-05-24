@@ -22,7 +22,8 @@ export class SearchController {
 		@Headers() header: any,
 		@Body('query') query: string,
 	) {
-		return this.searchService.searchUsers(query);
+		const userId = idFromToken(header.authorization);
+		return this.searchService.searchUsers(query, userId);
 	}
 
 	@Post('activities')
@@ -30,7 +31,8 @@ export class SearchController {
 		@Headers() header: any,
 		@Body('query') query: string,
 	) {
-		return this.searchService.searchActivities(query);
+		const userId = idFromToken(header.authorization);
+		return this.searchService.searchActivities(query, userId);
 	}
 
 	@Post('cabildos')
@@ -38,7 +40,8 @@ export class SearchController {
 		@Headers() header: any,
 		@Body('query') query: string,
 	) {
-		return this.searchService.searchCabildos(query);
+		const userId = idFromToken(header.authorization);
+		return this.searchService.searchCabildos(query, userId);
 	}
 
 	/*@Get(':userQuery/:flags')

@@ -9,6 +9,7 @@ import { Repository, getRepository, Like } from 'typeorm';
 import { Activity } from '../activities/activity.entity';
 import { User } from '../users/users.entity';
 import { Cabildo } from '../cabildos/cabildo.entity'
+import { Search } from './search.entity'
 
 export enum SearchTypes {
 	Activities = 1,
@@ -18,8 +19,18 @@ export enum SearchTypes {
 
 @Injectable()
 export class SearchService {
+	constructor(@InjectRepository(Search) private readonly repository: Repository<Search>) {}
 
-	async searchUsers(userQuery: string) {
+	async saveQuery(userQuery: string, userId: number, qtype: number) {
+		const s = new Search();
+		s.userId = userId;
+		s.qtype = qtype;
+		s.query = userQuery;
+		return await this.repository.save(s);
+	}
+
+	async searchUsers(userQuery: string, userId: number) {
+		const res = this.saveQuery(userQuery, userId, SearchTypes.Users);
 		return await getRepository(User)
 			.createQueryBuilder()
 			.select("user")
@@ -31,18 +42,29 @@ export class SearchService {
 			.getMany();
 	}
 
-	async searchActivities(userQuery: string) {
+	async searchActivities(userQuery: string, userId: number,  limit: number = 20, offset: number = 0) {
+		const res = this.saveQuery(userQuery, userId, SearchTypes.Activities);
 		return await getRepository(Activity)
 			.createQueryBuilder()
 			.select("activity")
 			.from(Activity, "activity")
 			.where('activity.title like :q', {q: `%${userQuery}%`})
 			.orWhere('activity.text like :q', {q: `%${userQuery}%`})
+			.leftJoinAndSelect("activity.cabildo", "cabildo")
+			.leftJoinAndSelect("activity.comments", "comments")
+			.leftJoinAndSelect("activity.reactions", "reactions")
+			.leftJoinAndSelect("comments.replies", "replies")
+			.leftJoinAndSelect("comments.votes", "commentVotes")
+			.leftJoinAndSelect("replies.votes", "replyVotes")
+			.orderBy("activity.ping", "DESC")
 			.cache(60000)
+			.skip(offset)
+			.take(limit)
 			.getMany();
 	}
 
-	async searchCabildos(userQuery: string) {
+	async searchCabildos(userQuery: string, userId: number) {
+		const res = this.saveQuery(userQuery, userId, SearchTypes.Cabildos);
 		return await getRepository(Cabildo)
 			.createQueryBuilder()
 			.select("cabildo")

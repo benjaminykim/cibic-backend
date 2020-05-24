@@ -4,10 +4,11 @@ import { Activity } from '../activities/activity.entity'
 
 import { SearchService } from './search.service';
 import { SearchController } from './search.controller';
+import { Search } from './search.entity';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Activity]),
+		TypeOrmModule.forFeature([Search]),
 	],
 	controllers: [SearchController],
 	providers: [SearchService],

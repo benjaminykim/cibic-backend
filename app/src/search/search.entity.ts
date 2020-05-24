@@ -7,7 +7,6 @@ import {
 	Column,
 	CreateDateColumn,
 	Entity,
-	BaseEntity,
 } from 'typeorm';
 
 import { User } from '../users/users.entity';
@@ -18,7 +17,7 @@ import { Reaction } from '../activities/reaction/reaction.entity';
 import { ActivityVote, CommentVote, ReplyVote } from '../vote/vote.entity';
 
 @Entity()
-export class Search extends BaseEntity {
+export class Search {
 
 	@PrimaryGeneratedColumn('increment')
 	public id: number;
