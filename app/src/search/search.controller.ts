@@ -22,7 +22,8 @@ export class SearchController {
 		@Headers() header: any,
 		@Body('query') query: string,
 	) {
-		const userId = idFromToken(header.authorization);
+		//const userId = idFromToken(header.authorization);
+		const userId = 1;
 		return this.searchService.searchUsers(query, userId);
 	}
 
@@ -31,7 +32,8 @@ export class SearchController {
 		@Headers() header: any,
 		@Body('query') query: string,
 	) {
-		const userId = idFromToken(header.authorization);
+		//const userId = idFromToken(header.authorization);
+		const userId = 1;
 		return this.searchService.searchActivities(query, userId);
 	}
 
@@ -40,7 +42,8 @@ export class SearchController {
 		@Headers() header: any,
 		@Body('query') query: string,
 	) {
-		const userId = idFromToken(header.authorization);
+		//const userId = idFromToken(header.authorization);
+		const userId = 1;
 		return this.searchService.searchCabildos(query, userId);
 	}
 
