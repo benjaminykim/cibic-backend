@@ -10,6 +10,8 @@ import {
     actC,comC0,comC1,comC2,
     actD,comD0,comD1,comD2,
     actE,comE0,comE1,comE2,
+	searchA, searchB, searchC,
+	badSearchA, badSearchB,
     reply,
 } from './mockData';
 
@@ -872,6 +874,18 @@ describe('AppController (e2e)', () => {
             debug("wrong user")
             const deleteCabildoOkay = await request(srv).delete('/cabildo/' + idCabB).set(authA).expect(200).catch(done); // return ok, cabildo deleted
             debug("cabildo stuff done")
+
+			// Test search
+
+			const searchResA = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
+			const searchResB = await request(srv).post('/search/cabildos').set(authA).send(searchB).expect(201).catch(done);
+
+			const badSearchResA = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(201).catch(done);
+			const badSearchResB = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(201).catch(done);
+
+			const searchResC = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
+
+			debug("done with search testing");
             // Goodbye!
             done();
         }
@@ -928,5 +942,9 @@ describe('AppController (e2e)', () => {
   x    Post   /activity/react
   x    Put    /activity/react
   x    Delete /activity/react
+     Search:
+       Post   /search/users
+  x    Post   /search/activities
+       Post   /search/cabildos
 
 */

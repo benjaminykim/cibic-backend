@@ -22,7 +22,7 @@ export class SearchController {
 	@Post('users')
 	async reqSearchUsers(
 		@UserId() userId: number,
-		@Body('query') search: Search,
+		@Body('search') search: Search,
 	) {
 		search.userId = userId;
 		search.qtype = 4;
@@ -33,7 +33,7 @@ export class SearchController {
 	@Post('activities')
 	async reqSearchActivities(
 		@UserId() userId: number,
-		@Body('query') search: Search,
+		@Body('search') search: Search,
 	) {
 		search.userId = userId;
 		search.qtype = 1;
@@ -44,7 +44,7 @@ export class SearchController {
 	@Post('cabildos')
 	async reqSearchCabildos(
 		@UserId() userId: number,
-		@Body('query') search: Search,
+		@Body('search') search: Search,
 	) {
 		search.userId = userId;
 		search.qtype = 2;

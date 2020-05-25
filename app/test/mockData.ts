@@ -168,6 +168,36 @@ const reply = {
     commentId: null,
 };
 
+const searchA = {
+	search: {
+		query: "Con",
+	},
+};
+
+const searchB = {
+	search: {
+		query: "ft",
+	},
+};
+
+const searchC = {
+	search: {
+		query: "Ste",
+	},
+};
+
+const badSearchA = {
+	search: {
+		query: "xx\'DROP TABLE users;"
+	},
+};
+
+const badSearchB = {
+	search: {
+		query: "",
+	},
+};
+
 export {
     userA, userB, cabA, cabB,
     actA, comA0, comA1, comA2,
@@ -175,5 +205,7 @@ export {
     actC, comC0, comC1, comC2,
     actD, comD0, comD1, comD2,
     actE, comE0, comE1, comE2,
+	searchA, searchB, searchC,
+	badSearchA, badSearchB,
     reply,
 };
