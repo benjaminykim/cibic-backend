@@ -28,7 +28,9 @@ export class UserController {
 
     @Post() // http://localhost:3000/user
     @ApiBody({type: User})
-    async addUser(@Body('user') user: User) {
+    async addUser(
+        @Body('user') user: User
+    ) {
         const generatedId = await this.userService.insertUser(user);
         return {id: generatedId};
     }
@@ -105,5 +107,16 @@ export class UserController {
         await this.userService.exists(userId);
         await this.userService.exists(otherId);
         await this.userService.unfollowUser(userId, otherId);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Put('description/:userId') // http://localhost:3000/user/description/:userId
+    @ApiBody({})
+    async updateDesc(
+        @UserId('userId') userId: number,
+        @Body('description') newDesc: string
+    ) {
+        await this.userService.exists(userId);
+        return await this.userService.updateDesc(userId, newDesc);
     }
 }
