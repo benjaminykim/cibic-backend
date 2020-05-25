@@ -23,8 +23,7 @@ export class ActivityService {
 
     async insertActivity(activity: Activity) {
         const result = await this.repository.save(activity);
-        const genId = result.id;
-        return genId as number;
+        return result.id as number;
     }
 
     async updateActivity(activityId: number, content: string) {
@@ -59,9 +58,12 @@ export class ActivityService {
                     .select("activity")
                     .from(Activity, "activity")
                     .where("activity.id = :activityId", {activityId: activityId})
+                    .leftJoinAndSelect("activity.user", "user")
                     .leftJoinAndSelect("activity.cabildo", "cabildo")
                     .leftJoinAndSelect("activity.comments", "comments")
+                    .leftJoinAndSelect("comments.user", "cuser")
                     .leftJoinAndSelect("comments.replies", "replies")
+                    .leftJoinAndSelect("replies.user", "ruser")
                     .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", {userId: userId})
                     .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", {userId: userId})
                     .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
@@ -74,9 +76,12 @@ export class ActivityService {
                     .select("activity")
                     .from(Activity, "activity")
                     .where("activity.id = :activityId", {activityId: activityId})
+                    .leftJoinAndSelect("activity.user", "user")
                     .leftJoinAndSelect("activity.cabildo", "cabildo")
                     .leftJoinAndSelect("activity.comments", "comments")
+                    .leftJoinAndSelect("comments.user", "cuser")
                     .leftJoinAndSelect("comments.replies", "replies")
+                    .leftJoinAndSelect("replies.user", "ruser")
                     .leftJoinAndSelect("replies.votes", "rvotes")
                     .leftJoinAndSelect("comments.votes", "cvotes")
                     .leftJoinAndSelect("activity.votes", "votes")
@@ -207,9 +212,12 @@ export class ActivityService {
             .select("activity")
             .from(Activity, "activity")
             .where("activity.id IN (:...activitySaved)", {activitySaved: user.activitySavedIds})
+            .leftJoinAndSelect("activity.user", "user")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
             .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("comments.user", "cuser")
             .leftJoinAndSelect("comments.replies", "replies")
+            .leftJoinAndSelect("replies.user", "ruser")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: userId})

@@ -78,7 +78,7 @@ describe('AppController (e2e)', () => {
 
             // prepare activities with user and cabildo ids
             actA.activity['cabildoId'] =
-            actB.activity['cabildoId'] =
+                actB.activity['cabildoId'] =
                 actC.activity['cabildoId'] =
                 actD.activity['cabildoId'] =
                 actE.activity['cabildoId'] =
@@ -176,7 +176,7 @@ describe('AppController (e2e)', () => {
             debug("reacted again")
             const upVote = {
                 vote: {
-                activityId: idActA,
+                    activityId: idActA,
                     value: 1,
                 }
             };
@@ -318,6 +318,7 @@ describe('AppController (e2e)', () => {
                 const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
                 debug(userFeedA.body);
                 let act = userFeedA.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(3);
                 expect(act.comment_number).toBe(1);
@@ -325,10 +326,12 @@ describe('AppController (e2e)', () => {
                 expect(act.comments).toHaveLength(1);
                 expect(act.saversIds).toHaveLength(0);
                 let com = act.comments[0];
+                expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(1);
                 expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Comment');
                 let rep = com.replies[0];
+                expect(rep.user.firstName).toBe(userA.user.firstName)
                 expect(rep.score).toBe(1);
                 expect(rep.content).toBe('This is a reply');
                 debug("user feed is good");
@@ -351,6 +354,7 @@ describe('AppController (e2e)', () => {
                 debug("got activity saved feed");
                 debug(userASavFeed.body);
                 const act = userASavFeed.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(3);
                 expect(act.comment_number).toBe(1);
@@ -358,10 +362,12 @@ describe('AppController (e2e)', () => {
                 expect(act.comments).toHaveLength(1);
                 expect(act.saversIds).toHaveLength(1);
                 const com = act.comments[0];
+                expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(1);
                 expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Comment');
                 const rep = com.replies[0];
+                expect(rep.user.firstName).toBe(userA.user.firstName)
                 expect(rep.score).toBe(1);
                 expect(rep.content).toBe('This is a reply');
                 debug("activity-saved feed is good");
@@ -480,16 +486,19 @@ describe('AppController (e2e)', () => {
                 debug("got home");
                 debug(userFeedA.body);
                 const act = userFeedA.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(-3);
                 expect(act.text).toBe('Update');
                 expect(act.comments).toHaveLength(1);
                 expect(act.saversIds).toHaveLength(0);
                 const com = act.comments[0];
+                expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(-1);
                 expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Update');
                 const rep = com.replies[0];
+                expect(rep.user.firstName).toBe(userA.user.firstName)
                 expect(rep.score).toBe(-1);
                 expect(rep.content).toBe('Update');
                 // Ensure everything is available by get
@@ -528,15 +537,18 @@ describe('AppController (e2e)', () => {
                 const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
                 debug("got feed back in test")
                 const act = userFeedA.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(2);
                 expect(act.score).toBe(0);
                 expect(act.text).toBe('Update');
                 expect(act.comments).toHaveLength(1);
                 const com = act.comments[0];
+                expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(0);
                 expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Update');
                 const rep = com.replies[0];
+                expect(rep.user.firstName).toBe(userA.user.firstName)
                 expect(rep.score).toBe(0);
                 expect(rep.content).toBe('Update');
                 debug("made it through post-delete feed")
@@ -547,18 +559,20 @@ describe('AppController (e2e)', () => {
             const delRep = await request(srv).delete('/activity/reply').set(authA)
                 .send({activityId: idActA, commentId: idComA0, replyId: replyId}).expect(200).catch(done);
             {
-                    // Did it disappear?
-                    debug("checking feed for no replies")
-                    const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-                    const act = userFeedA.body[0];
-                    expect(act.ping).toBe(1);
-                    expect(act.score).toBe(0);
-                    expect(act.text).toBe('Update');
-                    expect(act.comments).toHaveLength(1);
-                    const com = act.comments[0];
-                    expect(com.score).toBe(0);
-                    expect(com.replies).toHaveLength(0);
-                    expect(com.content).toBe('Update');
+                // Did it disappear?
+                debug("checking feed for no replies")
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
+                const act = userFeedA.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
+                expect(act.ping).toBe(1);
+                expect(act.score).toBe(0);
+                expect(act.text).toBe('Update');
+                expect(act.comments).toHaveLength(1);
+                const com = act.comments[0];
+                expect(com.user.firstName).toBe(userA.user.firstName)
+                expect(com.score).toBe(0);
+                expect(com.replies).toHaveLength(0);
+                expect(com.content).toBe('Update');
             }
 
             // Delete comment
@@ -566,15 +580,16 @@ describe('AppController (e2e)', () => {
             const delCom = await request(srv).delete('/activity/comment').set(authA)
                 .send({activityId: idActA, commentId: idComA0}).expect(200).catch(done);
             {
-                    // Did it disappear?
-                    debug("checking feed for no comments")
-                    const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-                    const act = userFeedA.body[0];
-                    expect(act.text).toBe('Update');
-                    expect(act.comments).toHaveLength(0);
-                    expect(act.comment_number).toBe(0);
-                    expect(act.ping).toBe(0);
-                    expect(act.score).toBe(0);
+                // Did it disappear?
+                debug("checking feed for no comments")
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
+                const act = userFeedA.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
+                expect(act.text).toBe('Update');
+                expect(act.comments).toHaveLength(0);
+                expect(act.comment_number).toBe(0);
+                expect(act.ping).toBe(0);
+                expect(act.score).toBe(0);
             }
 
             // Delete activity
@@ -647,16 +662,19 @@ describe('AppController (e2e)', () => {
                 // Is everything back?
                 const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
                 const act = userFeedA.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(3);
                 expect(act.comment_number).toBe(1);
                 expect(act.text).toBe('Content');
                 expect(act.comments).toHaveLength(1);
                 const com = act.comments[0];
+                expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(1);
                 expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Comment');
                 const rep = com.replies[0];
+                expect(rep.user.firstName).toBe(userA.user.firstName)
                 expect(rep.score).toBe(1);
                 expect(rep.content).toBe('This is a reply');
                 debug("got fed")
@@ -666,6 +684,7 @@ describe('AppController (e2e)', () => {
                 // Are the votes and reply gone?
                 const qUserFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
                 const qAct = qUserFeedA.body[0];
+                expect(qAct.user.firstName).toBe(userA.user.firstName)
                 expect(qAct.comments).toHaveLength(0);
                 expect(qAct.text).toBe('Content');
                 expect(qAct.comment_number).toBe(0);
@@ -721,16 +740,19 @@ describe('AppController (e2e)', () => {
                 // Is at all back?
                 const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
                 const act = userFeedA.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(3);
                 expect(act.comment_number).toBe(1);
                 expect(act.text).toBe('Content');
                 expect(act.comments).toHaveLength(1);
                 const com = act.comments[0];
+                expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(1);
                 expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Comment');
                 const rep = com.replies[0];
+                expect(rep.user.firstName).toBe(userA.user.firstName)
                 expect(rep.score).toBe(1);
                 expect(rep.content).toBe('This is a reply');
 

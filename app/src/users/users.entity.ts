@@ -27,12 +27,12 @@ export class User {
     @ApiProperty()
     @Column("text", {
         default: "Ciudadano Nuevo",
-    }) // select prof
+    })
     public desc: string;
 
     @Column({
         default: 0,
-    }) // select always
+    })
     public citizenPoints: number;
 
     @ApiProperty()
@@ -46,11 +46,11 @@ export class User {
     public password: string;
 
     @ApiProperty()
-    @Column({select: false})
+    @Column()
     public firstName: string;
 
     @ApiProperty()
-    @Column({select: false})
+    @Column()
     public lastName: string;
 
     @ApiProperty()

@@ -65,15 +65,12 @@ export class Activity {
     )
     public user: User; // User
 
-    @RelationId(
-        (activity: Activity) => activity.user,
-    )
+    @Column()
     public userId: number;
 
     @ManyToOne( // select
         () => Cabildo,
         (cabildo: Cabildo) => cabildo.activityFeed,
-        {eager: true},
     )
     public cabildo: Cabildo;
 
@@ -86,7 +83,6 @@ export class Activity {
     @OneToMany(
         () => Comment,
         (comment: Comment) => comment.activity,
-        {eager: true},
     )
     public comments: Comment[];
 

@@ -45,9 +45,7 @@ export class Comment {
     public user: User;
 
     @ApiProperty()
-    @RelationId(
-        (comment: Comment) => comment.user,
-    )
+    @Column()
     public userId: number;
 
     @ApiProperty()
@@ -67,7 +65,6 @@ export class Comment {
     @OneToMany(
         () => Reply,
         (reply: Reply) => reply.comment,
-        {eager: true},
     )
     public replies: Reply[];
 

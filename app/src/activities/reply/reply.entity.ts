@@ -38,9 +38,7 @@ export class Reply {
     )
     public user: User;
 
-    @RelationId(
-        (reply: Reply) => reply.user,
-    )
+    @Column()
     public userId: number;
 
     @ManyToOne(
