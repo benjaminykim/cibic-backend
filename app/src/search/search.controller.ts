@@ -9,8 +9,10 @@ import {
 	Headers,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { idFromToken } from '../utils';
 import { SearchService } from './search.service';
+
+import { Search } from './search.entity';
+import { UserId } from '../users/users.decorator';
 
 //@UseGuards(JwtAuthGuard)
 @Controller('search')
@@ -19,41 +21,34 @@ export class SearchController {
 
 	@Post('users')
 	async reqSearchUsers(
-		@Headers() header: any,
-		@Body('query') query: string,
+		@UserId() userId: number,
+		@Body('query') search: Search,
 	) {
-		//const userId = idFromToken(header.authorization);
-		const userId = 1;
-		return this.searchService.searchUsers(query, userId);
+		search.userId = userId;
+		search.qtype = 4;
+		await this.searchService.saveQuery(search);
+		return this.searchService.searchUsers(search);
 	}
 
 	@Post('activities')
 	async reqSearchActivities(
-		@Headers() header: any,
-		@Body('query') query: string,
+		@UserId() userId: number,
+		@Body('query') search: Search,
 	) {
-		//const userId = idFromToken(header.authorization);
-		const userId = 1;
-		return this.searchService.searchActivities(query, userId);
+		search.userId = userId;
+		search.qtype = 1;
+		await this.searchService.saveQuery(search);
+		return this.searchService.searchActivities(search);
 	}
 
 	@Post('cabildos')
 	async reqSearchCabildos(
-		@Headers() header: any,
-		@Body('query') query: string,
+		@UserId() userId: number,
+		@Body('query') search: Search,
 	) {
-		//const userId = idFromToken(header.authorization);
-		const userId = 1;
-		return this.searchService.searchCabildos(query, userId);
+		search.userId = userId;
+		search.qtype = 2;
+		await this.searchService.saveQuery(search);
+		return this.searchService.searchCabildos(search);
 	}
-
-	/*@Get(':userQuery/:flags')
-	async reqSearch(
-		//@Headers() headers: any,
-		@Param('userQuery') userQuery: string,
-		@Param('flags') flags: number,
-	) {
-		
-		return this.searchService.getSearchResults(userQuery, flags);
-	}*/
 }
