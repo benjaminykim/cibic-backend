@@ -784,9 +784,47 @@ describe('AppController (e2e)', () => {
                 const cabList = await request(srv).get('/cabildo').set(authB).expect(200).catch(done);
                 debug("got cab list")
                 expect(cabList.body).toHaveLength(1);
-                const cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
+                let cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
                 debug("got cab profile")
                 expect(cabProfile.body.name).toStrictEqual(cabName);
+                
+                {
+                    // Check the default cabildo description
+                    const cabDescA = cabA.cabildo.desc;
+                    expect(cabProfile.body.desc).toStrictEqual(cabDescA);
+
+                    debug("check cabildo description authentication")
+                    const cabDescB = "this is the new cabildo description";
+                    // Fake user try to update the cabildo description
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authX).send({newDesc:cabDescB}).expect(401).catch(done);
+                    // User A try to update the description in a fake cabildo
+                    await request(srv).put(`/cabildo/description/${'9999'}`).set(authA).send({newDesc:cabDescB}).expect(404).catch(done);
+                    // User B (not admin) try to update the cabildo description
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authB).send({newDesc:cabDescB}).expect(403).catch(done);
+                    // Check if cabildo description was not updated
+                    cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
+                    expect(cabProfile.body.desc).toStrictEqual(cabDescA);
+                    debug("cabildo description authentication is good")
+                    
+                    // User A (admin) update cabildo description
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescB}).expect(200).catch(done);
+                    // Check if cabildo description was updated
+                    cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
+                    expect(cabProfile.body.desc).toStrictEqual(cabDescB);
+                    debug("cabildo description properly updated by admin")
+                    
+                    // Update cabildo description with an empty string
+                    const cabDescC = "";
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescC}).expect(200).catch(done);
+                    cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
+                    expect(cabProfile.body.desc).toStrictEqual(cabDescC);
+                    debug(cabProfile.body.desc);
+                    debug("cabildo description accept empty strings as inputs")
+
+                    // Update cabildo description to the default
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescA}).expect(200).catch(done);
+                }   
+                
                 const cabFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authB).expect(200).catch(done);
                 debug("got cab feed")
                 expect(cabFeed.body[0]).toStrictEqual(actualBView);

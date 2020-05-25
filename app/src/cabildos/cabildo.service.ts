@@ -129,4 +129,11 @@ export class CabildoService {
         }
         return cabildo;
     }
+
+    async updateCabildoDesc(cabildoId: number, newDesc: string) {
+        return await this.repository.update(
+            {id: cabildoId},
+            {desc: newDesc},
+        );
+    }
 }
