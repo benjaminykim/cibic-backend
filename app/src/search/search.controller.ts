@@ -7,6 +7,8 @@ import {
 	Delete,
 	UseGuards,
 	Headers,
+	NotFoundException,
+	UnprocessableEntityException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SearchService } from './search.service';
@@ -24,6 +26,9 @@ export class SearchController {
 		@UserId() userId: number,
 		@Body('search') search: Search,
 	) {
+		if (!search.query || search.query == "") {
+			throw new NotFoundException('Empty search.');
+		}
 		search.userId = userId;
 		search.qtype = 4;
 		await this.searchService.saveQuery(search);
@@ -35,6 +40,9 @@ export class SearchController {
 		@UserId() userId: number,
 		@Body('search') search: Search,
 	) {
+		if (!search.query || search.query == "") {
+			throw new NotFoundException('Empty search.');
+		}
 		search.userId = userId;
 		search.qtype = 1;
 		await this.searchService.saveQuery(search);
@@ -46,6 +54,9 @@ export class SearchController {
 		@UserId() userId: number,
 		@Body('search') search: Search,
 	) {
+		if (!search.query || search.query == "") {
+			throw new NotFoundException('Empty search.');
+		}
 		search.userId = userId;
 		search.qtype = 2;
 		await this.searchService.saveQuery(search);

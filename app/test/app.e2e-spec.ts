@@ -877,15 +877,24 @@ describe('AppController (e2e)', () => {
 
 			// Test search
 
-			const searchResA = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
-			const searchResB = await request(srv).post('/search/cabildos').set(authA).send(searchB).expect(201).catch(done);
+			const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
 
-			const badSearchResA = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(201).catch(done);
-			const badSearchResB = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(201).catch(done);
+			//injection
+			const badSearchResA1 = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(201).catch(done);
 
-			const searchResC = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
+			/*//empty
+			const badSearchResB1 = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(404).catch(done);
+			const badSearchResB2 = await request(srv).post('/search/users').set(authA).send(badSearchB).expect(404).catch(done);
+			const badSearchResB3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchB).expect(404).catch(done);
 
+			const searchResC1 = await request(srv).post('/search/activities').set(authA).send(searchC).expect(404).catch(done);
+			const searchResC2 = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
+*/
+			const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(201).catch(done);
 			debug("done with search testing");
+
+			//NOTE: Searches that return an empty array do it with a 404 response code as well.
+
             // Goodbye!
             done();
         }
@@ -942,9 +951,9 @@ describe('AppController (e2e)', () => {
   x    Post   /activity/react
   x    Put    /activity/react
   x    Delete /activity/react
-     Search:
-       Post   /search/users
+  x  Search:
+  x    Post   /search/users
   x    Post   /search/activities
-       Post   /search/cabildos
+  x    Post   /search/cabildos
 
 */
