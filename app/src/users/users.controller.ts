@@ -110,11 +110,11 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Put('description/:userId') // http://localhost:3000/user/description/:userId
+    @Put('description') // http://localhost:3000/user/description
     @ApiBody({})
     async updateDesc(
         @UserId('userId') userId: number,
-        @Body('description') newDesc: string
+        @Body('newDesc') newDesc: string
     ) {
         await this.userService.exists(userId);
         return await this.userService.updateDesc(userId, newDesc);

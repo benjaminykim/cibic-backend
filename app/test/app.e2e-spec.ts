@@ -216,9 +216,40 @@ describe('AppController (e2e)', () => {
             const authB = {'Authorization': `Bearer ${authBRes.body.access_token}`};
 
             // get users
-            const getUserA  = await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done); // found user A
+            let getUserA  = await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done); // found user A
             const getUserFake = await request(srv).get('/user/99999999').set(authA).expect(404).catch(done); // not found
             debug("tested user gets");
+
+            {
+                // Check the default user description
+                const defaultUserDesc = "Ciudadano Nuevo";
+                getUserA =  await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
+                expect(getUserA.body.desc).toStrictEqual(defaultUserDesc);
+              
+                // Update user A description with a new string; check if user description is updated
+                const userDescNew = "this is the new description";
+                await request(srv).put(`/user/description`).set(authA).send({newDesc: userDescNew}).expect(200).catch(done);
+                getUserA = await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
+                expect(getUserA.body.desc).toStrictEqual(userDescNew);
+                debug("user description properly updated");
+
+                // Update user A description with an empty string; check if user description is ""
+                const userDescEmpty = "";
+                await request(srv).put(`/user/description`).set(authA).send({newDesc: userDescEmpty}).expect(200).catch(done);
+                getUserA = await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
+                expect(getUserA.body.desc).toStrictEqual(userDescEmpty);
+                debug("user description accept empty strings as inputs")
+
+                // Invalid user tries to update user description
+                await request(srv).put(`/user/description`).set({'Authorization': `9999`}).send({newDesc: userDescNew}).expect(401).catch(done);
+
+                // Update user A description back to default; check if user description is back to "Ciudadano Nuevo"
+                await request(srv).put(`/user/description`).set(authA).send({newDesc: defaultUserDesc}).expect(200).catch(done);
+                getUserA =  await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
+                expect(getUserA.body.desc).toStrictEqual(defaultUserDesc);
+                debug("user description updated back to default")
+            }
+
             // A cabildo
             const idCab = await request(srv).post('/cabildo').set(authA)
                 .send(cabA).expect(201).then(idCheck).catch(done);
