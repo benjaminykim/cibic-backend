@@ -52,17 +52,16 @@ export class CabildoService {
     }
 
     async getCabildoProfile(cabildoId: number) {
-        const cabildo = await this.repository.findOne(
-            cabildoId, // location, desc,
-            {
-                relations: [
-                    'members',
-                    'moderators',
-                    'admin',
-                ],
-            },
-        );
-        return cabildo//.populate(cabildoProfilePopulate).execPopulate();
+        const cabildo = await this.repository
+            .createQueryBuilder()
+            .select("cabildo")
+            .from(Cabildo, "cabildo")
+            .where("cabildo.id = :id", {id: cabildoId})
+            .leftJoinAndSelect("cabildo.members", "members")
+            .leftJoinAndSelect("cabildo.moderators", "moderators")
+            .leftJoinAndSelect("cabildo.admin", "admin")
+            .getOne()
+        return cabildo;
     }
 
     async getCabildoFeed(cabildoId: number, userId: number) {

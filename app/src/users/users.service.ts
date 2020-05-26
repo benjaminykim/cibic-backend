@@ -45,14 +45,15 @@ export class UserService {
     }
 
     async getProfile(userId: number) {
-        const tmp = await this.repository.findOne(
-            userId,
-            {
-                relations: [ // "username firstname lastname desc citizenPoints cabildos following"
-                    'cabildos',
-                    'following',
-                ],
-            });
+        const tmp = await this.repository
+            .createQueryBuilder()
+            .select("user")
+            .from(User, "user")
+            .where("user.id = :id", {id: userId})
+            .leftJoinAndSelect("user.cabildos", "cabildos")
+            .leftJoinAndSelect("user.following", "following")
+            .leftJoinAndSelect("user.followers", "followers")
+            .getOne()
         return tmp;
     }
 
