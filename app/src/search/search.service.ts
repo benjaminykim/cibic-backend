@@ -1,21 +1,13 @@
 import {
 	Injectable,
 	NotFoundException,
-	ForbiddenException,
-	InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';		//'@nestjs/typeorm' & 'typeorm' difference?
-import { Repository, getRepository, Like } from 'typeorm';
-import { Activity } from '../activities/activity.entity';
-import { User } from '../users/users.entity';
-import { Cabildo } from '../cabildos/cabildo.entity'
+import { Repository, getRepository } from 'typeorm';
 import { Search } from './search.entity'
-
-export enum SearchTypes {
-	Activities = 1,
-	Cabildos = 2,
-	Users = 4
-}
+import { User } from '../users/users.entity';
+import { Activity } from '../activities/activity.entity';
+import { Cabildo } from '../cabildos/cabildo.entity';
 
 @Injectable()
 export class SearchService {
@@ -49,13 +41,13 @@ export class SearchService {
 			.leftJoinAndSelect("activity.user", "auser")
 			.leftJoinAndSelect("activity.cabildo", "cabildo")
 			.leftJoinAndSelect("activity.comments", "comments")
-			.leftJoinAndSelect("activity.reactions", "reactions")
-			.leftJoinAndSelect("activity.votes", "activityVotes")
+			.leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId", { userId: s.userId })
+			.leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: s.userId })
 			.leftJoinAndSelect("comments.user", "cuser")
 			.leftJoinAndSelect("comments.replies", "replies")
-			.leftJoinAndSelect("comments.votes", "commentVotes")
+			.leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: s.userId })
 			.leftJoinAndSelect("replies.user", "ruser")
-			.leftJoinAndSelect("replies.votes", "replyVotes")
+			.leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: s.userId })
 			.orderBy("activity.ping", "DESC")
 			.cache(60000)
 			.skip(offset)
