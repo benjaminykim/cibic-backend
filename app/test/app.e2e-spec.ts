@@ -899,6 +899,7 @@ describe('AppController (e2e)', () => {
   x    Post   /user/followuser
   x    Post   /user/unfollowcabildo
   x    Post   /user/unfollowuser
+       Post   /user/description
   x  Cabildo:
   x    Post   /cabildo
   x    Get    /cabildo
