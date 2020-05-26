@@ -29,21 +29,6 @@ export class Cabildo {
     @Column()
     public desc: string;
 
-    // @Column(/*{
-    //     array: true,
-    // }*/)
-    // public issues: string;
-
-    // @Column(/*{
-    //     array: true,
-    // }*/)
-    // public meetings: number; // Meeting
-
-    // @Column({
-    //     array: true,
-    // })
-    // public files:  string;
-
     //// Relations ////
 
     @ManyToMany(
@@ -74,9 +59,6 @@ export class Cabildo {
     )
     public admin: User;
 
-//    @RelationId(
-//        (cabildo: Cabildo) => cabildo.admin,
-    //    )
     @Column()
     public adminId: number;
 

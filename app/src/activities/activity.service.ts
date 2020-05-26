@@ -46,7 +46,23 @@ export class ActivityService {
     }
 
     async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) { // list all activities
-        return await this.repository.find({skip: offset, take: limit});
+        return await this.repository
+            .createQueryBuilder()
+            .select("activity")
+            .from(Activity, "activity")
+            .leftJoinAndSelect("activity.user", "user")
+            .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("comments.user", "cuser")
+            .leftJoinAndSelect("comments.replies", "replies")
+            .leftJoinAndSelect("replies.user", "ruser")
+            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", {userId: userId})
+            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", {userId: userId})
+            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
+            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", {user: userId})
+            .skip(offset)
+            .take(limit)
+            .getMany()
     }
 
     async getActivityById(activityId: number, userId?: number) {
