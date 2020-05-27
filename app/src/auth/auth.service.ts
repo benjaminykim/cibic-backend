@@ -24,7 +24,7 @@ export class AuthService {
         });
     }
 
-    async login(email: string, pass: string) {
+    async login(email: string, pass: string, device_id: string) {
         const bcrypt = require('bcrypt');
         const userByEmail = await this.usersService.getUserByEmail(email);
         if (!userByEmail)
@@ -32,7 +32,7 @@ export class AuthService {
         const match = await bcrypt.compare(pass, userByEmail.password);
 
         if (match) {
-            const payload = { id: userByEmail.id };
+            const payload = { id: userByEmail.id, device_id: device_id };
             return {
                 access_token: this.jwtService.sign(payload),
             };

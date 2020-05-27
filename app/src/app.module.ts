@@ -7,12 +7,16 @@ import { UserModule } from './users/users.module';
 import { CabildoModule } from './cabildos/cabildo.module';
 import { ActivityModule } from './activities/activity.module';
 import { AuthModule } from './auth/auth.module';
+import { FcmModule } from './nestjs-fcm/fcm.module';
 
 @Module({
     imports: [
         TypeOrmModule.forRoot(
             configService.getTypeOrmConfig(),
         ),
+        FcmModule.forRoot({
+            firebaseSpecsPath: './nestjs-fcm/fcm.json',
+        }),
         UserModule,
         CabildoModule,
         ActivityModule,

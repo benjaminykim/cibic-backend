@@ -5,10 +5,10 @@ function idFromToken(token: string) {
     if (!token)
         throw new ForbiddenException();
     const body = Buffer.from(token.split(' ')[1].split('.')[1], 'base64');
-    const userId = JSON.parse(body.toString('ascii')).id;
-    return userId as number;
+    const device_id = JSON.parse(body.toString('ascii')).device_id;
+    return device_id as number;
 }
 
-export const UserId = createParamDecorator((data, req) => {
+export const DevId = createParamDecorator((data, req) => {
     return idFromToken(req.headers.authorization);
 });
