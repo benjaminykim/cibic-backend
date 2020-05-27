@@ -151,18 +151,17 @@ describe('AppController (e2e)', () => {
                     {
                         reply: {
                             content: `This is reply ${i}`,
-                            score: i,
-                        },
                         commentId: idComE2,
                         activityId: idActE,
+                        },
 
                     }
                 ).expect(201).then(idCheck).catch(done);
             }
             debug("posted replies")
             const reactDos = {
-                activityId: idActD,
                 reaction: {
+                activityId: idActD,
                     value: 2,
                 }
             };
@@ -173,7 +172,7 @@ describe('AppController (e2e)', () => {
 
             const idReactAgain = await request(srv).put(`/activity/react`).set(authB).send(
                 {
-                    idReaction: idReact,
+                    reactionId: idReact,
                     activityId: idActD,
                     value: -2,
                 }).expect(200).catch(done);
@@ -188,7 +187,7 @@ describe('AppController (e2e)', () => {
                 .send(upVote).expect(201).catch(done);
             debug("activity voted")
             const upd1 = await request(srv).put('/activity/vote').set(authA)
-                .send({voteId:res1.body.id,activityId:idActA,value:-1}).expect(200).catch(done);
+                .send({voteId:res1.body.id,value:-1}).expect(200).catch(done);
             debug("updated")
             const voteComment = await request(srv).post('/activity/comment/vote').set(authB)
                 .send({vote:{activityId: idActA,commentId: idComA0,userId:idB,value:1}})
@@ -283,9 +282,9 @@ describe('AppController (e2e)', () => {
                     reply: {
                         userId: idA,
                         content: 'This is a reply',
+                        commentId: idComA0,
+                        activityId: idActA,
                     },
-                    commentId: idComA0,
-                    activityId: idActA,
                 }
             ).expect(201).then(idCheck).catch(done);
             debug("made reply");
@@ -297,9 +296,9 @@ describe('AppController (e2e)', () => {
                         userId: idA,
                         content: 'This is a reply with a valid ID',
                         taggedUserId: idB,
+                        commentId: idComA0,
+                        activityId: idActA,
                     },
-                    commentId: idComA0,
-                    activityId: idActA,
                 }
             ).expect(201).then(idCheck).catch(done);
             debug("made reply with valid tag");
@@ -310,9 +309,9 @@ describe('AppController (e2e)', () => {
                         userId: idA,
                         content: 'This is a reply with an invalid ID',
                         taggedUserId: 12345,
-                    },
                     commentId: idComA0,
                     activityId: idActA,
+                    },
                 }
             ).expect(404).then(idCheck).catch(done);
             debug("made reply with invalid tag");
@@ -323,12 +322,12 @@ describe('AppController (e2e)', () => {
             debug("getting tagged user id");
 
             const tagcleanup = await request(srv).delete('/activity/reply').set(authA)
-                .send({replyId: replyTagValid, commentId: idComA0, activityId: idActA}).expect(200).catch(done);
+                .send({replyId: replyTagValid}).expect(200).catch(done);
             debug("removed tagged user reply")
             // A Reaction
             const react = {
-                activityId: idActA,
                 reaction: {
+                activityId: idActA,
                     value: 2,
                 }
             };
@@ -503,16 +502,16 @@ describe('AppController (e2e)', () => {
                 .send({replyId:replyId,content:'Update'}).expect(200).catch(done);
             debug("update a reply");
             const upRea = await request(srv).put('/activity/react').set(authA)
-                .send({idReaction:idReact,activityId:idActA,value:-2}).expect(200).catch(done);
+                .send({reactionId:idReact,value:-2}).expect(200).catch(done);
             debug("update a reaction");
             const upVotAct = await request(srv).put('/activity/vote').set(authA)
-                .send({voteId:voteAct,activityId:idActA,value:-1}).expect(200).catch(done);
+                .send({voteId:voteAct,value:-1}).expect(200).catch(done);
             debug("update an activity vote ");
             const upVotCom = await request(srv).put('/activity/comment/vote').set(authA)
-                .send({voteId:voteComment,commentId:idComA0,value:-1}).expect(200).catch(done);
+                .send({voteId:voteComment,value:-1}).expect(200).catch(done);
             debug("update a comment vote");
             const upVotRep = await request(srv).put('/activity/reply/vote').set(authA)
-                .send({voteId:voteReply,replyId:replyId,value:-1}).expect(200).catch(done);
+                .send({voteId:voteReply,value:-1}).expect(200).catch(done);
             debug("update a reply vote");
 
             {
@@ -554,16 +553,16 @@ describe('AppController (e2e)', () => {
             debug("made it through /user/home")
             // Delete votes and reactions
             const delReact = await request(srv).delete('/activity/react').set(authA)
-                .send({activityId: idActA, idReaction: idReact}).expect(200).catch(done);
+                .send({reactionId: idReact}).expect(200).catch(done);
             debug("deleted reaction")
             const delActVote = await request(srv).delete('/activity/vote').set(authA)
-                .send({activityId: idActA, voteId: voteAct}).expect(200).catch(done);
+                .send({voteId: voteAct}).expect(200).catch(done);
             debug("deleted activity vote")
             const delComVote = await request(srv).delete('/activity/comment/vote').set(authA)
-                .send({activityId: idActA, commentId: idComA0, voteId: voteComment}).expect(200).catch(done);
+                .send({voteId: voteComment}).expect(200).catch(done);
             debug("deleted comment vote")
             const delRepVote = await request(srv).delete('/activity/reply/vote').set(authA)
-                .send({activityId: idActA, replyId: replyId, voteId: voteReply}).expect(200).catch(done);
+                .send({voteId: voteReply}).expect(200).catch(done);
             debug("deleted reply vote")
             debug("made it through deletes")
 
@@ -593,7 +592,7 @@ describe('AppController (e2e)', () => {
             // Delete reply
             debug("delete a reply")
             const delRep = await request(srv).delete('/activity/reply').set(authA)
-                .send({activityId: idActA, commentId: idComA0, replyId: replyId}).expect(200).catch(done);
+                .send({replyId: replyId}).expect(200).catch(done);
             {
                 // Did it disappear?
                 debug("checking feed for no replies")
@@ -614,7 +613,7 @@ describe('AppController (e2e)', () => {
             // Delete comment
             debug("delete a comment")
             const delCom = await request(srv).delete('/activity/comment').set(authA)
-                .send({activityId: idActA, commentId: idComA0}).expect(200).catch(done);
+                .send({commentId: idComA0}).expect(200).catch(done);
             {
                 // Did it disappear?
                 debug("checking feed for no comments")
@@ -629,7 +628,7 @@ describe('AppController (e2e)', () => {
             }
 
             // Delete activity
-            debug("dlete an activity")
+            debug("delete an activity")
             const delAct = await request(srv).delete('/activity').set(authA).send({activityId: idActA}).expect(200).catch(done);
             {
                 // Is the feed empty?
@@ -664,16 +663,16 @@ describe('AppController (e2e)', () => {
                 {
                     reply: {
                         content: 'This is a reply',
+                        commentId: RidComA0,
+                        activityId: RidActA,
                     },
-                    commentId: RidComA0,
-                    activityId: RidActA,
                 },
             ).expect(201).then(idCheck).catch(done);
             debug("added reply, back to test")
             // A Reaction
             const Rreact = {
-                activityId: RidActA,
                 reaction: {
+                    activityId: RidActA,
                     value: 2,
                 },
             };
@@ -715,7 +714,7 @@ describe('AppController (e2e)', () => {
                 expect(rep.content).toBe('This is a reply');
                 debug("got fed")
                 const RdelCom = await request(srv).delete('/activity/comment').set(authA)
-                    .send({commentId: RidComA0, activityId: RidActA}).expect(200).catch(done);
+                    .send({commentId: RidComA0}).expect(200).catch(done);
                 debug("del com")
                 // Are the votes and reply gone?
                 const qUserFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
@@ -744,9 +743,9 @@ describe('AppController (e2e)', () => {
                 {
                     reply: {
                         content: 'This is a reply',
+                        commentId: RRidComA0,
+                        activityId: RidActA,
                     },
-                    commentId: RRidComA0,
-                    activityId: RidActA,
                 },
             ).expect(201).then(idCheck).catch(done);
             debug("rereply")

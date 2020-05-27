@@ -23,9 +23,7 @@ export class Reaction {
     )
     public user: User;
 
-    @RelationId(
-        (reaction: Reaction) => reaction.user,
-    )
+    @Column()
     public userId: number;
 
     @ManyToOne(
@@ -35,9 +33,7 @@ export class Reaction {
     )
     public activity: Activity;
 
-    @RelationId(
-        (reaction: Reaction) => reaction.activity,
-    )
+    @Column()
     public activityId: number;
 
     @Column() // select

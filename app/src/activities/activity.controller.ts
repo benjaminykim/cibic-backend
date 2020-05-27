@@ -79,7 +79,8 @@ export class ActivityController {
     async getPublicFeed(
         @UserId() userId: number,
     ) {
-        return await this.activityService.getPublicFeed(userId);
+        const tmp = await this.activityService.getPublicFeed(userId);
+        return tmp;
     }
 
     @Get(':activityId')
@@ -146,27 +147,23 @@ export class ActivityController {
 
     @Put('vote')
     async updateVote(
-        @Body('activityId') activityId: number,
         @Body('voteId') voteId: number,
         @Body('value') newValue: number,
     ) {
         await this.activityVoteService.exists(voteId);
-        await this.activityService.exists(activityId);
-        const oldValue = await this.activityVoteService.updateVote(voteId, newValue);
-        await this.activityService.updateVote(activityId, voteId, oldValue, newValue);
+        const vote = await this.activityVoteService.updateVote(voteId, newValue);
+        await this.activityService.updateVote(vote.activityId, vote.id, vote.value, newValue);
     }
 
     @Delete('vote')
     async deleteVote(
         @UserId() userId: number,
-        @Body('activityId') activityId: number,
         @Body('voteId') voteId: number,
     ) {
         await this.activityVoteService.exists(voteId);
-        await this.activityService.exists(activityId);
         const oldVote = await this.activityVoteService.getVote(voteId);
-        await this.activityService.deleteVote(activityId, voteId, oldVote.value);
-        await this.activityVoteService.deleteVote(voteId);
+        await this.activityService.deleteVote(oldVote.activityId, oldVote.id, oldVote.value);
+        await this.activityVoteService.deleteVote(oldVote.id);
         await this.usersService.addPoints(userId, -1);
     }
 
@@ -178,7 +175,9 @@ export class ActivityController {
         @Body('activityId') activityId: number,
         @Body('comment') comment: Comment,
     ) {
-        comment.userId = userId
+        await this.activityService.exists(activityId);
+        comment.userId = userId;
+        comment.activityId = activityId;
         const commentId = await this.commentService.insertComment(comment);
         await this.activityService.commentActivity(commentId, activityId);
         await this.usersService.addPoints(userId, 2);
@@ -204,25 +203,23 @@ export class ActivityController {
     @Delete('comment')
     async deleteComment(
         @UserId() userId: number,
-        @Body('activityId') activityId: number,
         @Body('commentId') commentId: number,
     ) {
-        await this.activityService.exists(activityId);
         await this.commentService.exists(commentId);
-        await this.activityService.deleteComment(commentId, activityId);
         const comment = await this.commentService.getCommentById(commentId);
+        await this.activityService.deleteComment(comment.id, comment.activityId);
         await comment.replies.forEach(async reply => {
             await reply.votes.forEach(async vote => {
                 await this.replyVoteService.deleteVote(vote.id);
             });
             await this.replyService.deleteReply(reply.id);
-            await this.activityService.incPing(activityId, -(reply.votes.length))
+            await this.activityService.incPing(reply.activityId, -(reply.votes.length))
         });
         await comment.votes.forEach(async vote => {
             await this.commentVoteService.deleteVote(vote.id);
         });
         await this.commentService.deleteComment(comment.id);
-        await this.activityService.incPing(activityId, -(comment.votes.length + comment.replies.length))
+        await this.activityService.incPing(comment.activityId, -(comment.votes.length + comment.replies.length))
         await this.usersService.addPoints(userId, -2);
         return null;
     }
@@ -245,30 +242,25 @@ export class ActivityController {
 
     @Put('comment/vote')
     async updateCommentVote(
-        @Body('commentId') commentId: number,
         @Body('voteId') voteId: number,
         @Body('value') newValue: number,
     ) {
         await this.commentVoteService.exists(voteId);
-        await this.commentService.exists(commentId);
-        const oldValue = await this.commentVoteService.updateVote(voteId, newValue);
-        await this.commentService.updateVote(commentId, voteId, oldValue, newValue);
+        const vote = await this.commentVoteService.updateVote(voteId, newValue);
+        await this.commentService.updateVote(vote.commentId, vote.id, vote.value, newValue);
     }
 
     @Delete('comment/vote')
     async deleteCommentVote(
         @UserId() userId: number,
-        @Body('activityId') activityId: number,
-        @Body('commentId') commentId: number,
         @Body('voteId') voteId: number,
     ) {
         await this.commentVoteService.exists(voteId);
-        await this.commentService.exists(commentId);
         const oldVote = await this.commentVoteService.getVote(voteId);
-        await this.commentService.deleteVote(commentId, voteId, oldVote.value);
+        await this.commentService.deleteVote(oldVote.commentId, oldVote.id, oldVote.value);
         await this.commentVoteService.deleteVote(voteId);
         await this.usersService.addPoints(userId, -1);
-        await this.activityService.incPing(activityId, -1);
+        await this.activityService.incPing(oldVote.activityId, -1);
     }
 
     // Reply Flow
@@ -276,20 +268,17 @@ export class ActivityController {
     @Post('reply')
     async addReply(
         @UserId() userId: number,
-        @Body('activityId') activityId: number,
-        @Body('commentId') commentId: number,
         @Body('reply') reply: Reply,
     ) {
-        await this.activityService.exists(activityId);
-        await this.commentService.exists(commentId);
+        await this.activityService.exists(reply.activityId);
+        await this.commentService.exists(reply.commentId);
         if (reply.taggedUserId){
             await this.usersService.exists(reply.taggedUserId);
         }
         reply.userId = userId;
         const replyId = await this.replyService.insertReply(reply);
-        const comment = await this.commentService.reply(commentId, replyId);
         await this.usersService.addPoints(userId, 2);
-        await this.activityService.incPing(activityId, 1);
+        await this.activityService.incPing(reply.activityId, 1);
         return { id: replyId };
     }
 
@@ -311,19 +300,16 @@ export class ActivityController {
     @Delete('reply')
     async deleteReply(
         @UserId() userId: number,
-        @Body('activityId') activityId: number,
-        @Body('commentId') commentId: number,
         @Body('replyId') replyId: number,
     ) {
         const reply = await this.replyService.getReplyById(replyId);
-        reply.votes.forEach(async voteId => {
-            await this.replyVoteService.deleteVote(voteId);
-            await this.activityService.incPing(activityId, -1);
+        reply.votes.forEach(async vote => {
+            await this.replyVoteService.deleteVote(vote);
+            await this.activityService.incPing(vote.activityId, -1);
         });
-        await this.commentService.deleteReply(commentId, replyId);
         await this.replyService.deleteReply(replyId);
-        await this.usersService.addPoints(userId, -2);
-        await this.activityService.incPing(activityId, -1);
+        await this.usersService.addPoints(reply.userId, -2);
+        await this.activityService.incPing(reply.activityId, -1);
         return null;
     }
 
@@ -345,30 +331,26 @@ export class ActivityController {
 
     @Put('reply/vote')
     async updateReplyVote(
-        @Body('replyId') replyId: number,
         @Body('voteId') voteId: number,
         @Body('value') newValue: number,
     ) {
         await this.replyVoteService.exists(voteId);
-        await this.replyService.exists(replyId);
-        const oldValue = await this.replyVoteService.updateVote(voteId, newValue);
-        await this.replyService.updateVote(replyId, voteId, oldValue, newValue);
+        const vote = await this.replyVoteService.updateVote(voteId, newValue);
+        await this.replyService.updateVote(vote.replyId, vote.id, vote.value, newValue);
     }
 
     @Delete('reply/vote')
     async deleteReplyVote(
         @UserId() userId: number,
-        @Body('activityId') activityId: number,
         @Body('replyId') replyId: number,
         @Body('voteId') voteId: number,
     ) {
         await this.replyVoteService.exists(voteId);
-        await this.replyService.exists(replyId);
         const oldVote = await this.replyVoteService.getVote(voteId);
-        await this.replyService.deleteVote(replyId, voteId, oldVote.value);
+        await this.replyService.deleteVote(oldVote.replyId, voteId, oldVote.value);
         await this.replyVoteService.deleteVote(voteId);
         await this.usersService.addPoints(userId, -1);
-        await this.activityService.incPing(activityId, -1);
+        await this.activityService.incPing(oldVote.activityId, -1);
     }
 
     // Reaction Flow
@@ -376,40 +358,35 @@ export class ActivityController {
     @Post('react')
     async addReaction(
         @UserId() userId: number,
-        @Body('activityId') activityId: number,
         @Body('reaction') reaction: Reaction,
     ) {
-        await this.activityService.exists(activityId);
+        await this.activityService.exists(reaction.activityId);
         reaction.userId = userId;
-        const idReaction = await this.reactionService.addReaction(reaction);
-        await this.activityService.addReaction(activityId, idReaction, reaction.value);
+        const reactionId = await this.reactionService.addReaction(reaction);
+        await this.activityService.addReaction(reaction.activityId, reactionId, reaction.value);
         await this.usersService.addPoints(userId, 1);
-        return {id: idReaction as number};
+        return {id: reactionId as number};
     }
 
     @Put('react')
     async updateReaction(
-        @Body('activityId') activityId: number,
-        @Body('idReaction') idReaction: number,
+        @Body('reactionId') reactionId: number,
         @Body('value') newValue: number,
     ) {
-        await this.reactionService.exists(idReaction);
-        await this.activityService.exists(activityId);
-        const oldValue = await this.reactionService.updateReaction(idReaction, newValue);
-        await this.activityService.updateReaction(activityId, idReaction, oldValue, newValue);
+        await this.reactionService.exists(reactionId);
+        const oldReact = await this.reactionService.updateReaction(reactionId, newValue);
+        await this.activityService.updateReaction(oldReact.activityId, oldReact.id, oldReact.value, newValue);
     }
 
     @Delete('react')
     async deleteReaction(
         @UserId() userId: number,
-        @Body('activityId') activityId: number,
-        @Body('idReaction') idReaction: number,
+        @Body('reactionId') reactionId: number,
     ) {
-        await this.reactionService.exists(idReaction);
-        await this.activityService.exists(activityId);
-        const oldReaction = await this.reactionService.getReaction(idReaction);
-        await this.activityService.deleteReaction(activityId, idReaction, oldReaction.value);
-        await this.reactionService.deleteReaction(idReaction);
+        await this.reactionService.exists(reactionId);
+        const oldReaction = await this.reactionService.getReaction(reactionId);
+        await this.activityService.deleteReaction(oldReaction.activityId, reactionId, oldReaction.value);
+        await this.reactionService.deleteReaction(reactionId);
         await this.usersService.addPoints(userId, -1);
     }
 

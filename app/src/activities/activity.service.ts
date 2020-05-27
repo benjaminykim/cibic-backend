@@ -45,7 +45,7 @@ export class ActivityService {
         return true;
     }
 
-    async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) { // list all activities
+    async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) {
         return await this.repository
             .createQueryBuilder()
             .select("activity")
@@ -131,21 +131,16 @@ export class ActivityService {
 
     async addReaction(
         activityId: number,
-        idReaction: number,
+        reactionId: number,
         value: number,
     ) {
         await this.repository.increment({id: activityId}, 'score', value);
         await this.repository.increment({id: activityId}, 'ping', 1);
-        await this.repository
-            .createQueryBuilder()
-            .relation(Activity, 'reactions')
-            .of(activityId)
-            .add(idReaction);
     }
 
     async updateReaction(
         activityId: number,
-        idReaction: number,
+        reactionId: number,
         oldValue: number,
         newValue: number,
     ) {
@@ -155,16 +150,11 @@ export class ActivityService {
 
     async deleteReaction(
         activityId: number,
-        idReaction: number,
+        reactionId: number,
         oldValue: number,
     ) {
         await this.repository.decrement({id: activityId}, 'score', oldValue);
         await this.repository.decrement({id: activityId}, 'ping', 1);
-        await this.repository
-            .createQueryBuilder()
-            .relation(Activity, 'reactions')
-            .of(activityId)
-            .remove(idReaction);
     }
 
     // Vote Flow
