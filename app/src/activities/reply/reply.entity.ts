@@ -47,9 +47,7 @@ export class Reply {
     )
     public activity: Activity;
 
-    @RelationId(
-        (reply: Reply) => reply.activity,
-    )
+    @Column()
     public activityId: number;
 
     @ManyToOne(
@@ -59,9 +57,7 @@ export class Reply {
     )
     public comment: Comment;
 
-    @RelationId(
-        (reply: Reply) => reply.comment,
-    )
+    @Column()
     public commentId: number;
 
     @OneToMany(

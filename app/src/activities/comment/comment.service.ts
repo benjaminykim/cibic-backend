@@ -22,22 +22,6 @@ export class CommentService {
         );
     }
 
-    async reply(commentId: number, replyId: number) {
-        return await this.repository
-            .createQueryBuilder()
-            .relation(Comment, 'replies')
-            .of(commentId)
-            .add(replyId);
-    }
-
-    async deleteReply(commentId: number, replyId: number) {
-        return await this.repository
-            .createQueryBuilder()
-            .relation(Comment, 'replies')
-            .of(commentId)
-            .remove(replyId);
-    }
-
     async getCommentById(commentId: number, userId?: number) {
         let comment;
         try {
@@ -79,9 +63,9 @@ export class CommentService {
     }
 
     async exists(commentId: number) {
-        let it = await this.repository.count({id: commentId});
-        if (!it)
+        if (!commentId || !await this.repository.count({id: commentId})) {
             throw new NotFoundException('Could not find comment');
+        }
     }
 
     // Vote Flow
@@ -91,11 +75,6 @@ export class CommentService {
         value: number,
     ) {
         await this.repository.increment({id: commentId}, 'score', value);
-        await this.repository
-            .createQueryBuilder()
-            .relation(Comment, 'votes')
-            .of(commentId)
-            .add(voteId);
         return true;
     }
 

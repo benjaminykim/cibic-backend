@@ -39,7 +39,10 @@ export class UserController {
         @Param('userId') userId: number,
     ) {
         await this.userService.exists(userId);
-        return await this.userService.getFeed(userId);
+        //console.log("/user/feed/id")
+        const tmp = await this.userService.getFeed(userId);
+        //console.log(tmp);
+        return tmp;
     }
 
     @UseGuards(JwtAuthGuard)
@@ -48,7 +51,10 @@ export class UserController {
         @UserId() userId: number,
     ) {
         await this.userService.exists(userId);
-        return await this.userService.getFollow(userId);
+        //console.log("/user/home")
+        const tmp = await this.userService.getFollow(userId);
+        //console.log(tmp)
+        return tmp;
     }
 
     @UseGuards(JwtAuthGuard)

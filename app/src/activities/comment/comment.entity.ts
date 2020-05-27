@@ -57,9 +57,7 @@ export class Comment {
     public activity: Activity;
 
     @ApiProperty()
-    @RelationId(
-        (comment: Comment) => comment.activity,
-    )
+    @Column()
     public activityId: number;
 
     @OneToMany(

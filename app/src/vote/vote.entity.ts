@@ -31,9 +31,6 @@ export abstract class BaseVote { // select these
 export class ActivityVote extends BaseVote {
 
     @ApiProperty()
-    //    @RelationId(
-    //        (vote: ActivityVote) => vote.user,
-    //    )
     @Column()
     public userId: number;
 
@@ -44,9 +41,6 @@ export class ActivityVote extends BaseVote {
     public user: User;
 
     @ApiProperty()
-    //    @RelationId(
-    //        (vote: ActivityVote) => vote.activity,
-    //    )
     @Column()
     public activityId: number;
 
@@ -61,9 +55,6 @@ export class ActivityVote extends BaseVote {
 @Entity()
 export class CommentVote extends BaseVote {
 
-    // @RelationId(
-    //     (vote: CommentVote) => vote.user,
-    // )
     @Column()
     public userId: number;
 
@@ -73,9 +64,6 @@ export class CommentVote extends BaseVote {
     )
     public user: User;
 
-    // @RelationId(
-    //     (vote: CommentVote) => vote.comment,
-    // )
     @Column()
     public commentId: number;
 
@@ -86,9 +74,6 @@ export class CommentVote extends BaseVote {
     )
     public comment: Comment;
 
-    // @RelationId(
-    //     (vote: CommentVote) => vote.activity,
-    // )
     @Column()
     public activityId: number;
 
@@ -102,9 +87,6 @@ export class CommentVote extends BaseVote {
 @Entity()
 export class ReplyVote extends BaseVote {
 
-    // @RelationId(
-    //     (vote: ReplyVote) => vote.user,
-    // )
     @Column()
     public userId: number;
 
@@ -114,9 +96,6 @@ export class ReplyVote extends BaseVote {
     )
     public user: User;
 
-    // @RelationId(
-    //     (vote: ReplyVote) => vote.reply,
-    // )
     @Column()
     public replyId: number;
 
@@ -127,9 +106,6 @@ export class ReplyVote extends BaseVote {
     )
     public reply: Reply;
 
-    // @RelationId(
-    //     (vote: ReplyVote) => vote.activity,
-    // )
     @Column()
     public activityId: number;
 

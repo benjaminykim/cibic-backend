@@ -153,7 +153,6 @@ export class User {
         () => Reaction,
         (reaction: Reaction) => reaction.user,
     )
-    @JoinColumn()
     public reactions: Reaction[];
 
     @RelationId(

@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ActivityVote, CommentVote, ReplyVote } from './vote.entity';
@@ -11,7 +14,8 @@ export class ActivityVoteService {
     }
 
     async exists(activityIdVote: number) {
-        return await this.repository.count({id: activityIdVote});
+        if (!activityIdVote || !await this.repository.count({id: activityIdVote}))
+            throw new NotFoundException('Could not find activity vote');
     }
 
     async addVote(vote: ActivityVote) {
@@ -24,12 +28,12 @@ export class ActivityVoteService {
     }
 
     async updateVote(activityIdVote: number, value: number) {
-        const oldValue = await this.repository.findOne(activityIdVote);
+        const vote = await this.repository.findOne(activityIdVote);
         const success = await this.repository.update(
             {id: activityIdVote},
             { value: value },
         );
-        return oldValue.value as number;
+        return vote;
     }
 
     async deleteVote(activityIdVote: number) {
@@ -45,7 +49,8 @@ export class CommentVoteService {
     }
 
     async exists(commentIdVote: number) {
-        return await this.repository.count({id: commentIdVote});
+        if (!commentIdVote || !await this.repository.count({id: commentIdVote}))
+            throw new NotFoundException('Could not find comment vote');
     }
 
     async addVote(vote: CommentVote) {
@@ -58,12 +63,12 @@ export class CommentVoteService {
     }
 
     async updateVote(commentIdVote: number, value: number) {
-        const oldValue = await this.repository.findOne(commentIdVote);
+        const vote = await this.repository.findOne(commentIdVote);
         const success = await this.repository.update(
             {id: commentIdVote},
             { value: value },
         );
-        return oldValue.value as number;
+        return vote;
     }
 
     async deleteVote(commentIdVote: number) {
@@ -79,7 +84,8 @@ export class ReplyVoteService {
     }
 
     async exists(replyIdVote: number) {
-        return await this.repository.count({id: replyIdVote});
+        if (!replyIdVote || !await this.repository.count({id: replyIdVote}))
+            throw new NotFoundException('Could not find reply vote');
     }
 
     async addVote(vote: ReplyVote) {
@@ -92,12 +98,12 @@ export class ReplyVoteService {
     }
 
     async updateVote(replyIdVote: number, value: number) {
-        const oldValue = await this.repository.findOne(replyIdVote);
+        const vote = await this.repository.findOne(replyIdVote);
         const success = await this.repository.update(
             {id: replyIdVote},
             { value: value },
         );
-        return oldValue.value as number;
+        return vote;
     }
 
     async deleteVote(replyIdVote: number) {

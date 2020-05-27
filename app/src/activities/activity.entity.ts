@@ -74,10 +74,7 @@ export class Activity {
     )
     public cabildo: Cabildo;
 
-    @RelationId(
-        (activity: Activity) => activity.cabildo,
-    )
-    @Column({select: false})
+    @Column()
     public cabildoId: number;
 
     @OneToMany(
