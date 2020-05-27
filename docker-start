@@ -10,6 +10,7 @@ USAGE=\
 "\n\tGo Cibic!\n"
 
 DC_DIR=docker-compose
+EXEC="docker-compose -p ${USER} -f docker-compose.yml"
 ARG=$1
 shift
 DEFAULT='up -d'
@@ -20,7 +21,7 @@ then
     echo -e $USAGE;
 elif [ $ARG = "certbot" ] # certbot is a hidden option for compatibility with init-letsencrypt.sh
 then
-    echo docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.prod.yml $CMD | bash
+    echo ${EXEC} -f $DC_DIR/docker-compose.prod.yml $CMD | bash
     exit 0;
 elif [ $ARG = "test" -o $ARG = "e2e" -o $ARG = "shell" ]
 then
@@ -29,19 +30,17 @@ then
         echo "DO NOT RUN THIS ON EC2 IT WILL DESTROY THE DATABASE"
         exit 1;
     fi
-    docker-compose down;
-    docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$ARG.yml $CMD;
+    ${EXEC} down;
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
     if [ $? = '0' -a "${CMD}" = "${DEFAULT}" ]
     then
         docker attach $(docker ps -q | head -n1);
     fi
 elif [ $ARG = "dev" -o $ARG = "prod" ]
 then
-    docker-compose down;
-    docker-compose -f docker-compose.yml -f $DC_DIR/docker-compose.$ARG.yml $CMD;
+    ${EXEC} down;
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
 elif [ $ARG = "down" ]
 then
-    docker-compose down;
-else
-	echo -e $USAGE
+    ${EXEC} down;
 fi

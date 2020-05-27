@@ -1,15 +1,10 @@
 version: "3.6"
 volumes:
   api_modules:
-networks:
-  user_net:
-    name: ${USER}_net
   
 services:
   api:
     build: .
-    image: ${USER}_api
-    container_name: ${USER}_api
     entrypoint: npm run
     environment:
       - DEPLOY_ENV=development
@@ -27,14 +22,9 @@ services:
       - db
     tty: true
     stdin_open: true
-    networks:
-      - user_net
   db:
     image: postgres:12.2-alpine
-    container_name: ${USER}_pg
     expose:
       - "5432"
     env_file:
       - .env
-    networks:
-      - user_net

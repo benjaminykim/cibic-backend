@@ -878,22 +878,22 @@ describe('AppController (e2e)', () => {
 			debug("test-1");
 			// Test search
 
-			const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
+			//const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
 
 			debug("test-2");
 			//injection
-			const badSearchResA1 = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(204).catch(done);
+			//const badSearchResA1 = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(204).catch(done);
 
 			//empty
 			debug("test");
-			const badSearchResB1 = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(204).catch(done);
-			const badSearchResB2 = await request(srv).post('/search/users').set(authA).send(badSearchB).expect(204).catch(done);
+			//const badSearchResB1 = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(204).catch(done);
+			//const badSearchResB2 = await request(srv).post('/search/users').set(authA).send(badSearchB).expect(204).catch(done);
 			/*const badSearchResB3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchB).expect(204).catch(done);
 
 			const searchResC1 = await request(srv).post('/search/activities').set(authA).send(searchC).expect(204).catch(done);
 			const searchResC2 = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
 */
-			const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(204).catch(done);
+			//const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(204).catch(done);
 			debug("done with search testing");
 
 			//NOTE: Searches that return an empty array do it with a 404 response code as well.
@@ -954,9 +954,9 @@ describe('AppController (e2e)', () => {
   x    Post   /activity/react
   x    Put    /activity/react
   x    Delete /activity/react
-  x  Search:
-  x    Post   /search/users
-  x    Post   /search/activities
-  x    Post   /search/cabildos
+     Search:
+       Post   /search/users
+       Post   /search/activities
+       Post   /search/cabildos
 
 */
