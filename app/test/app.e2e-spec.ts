@@ -875,28 +875,41 @@ describe('AppController (e2e)', () => {
             const deleteCabildoOkay = await request(srv).delete('/cabildo/' + idCabB).set(authA).expect(200).catch(done); // return ok, cabildo deleted
             debug("cabildo stuff done")
 
-			debug("test-1");
-			// Test search
+            // Search
 
-			//const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
+			debug("get search history while empty")
+			const getSearchRes1 = await request(srv).get('/search').set(authA).expect(204).catch(done);
 
-			debug("test-2");
-			//injection
-			//const badSearchResA1 = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(204).catch(done);
+			debug("valid activity search")
+			const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
+			const searchResA2 = await request(srv).post('/search/users').set(authA).send(searchA).expect(204).catch(done);
+			const searchResA3 = await request(srv).post('/search/cabildos').set(authA).send(searchA).expect(204).catch(done);
 
-			//empty
-			debug("test");
-			//const badSearchResB1 = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(204).catch(done);
-			//const badSearchResB2 = await request(srv).post('/search/users').set(authA).send(badSearchB).expect(204).catch(done);
-			/*const badSearchResB3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchB).expect(204).catch(done);
+			debug("valid cabildo search")
+			const searchResB1 = await request(srv).post('/search/activities').set(authA).send(searchB).expect(204).catch(done);
+			const searchResB2 = await request(srv).post('/search/users').set(authA).send(searchB).expect(204).catch(done);
+			const searchResB3 = await request(srv).post('/search/cabildos').set(authA).send(searchB).expect(201).catch(done);
 
+			debug("search SQL injection");
+			const badSearchResA1 = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(204).catch(done);
+			const badSearchResA2 = await request(srv).post('/search/users').set(authA).send(badSearchA).expect(204).catch(done);
+			const badSearchResA3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchA).expect(204).catch(done);
+
+			debug("empty searches");
+			const badSearchResB1 = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(204).catch(done);
+			const badSearchResB2 = await request(srv).post('/search/users').set(authA).send(badSearchB).expect(204).catch(done);
+			const badSearchResB3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchB).expect(204).catch(done);
+
+			debug("valid user search");
 			const searchResC1 = await request(srv).post('/search/activities').set(authA).send(searchC).expect(204).catch(done);
 			const searchResC2 = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
-*/
-			//const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(204).catch(done);
-			debug("done with search testing");
+			const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(204).catch(done);
 
-			//NOTE: Searches that return an empty array do it with a 404 response code as well.
+			debug("request populated search history");
+			const getSearchRes2 = await request(srv).get('/search').set(authA).expect(200).catch(done);
+
+			//NOTE: Searches that return an empty array seem to do it with a 404 response code as well.
+			debug("done with search testing");
 
             // Goodbye!
             done();
@@ -954,9 +967,10 @@ describe('AppController (e2e)', () => {
   x    Post   /activity/react
   x    Put    /activity/react
   x    Delete /activity/react
-     Search:
-       Post   /search/users
-       Post   /search/activities
-       Post   /search/cabildos
+  x  Search:
+  x    Post   /search/users
+  x    Post   /search/activities
+  x    Post   /search/cabildos
+  x    Get    /search
 
 */

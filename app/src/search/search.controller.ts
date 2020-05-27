@@ -21,26 +21,21 @@ export enum SearchTypes {
 	Users = 4
 }
 
-/*class NoContentException extends HttpException {
-	constructor (
-		objectOrError?: string | object | any,
-		description = 'No Content',
-	) {
-		super(
-			HttpException.createBody(
-				objectOrError,
-				description,
-				HttpStatus.NO_CONTENT,
-			),
-			HttpStatus.NO_CONTENT,
-		);
-	}
-}*/
-
 @UseGuards(JwtAuthGuard)
 @Controller('search')
 export class SearchController {
 	constructor(private readonly searchService: SearchService) {}
+
+	@Get()
+	async reqSearchHistory(
+		@UserId() userId: number,
+	) {
+		const ret = await this.searchService.searchHistory(userId);
+		if (ret.length >= 1)
+			return (ret);
+		else
+			throw new HttpException('No Content', HttpStatus.NO_CONTENT);
+	}
 
 	@Post('users')
 	async reqSearchUsers(
@@ -53,7 +48,11 @@ export class SearchController {
 		search.userId = userId;
 		search.qtype = SearchTypes.Users;
 		await this.searchService.saveQuery(search);
-		return this.searchService.searchUsers(search);
+		const ret = await this.searchService.searchUsers(search);
+		if (ret.length >= 1)
+			return ret;
+		else
+			throw new HttpException('No Content', HttpStatus.NO_CONTENT);
 	}
 
 	@Post('activities')
@@ -68,7 +67,7 @@ export class SearchController {
 		search.qtype = SearchTypes.Activities;
 		await this.searchService.saveQuery(search);
 		const ret = await this.searchService.searchActivities(search);
-		if (ret.length < 1)
+		if (ret.length >= 1)
 			return ret;
 		else
 			throw new HttpException('No Content', HttpStatus.NO_CONTENT);
@@ -85,6 +84,10 @@ export class SearchController {
 		search.userId = userId;
 		search.qtype = SearchTypes.Cabildos;
 		await this.searchService.saveQuery(search);
-		return this.searchService.searchCabildos(search);
+		const ret = await this.searchService.searchCabildos(search);
+		if (ret.length >= 1)
+			return ret;
+		else
+			throw new HttpException('No Content', HttpStatus.NO_CONTENT);
 	}
 }

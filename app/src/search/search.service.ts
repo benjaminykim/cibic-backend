@@ -17,6 +17,19 @@ export class SearchService {
 		return await this.repository.save(s);
 	}
 
+	async searchHistory(userId: number, limit: number = 20, offset: number = 0) {
+		return await getRepository(Search)
+			.createQueryBuilder()
+			.select("search")
+			.from(Search, "search")
+			.where('search.userId = :id', {id: userId})
+			.orderBy("search.date", "DESC")
+			.cache(60000)
+			.skip(offset)
+			.take(limit)
+			.getMany();
+	}
+
 	async searchUsers(s: Search, limit: number = 20, offset: number = 0) {
 		return await getRepository(User)
 			.createQueryBuilder()
