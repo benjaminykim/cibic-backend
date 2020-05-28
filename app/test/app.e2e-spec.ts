@@ -880,6 +880,13 @@ describe('AppController (e2e)', () => {
 			debug("get search history while empty")
 			const getSearchRes1 = await request(srv).get('/search').set(authA).expect(204).catch(done);
 
+/*
+                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
+                debug(userFeedA.body);
+                let act = userFeedA.body[0];
+                expect(act.user.firstName).toBe(userA.user.firstName)
+*/
+
 			debug("valid activity search")
 			const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
 			const searchResA2 = await request(srv).post('/search/users').set(authA).send(searchA).expect(204).catch(done);
@@ -905,11 +912,19 @@ describe('AppController (e2e)', () => {
 			debug("valid user search");
 			const searchResC1 = await request(srv).post('/search/activities').set(authA).send(searchC).expect(204).catch(done);
 			const searchResC2 = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
-			debug(searchResC2.body);
 			const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(204).catch(done);
 
 			debug("request populated search history");
 			const getSearchRes2 = await request(srv).get('/search').set(authA).expect(200).catch(done);
+
+			debug("validate search return data");
+
+			let actRes = searchResA1.body[0];
+			let cabRes = searchResB3.body[0];
+			let userRes = searchResC2.body[0];
+			expect(actRes.title).toBe(actA.activity.title);
+			expect(cabRes.name).toBe(cabA.cabildo.name);
+			expect(userRes.firstName).toBe(userA.user.firstName);	
 
 			//NOTE: Searches that return an empty array seem to do it with a 404 response code as well.
 			debug("done with search testing");
