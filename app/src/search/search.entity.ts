@@ -1,28 +1,28 @@
 import {
-	PrimaryGeneratedColumn,
-	Index,
-	Column,
-	CreateDateColumn,
-	Entity,
+    PrimaryGeneratedColumn,
+    Index,
+    Column,
+    CreateDateColumn,
+    Entity,
 } from 'typeorm';
 
 @Entity()
 export class Search {
 
-	@PrimaryGeneratedColumn('increment')
-	public id: number;
+    @PrimaryGeneratedColumn('increment')
+    public id: number;
 
-	@Column()
-	@Index()
-	public userId: number;
+    @Column()
+    @Index()
+    public userId: number;
 
-	@Column()
-	@Index()
-	public qtype: number;
+    @Column()
+    @Index()
+    public qtype: number;
 
-	@CreateDateColumn()
-	public date: Date;
+    @CreateDateColumn()
+    public date: Date;
 
-	@Column()
-	public query: string;
+    @Column()
+    public query: string;
 }

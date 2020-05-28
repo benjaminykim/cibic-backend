@@ -18,7 +18,7 @@ import { SearchModule } from './search/search.module';
         CabildoModule,
         ActivityModule,
         AuthModule,
-		SearchModule,
+        SearchModule,
     ],
     controllers: [AppController],
     providers: [AppService],
