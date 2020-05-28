@@ -9,7 +9,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StatisticsService } from './statistics.service';
 
-@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 @Controller('statistics') // http://localhost:3000/statistics
 export class StatisticsController {
     constructor(
@@ -19,6 +19,6 @@ export class StatisticsController {
     @Post() // http;//localhost:3000/statistics
     async addStatistics(
     ) {
-        await this.statisticsService.insertStatisticsDemo();
+        await this.statisticsService.insertStatisticsTemp();
     }
 }

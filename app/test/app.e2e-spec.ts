@@ -31,7 +31,7 @@ describe('AppController (e2e)', () => {
         let oldTest = false;
         // To turn messsages on and off
         const debug = (s: any) => {
-            //console.error(s);
+            console.error(s);
         }
         // promise callback on document creation
         const idCheck = res => {
@@ -872,6 +872,13 @@ describe('AppController (e2e)', () => {
             debug("wrong user")
             const deleteCabildoOkay = await request(srv).delete('/cabildo/' + idCabB).set(authA).expect(200).catch(done); // return ok, cabildo deleted
             debug("cabildo stuff done")
+            
+            // Generate three statistics
+            await request(srv).post('/statistics').expect(201).catch(done);
+            await request(srv).post('/statistics').expect(201).catch(done);
+            await request(srv).post('/statistics').expect(201).catch(done);
+            debug("three statistics generated");
+
             // Goodbye!
             done();
         }
