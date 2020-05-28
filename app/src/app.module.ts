@@ -7,6 +7,7 @@ import { UserModule } from './users/users.module';
 import { CabildoModule } from './cabildos/cabildo.module';
 import { ActivityModule } from './activities/activity.module';
 import { AuthModule } from './auth/auth.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
         CabildoModule,
         ActivityModule,
         AuthModule,
+        SearchModule,
     ],
     controllers: [AppController],
     providers: [AppService],
