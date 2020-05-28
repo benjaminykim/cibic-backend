@@ -176,7 +176,7 @@ const searchA = {
 
 const searchB = {
 	search: {
-		query: "ft",
+		query: "cab",
 	},
 };
 
@@ -188,7 +188,7 @@ const searchC = {
 
 const badSearchA = {
 	search: {
-		query: "xx\'DROP TABLE users;"
+		query: "xx\"DROP TABLE users;"
 	},
 };
 

@@ -876,7 +876,6 @@ describe('AppController (e2e)', () => {
             debug("cabildo stuff done")
 
             // Search
-
 			debug("get search history while empty")
 			const getSearchRes1 = await request(srv).get('/search').set(authA).expect(204).catch(done);
 

@@ -22,11 +22,12 @@ export class SearchService {
 			.createQueryBuilder()
 			.select("search")
 			.from(Search, "search")
-			.where('search.userId = :id', {id: userId})
+			.where('search.userId = :id')
 			.orderBy("search.date", "DESC")
 			.cache(60000)
 			.skip(offset)
 			.take(limit)
+			.setParameter("id", userId)
 			.getMany();
 	}
 
@@ -35,12 +36,13 @@ export class SearchService {
 			.createQueryBuilder()
 			.select("user")
 			.from(User, "user")
-			.where('user.firstName like :q', {q: `%${s.query}%`})
-			.orWhere('user.lastName like :q', {q: `%${s.query}%`})
-			.orWhere('user.desc like :q', {q: `%${s.query}%`})
+			.where('user.firstName like :q')
+			.orWhere('user.lastName like :q')
+			.orWhere('user.desc like :q')
 			.cache(60000)
 			.skip(offset)
 			.take(limit)
+			.setParameter("q", `%${s.query}%`)
 			.getMany();
 	}
 
@@ -49,22 +51,27 @@ export class SearchService {
 			.createQueryBuilder()
 			.select("activity")
 			.from(Activity, "activity")
-			.where('activity.title like :q', {q: `%${s.query}%`})
-			.orWhere('activity.text like :q', {q: `%${s.query}%`})
+			//.where('activity.title like :q')
+			//.orWhere('activity.text like :q')
+			.where("to_tsvector(activity.text) @@ to_tsquery(concat(quote_literal(quote_literal(:q)), ':*'))")
+			.orWhere("to_tsvector(activity.title) @@ to_tsquery(concat(quote_literal(quote_literal(:q)), ':*'))")
 			.leftJoinAndSelect("activity.user", "auser")
 			.leftJoinAndSelect("activity.cabildo", "cabildo")
 			.leftJoinAndSelect("activity.comments", "comments")
-			.leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId", { userId: s.userId })
-			.leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: s.userId })
+			.leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId")
+			.leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
 			.leftJoinAndSelect("comments.user", "cuser")
 			.leftJoinAndSelect("comments.replies", "replies")
-			.leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: s.userId })
+			.leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
 			.leftJoinAndSelect("replies.user", "ruser")
-			.leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: s.userId })
+			.leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
 			.orderBy("activity.ping", "DESC")
 			.cache(60000)
 			.skip(offset)
 			.take(limit)
+			//.setParameter("q", `%${s.query}%`)
+			.setParameter("q", s.query)
+			.setParameter("userId", s.userId)
 			.getMany();
 	}
 
@@ -73,11 +80,15 @@ export class SearchService {
 			.createQueryBuilder()
 			.select("cabildo")
 			.from(Cabildo, "cabildo")
-			.where('cabildo.name like :q', {q: `%${s.query}%`})
-			.orWhere('cabildo.desc like :q', {q: `%${s.query}%`})
+			//.where('cabildo.name like :q')
+			//.orWhere('cabildo.desc like :q')
+			.where("to_tsvector(cabildo.desc) @@ to_tsquery(concat(quote_literal(quote_literal(:tq)), ':*'))")
+			.orWhere("to_tsvector(cabildo.name) @@ to_tsquery(concat(quote_literal(quote_literal(:tq)), ':*'))")
 			.cache(60000)
 			.skip(offset)
 			.take(limit)
+			//.setParameter("q", `%${s.query}%`)
+			.setParameter("tq", s.query)
 			.getMany();
 	}
 }
