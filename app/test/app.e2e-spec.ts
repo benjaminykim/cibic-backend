@@ -10,6 +10,9 @@ import {
     actC,comC0,comC1,comC2,
     actD,comD0,comD1,comD2,
     actE,comE0,comE1,comE2,
+    searchA, searchB, searchC,
+    badSearchA, badSearchB,
+    badSearchC, badSearchD,
     reply,
 } from './mockData';
 
@@ -808,9 +811,47 @@ describe('AppController (e2e)', () => {
                 const cabList = await request(srv).get('/cabildo').set(authB).expect(200).catch(done);
                 debug("got cab list")
                 expect(cabList.body).toHaveLength(1);
-                const cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
+                let cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
                 debug("got cab profile")
                 expect(cabProfile.body.name).toStrictEqual(cabName);
+                
+                {
+                    // Check the default cabildo description
+                    const cabDescA = cabA.cabildo.desc;
+                    expect(cabProfile.body.desc).toStrictEqual(cabDescA);
+
+                    debug("check cabildo description authentication")
+                    const cabDescB = "this is the new cabildo description";
+                    // Fake user try to update the cabildo description
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authX).send({newDesc:cabDescB}).expect(401).catch(done);
+                    // User A try to update the description in a fake cabildo
+                    await request(srv).put(`/cabildo/description/${'9999'}`).set(authA).send({newDesc:cabDescB}).expect(404).catch(done);
+                    // User B (not admin) try to update the cabildo description
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authB).send({newDesc:cabDescB}).expect(403).catch(done);
+                    // Check if cabildo description was not updated
+                    cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
+                    expect(cabProfile.body.desc).toStrictEqual(cabDescA);
+                    debug("cabildo description authentication is good")
+                    
+                    // User A (admin) update cabildo description
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescB}).expect(200).catch(done);
+                    // Check if cabildo description was updated
+                    cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
+                    expect(cabProfile.body.desc).toStrictEqual(cabDescB);
+                    debug("cabildo description properly updated by admin")
+                    
+                    // Update cabildo description with an empty string
+                    const cabDescC = "";
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescC}).expect(200).catch(done);
+                    cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
+                    expect(cabProfile.body.desc).toStrictEqual(cabDescC);
+                    debug(cabProfile.body.desc);
+                    debug("cabildo description accept empty strings as inputs")
+
+                    // Update cabildo description to the default
+                    await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescA}).expect(200).catch(done);
+                }   
+                
                 const cabFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authB).expect(200).catch(done);
                 debug("got cab feed")
                 expect(cabFeed.body[0]).toStrictEqual(actualBView);
@@ -872,6 +913,59 @@ describe('AppController (e2e)', () => {
             debug("wrong user")
             const deleteCabildoOkay = await request(srv).delete('/cabildo/' + idCabB).set(authA).expect(200).catch(done); // return ok, cabildo deleted
             debug("cabildo stuff done")
+
+            // Search
+            debug("get search history while empty")
+            const getSearchRes1 = await request(srv).get('/search').set(authA).expect(204).catch(done);
+
+            /*
+              const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
+              debug(userFeedA.body);
+              let act = userFeedA.body[0];
+              expect(act.user.firstName).toBe(userA.user.firstName)
+            */
+
+            debug("valid activity search")
+            const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
+            const searchResA2 = await request(srv).post('/search/users').set(authA).send(searchA).expect(204).catch(done);
+            const searchResA3 = await request(srv).post('/search/cabildos').set(authA).send(searchA).expect(204).catch(done);
+
+            debug("valid cabildo search")
+            const searchResB1 = await request(srv).post('/search/activities').set(authA).send(searchB).expect(204).catch(done);
+            const searchResB2 = await request(srv).post('/search/users').set(authA).send(searchB).expect(204).catch(done);
+            const searchResB3 = await request(srv).post('/search/cabildos').set(authA).send(searchB).expect(201).catch(done);
+
+            debug("search SQL injection");
+            const badSearchResA1 = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(204).catch(done);
+            const badSearchResA2 = await request(srv).post('/search/users').set(authA).send(badSearchA).expect(204).catch(done);
+            const badSearchResC2 = await request(srv).post('/search/users').set(authA).send(badSearchC).expect(204).catch(done);
+            const badSearchResD2 = await request(srv).post('/search/users').set(authA).send(badSearchD).expect(204).catch(done);
+            const badSearchResA3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchA).expect(204).catch(done);
+
+            debug("empty searches");
+            const badSearchResB1 = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(204).catch(done);
+            const badSearchResB2 = await request(srv).post('/search/users').set(authA).send(badSearchB).expect(204).catch(done);
+            const badSearchResB3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchB).expect(204).catch(done);
+
+            debug("valid user search");
+            const searchResC1 = await request(srv).post('/search/activities').set(authA).send(searchC).expect(204).catch(done);
+            const searchResC2 = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
+            const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(204).catch(done);
+
+            debug("request populated search history");
+            const getSearchRes2 = await request(srv).get('/search').set(authA).expect(200).catch(done);
+
+            debug("validate search return data");
+
+            let actRes = searchResA1.body[0];
+            let cabRes = searchResB3.body[0];
+            let userRes = searchResC2.body[0];
+            expect(actRes.title).toBe(actA.activity.title);
+            expect(cabRes.name).toBe(cabA.cabildo.name);
+            expect(userRes.firstName).toBe(userA.user.firstName);
+
+            //NOTE: Searches that return an empty array seem to do it with a 404 response code as well.
+            debug("done with search testing");
             // Goodbye!
             done();
         }
@@ -928,5 +1022,10 @@ describe('AppController (e2e)', () => {
   x    Post   /activity/react
   x    Put    /activity/react
   x    Delete /activity/react
+  x  Search:
+  x    Post   /search/users
+  x    Post   /search/activities
+  x    Post   /search/cabildos
+  x    Get    /search
 
 */

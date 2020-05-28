@@ -43,4 +43,6 @@ then
 elif [ $ARG = "down" ]
 then
     ${EXEC} down;
+else
+    echo -e $USAGE;
 fi
