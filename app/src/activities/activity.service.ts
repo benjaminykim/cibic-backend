@@ -15,6 +15,16 @@ export class ActivityService {
     ) {
     }
 
+    async createVec(activityId: number) {
+	await this.repository
+	    .createQueryBuilder()
+	    .update(Activity)
+	    .set({tsvector: () => "to_tsvector('text')"})
+	    .where("id = :id", {id: activityId})
+            .returning("text");
+	return await this.repository.findOne(activityId);
+    }
+
     async incPing(activityId: number, value: number) {
         return await this.repository.increment({id: activityId}, 'ping', value);
     }
@@ -23,6 +33,10 @@ export class ActivityService {
 
     async insertActivity(activity: Activity) {
         const result = await this.repository.save(activity);
+        console.log(result.id);
+	console.log(activity.id);
+	const res = await this.createVec(result.id);
+	console.log(res);
         return result.id as number;
     }
 

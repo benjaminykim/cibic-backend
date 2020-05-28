@@ -35,6 +35,7 @@ const actA = {
         activityType: 0,//'discussion', this means frontend changes to int from string
         title: 'Actvidad Uno',
         text: 'Content',
+	tsvector: '', //tsvector requires non-null?? can we fix this?
     },
 };
 const comA0 = {

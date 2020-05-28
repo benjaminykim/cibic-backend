@@ -57,6 +57,9 @@ export class Activity {
     @Column() // select
     public text: string;
 
+    @Column("tsvector")
+    public tsvector: string;
+
     //// Relations ////
 
     @ManyToOne( // select
