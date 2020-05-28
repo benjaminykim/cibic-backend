@@ -1,3 +1,7 @@
+//TODO: make tsvector column in activities and create it at activity
+//      at post time, so that we dont have to convert text to tsvector
+//      during query
+
 import {
 	Controller,
 	Post,
