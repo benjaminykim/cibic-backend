@@ -6,6 +6,7 @@ import {
     Get,
     Delete,
     UseGuards,
+    Put,
 } from '@nestjs/common';
 
 import { Cabildo } from './cabildo.entity';
@@ -51,11 +52,22 @@ export class CabildoController {
         return this.cabildoService.getCabildoFeed(cabildoId, userId);
     }
 
-    @Get('profile/:cabildoId') // http://localhost:3000/cabildo/:id
+    @Get('profile/:cabildoId') // http://localhost:3000/cabildo/profile/:id
     async getCabildoProfile(
         @Param('cabildoId') cabildoId: number,
     ) {
         return this.cabildoService.getCabildoProfile(cabildoId);
+    }
+
+    @Put('description/:cabildoId') // http://localhost:3000/cabildo/description/:id
+    async updateCabildoDesc(
+        @UserId() userId: number,
+        @Param('cabildoId') cabildoId: number,
+        @Body('newDesc') newDesc: string,
+    ) {
+        await this.cabildoService.exists(cabildoId);
+        await this.cabildoService.verifyCabildoAdmin(cabildoId, userId)
+        await this.cabildoService.updateCabildoDesc(cabildoId, newDesc);
     }
 
     @Delete(':cabildoId') // http://localhost:3000/cabildo/:id
