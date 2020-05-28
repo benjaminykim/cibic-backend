@@ -2,3 +2,5 @@ version: "3.6"
 services:
   api:
     entrypoint: sh
+    ports:
+      - "${API_PORT}:${API_PORT}"

@@ -2,8 +2,8 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';		//'@nestjs/typeorm' & 'typeorm' difference?
-import { Repository, getRepository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, getRepository, Like } from 'typeorm';
 import { Search } from './search.entity'
 import { User } from '../users/users.entity';
 import { Activity } from '../activities/activity.entity';
@@ -36,13 +36,12 @@ export class SearchService {
 			.createQueryBuilder()
 			.select("user")
 			.from(User, "user")
-			.where('user.firstName like :q')
-			.orWhere('user.lastName like :q')
-			.orWhere('user.desc like :q')
+			.where({firstName: Like(`%${s.query}%`)})
 			.cache(60000)
 			.skip(offset)
 			.take(limit)
-			.setParameter("q", `%${s.query}%`)
+			.setParameter("q", s.query)
+			.printSql()
 			.getMany();
 	}
 

@@ -12,6 +12,7 @@ import {
     actE,comE0,comE1,comE2,
 	searchA, searchB, searchC,
 	badSearchA, badSearchB,
+	badSearchC, badSearchD,
     reply,
 } from './mockData';
 
@@ -33,7 +34,7 @@ describe('AppController (e2e)', () => {
         let oldTest = false;
         // To turn messsages on and off
         const debug = (s: any) => {
-            console.error(s);
+            //console.error(s);
         }
         // promise callback on document creation
         const idCheck = res => {
@@ -892,6 +893,8 @@ describe('AppController (e2e)', () => {
 			debug("search SQL injection");
 			const badSearchResA1 = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(204).catch(done);
 			const badSearchResA2 = await request(srv).post('/search/users').set(authA).send(badSearchA).expect(204).catch(done);
+			const badSearchResC2 = await request(srv).post('/search/users').set(authA).send(badSearchC).expect(204).catch(done);
+			const badSearchResD2 = await request(srv).post('/search/users').set(authA).send(badSearchD).expect(204).catch(done);
 			const badSearchResA3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchA).expect(204).catch(done);
 
 			debug("empty searches");
@@ -902,6 +905,7 @@ describe('AppController (e2e)', () => {
 			debug("valid user search");
 			const searchResC1 = await request(srv).post('/search/activities').set(authA).send(searchC).expect(204).catch(done);
 			const searchResC2 = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
+			debug(searchResC2.body);
 			const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(204).catch(done);
 
 			debug("request populated search history");
@@ -909,7 +913,6 @@ describe('AppController (e2e)', () => {
 
 			//NOTE: Searches that return an empty array seem to do it with a 404 response code as well.
 			debug("done with search testing");
-
             // Goodbye!
             done();
         }

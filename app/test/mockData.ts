@@ -182,7 +182,7 @@ const searchB = {
 
 const searchC = {
 	search: {
-		query: "Ste",
+		query: "te",
 	},
 };
 
@@ -198,6 +198,18 @@ const badSearchB = {
 	},
 };
 
+const badSearchC = {
+	search: {
+		query: "xx\`DROP TABLE users;"
+	},
+};
+
+const badSearchD = {
+	search: {
+		query: "xx\'DROP TABLE users;"
+	},
+};
+
 export {
     userA, userB, cabA, cabB,
     actA, comA0, comA1, comA2,
@@ -207,5 +219,6 @@ export {
     actE, comE0, comE1, comE2,
 	searchA, searchB, searchC,
 	badSearchA, badSearchB,
+	badSearchC, badSearchD,
     reply,
 };
