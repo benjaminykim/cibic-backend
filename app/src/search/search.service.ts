@@ -36,11 +36,12 @@ export class SearchService {
             .createQueryBuilder()
             .select("user")
             .from(User, "user")
-            .where({firstName: Like(`%${s.query}%`)})
+            .where("user.firstName ilike :q")
+            .orWhere("user.lastName ilike :q")
             .cache(60000)
             .skip(offset)
             .take(limit)
-            .setParameter("q", s.query)
+            .setParameter("q", `%${s.query}%`)
             .printSql()
             .getMany();
     }
