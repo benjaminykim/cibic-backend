@@ -90,4 +90,11 @@ export class SearchController {
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
         return ret;
     }
+
+    @Post('tags')
+    async reqSearchTags(
+        @UserId() userId: number,
+    ) {
+        return 0;
+    }
 }

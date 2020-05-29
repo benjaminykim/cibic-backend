@@ -1,12 +1,13 @@
 import {
 	RelationId,
 	PrimaryGeneratedColumn,
-	ManyToOne,
+	ManyToMany,
 	Column,
 	Index,
-	OneToMany,
 	Entity,
 } from 'typeorm';
+
+import { Activity } from '../activity.entity';
 
 @Entity()
 export class Tag {
@@ -15,4 +16,7 @@ export class Tag {
 
 	@Column()
 	public text: string;
+
+        @ManyToMany(type => Activity)
+        activities: Activity[];
 }

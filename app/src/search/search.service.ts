@@ -8,6 +8,7 @@ import { Search } from './search.entity'
 import { User } from '../users/users.entity';
 import { Activity } from '../activities/activity.entity';
 import { Cabildo } from '../cabildos/cabildo.entity';
+import { Tag } from '../activities/tag/tag.entity';
 
 @Injectable()
 export class SearchService {
@@ -15,6 +16,14 @@ export class SearchService {
 
     async saveQuery(s: Search) {
         return await this.repository.save(s);
+    }
+
+    async searchByTags(tags: Tag[]) {
+        let ids = tags.map(({ id }) => id);
+        const ret = await getRepository(Activity)
+            .createQueryBuilder()
+            .select("activity")
+            .from(Activity, "activity");
     }
 
     async searchHistory(userId: number, limit: number = 20, offset: number = 0) {
