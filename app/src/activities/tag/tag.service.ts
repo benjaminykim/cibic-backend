@@ -10,12 +10,12 @@ export class TagService {
 		@InjectRepository(Tag) private readonly repository: Repository<Tag>,
 	) {}
 
-	async matchTag(partial: string) {
+	async matchTag(partial: Tag) {
 		return await this.repository
 			.createQueryBuilder()
 			.select("tag")
 			.from(Tag, "tag")
-			.where("tag.text like :q", {q: `${partial}%`})
+			.where("tag.text ilike :q", {q: `${partial.text}%`})
 			.getOne()
 	}
 

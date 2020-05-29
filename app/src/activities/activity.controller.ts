@@ -434,8 +434,12 @@ export class ActivityController {
     @Post('filter') // http://localhost:3000/activity/filter
     async filterTags(
         @UserId() userId: number,
-        @Body('partial') partial: string,
+        @Body('tag') partial: Tag,
     ) {
+        const ret = await this.tagService.matchTag(partial);
+        if (!ret) {
+            return await this.tagService.newTag(partial);
+        }
         return await this.tagService.matchTag(partial);
     }
 }
