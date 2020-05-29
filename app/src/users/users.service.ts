@@ -161,5 +161,12 @@ export class UserService {
             .addSelect("user.password")
             .where("user.email = :email", { email: email })
             .getOne()
-	  }
+      }
+      
+    async updateDesc(userId: number, newDesc: string) {
+        return await this.repository.update(
+            {id: userId},
+            {desc: newDesc},
+        );
+    }
 }
