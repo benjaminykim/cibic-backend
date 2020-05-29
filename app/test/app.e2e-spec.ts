@@ -224,20 +224,20 @@ describe('AppController (e2e)', () => {
                 // Check the default user description
                 const defaultUserDesc = "Ciudadano Nuevo";
                 getUserA =  await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
-                expect(getUserA.body.desc).toStrictEqual(defaultUserDesc);
+                expect(getUserA.body.desc).toBe(defaultUserDesc);
               
                 // Update user A description with a new string; check if user description is updated
                 const userDescNew = "this is the new description";
                 await request(srv).put(`/user/description`).set(authA).send({newDesc: userDescNew}).expect(200).catch(done);
                 getUserA = await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
-                expect(getUserA.body.desc).toStrictEqual(userDescNew);
+                expect(getUserA.body.desc).toBe(userDescNew);
                 debug("user description properly updated");
 
                 // Update user A description with an empty string; check if user description is ""
                 const userDescEmpty = "";
                 await request(srv).put(`/user/description`).set(authA).send({newDesc: userDescEmpty}).expect(200).catch(done);
                 getUserA = await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
-                expect(getUserA.body.desc).toStrictEqual(userDescEmpty);
+                expect(getUserA.body.desc).toBe(userDescEmpty);
                 debug("user description accept empty strings as inputs")
 
                 // Invalid user tries to update user description
@@ -246,7 +246,7 @@ describe('AppController (e2e)', () => {
                 // Update user A description back to default; check if user description is back to "Ciudadano Nuevo"
                 await request(srv).put(`/user/description`).set(authA).send({newDesc: defaultUserDesc}).expect(200).catch(done);
                 getUserA =  await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
-                expect(getUserA.body.desc).toStrictEqual(defaultUserDesc);
+                expect(getUserA.body.desc).toBe(defaultUserDesc);
                 debug("user description updated back to default")
             }
 
@@ -899,7 +899,7 @@ describe('AppController (e2e)', () => {
   x    Post   /user/followuser
   x    Post   /user/unfollowcabildo
   x    Post   /user/unfollowuser
-       Post   /user/description
+  x    Put    /user/description
   x  Cabildo:
   x    Post   /cabildo
   x    Get    /cabildo

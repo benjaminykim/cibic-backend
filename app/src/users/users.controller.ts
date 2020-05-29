@@ -29,7 +29,7 @@ export class UserController {
     @Post() // http://localhost:3000/user
     @ApiBody({type: User})
     async addUser(
-        @Body('user') user: User
+        @Body('user') user: User,
     ) {
         const generatedId = await this.userService.insertUser(user);
         return {id: generatedId};
@@ -114,7 +114,7 @@ export class UserController {
     @ApiBody({})
     async updateDesc(
         @UserId('userId') userId: number,
-        @Body('newDesc') newDesc: string
+        @Body('newDesc') newDesc: string,
     ) {
         await this.userService.exists(userId);
         return await this.userService.updateDesc(userId, newDesc);
