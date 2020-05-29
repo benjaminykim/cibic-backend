@@ -17,12 +17,14 @@ import { CommentService } from './comment/comment.service';
 import { ReplyService } from './reply/reply.service';
 import { ReactionService } from './reaction/reaction.service';
 import { ActivityVoteService, CommentVoteService, ReplyVoteService } from '../vote/vote.service';
+import { TagService } from './tag/tag.service';
 
 import { Activity } from './activity.entity';
 import { Comment } from './comment/comment.entity';
 import { Reply } from './reply/reply.entity';
 import { Reaction } from './reaction/reaction.entity';
 import { CommentVote, ReplyVote, ActivityVote } from '../vote/vote.entity';
+import { Tag } from './tag/tag.entity';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UserId } from '../users/users.decorator';
@@ -40,6 +42,7 @@ export class ActivityController {
         private readonly activityVoteService: ActivityVoteService,
         private readonly commentVoteService: CommentVoteService,
         private readonly replyVoteService: ReplyVoteService,
+        private readonly tagService: TagService,
     ) {}
 
     // Activity Flow
@@ -424,5 +427,15 @@ export class ActivityController {
     ) {
         await this.activityService.exists(activityId);
         await this.activityService.unsaveActivity(userId, activityId);
+    }
+
+    // Tag flow
+
+    @Post('filter') // http://localhost:3000/activity/filter
+    async filterTags(
+        @UserId() userId: number,
+        @Body('partial') partial: string,
+    ) {
+        return await this.tagService.matchTag(partial);
     }
 }

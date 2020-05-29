@@ -8,6 +8,7 @@ import {
     CreateDateColumn,
     Entity,
     ManyToMany,
+    JoinTable,
 } from 'typeorm';
 
 import { User } from '../users/users.entity';
@@ -16,6 +17,7 @@ import { Comment } from './comment/comment.entity';
 import { Reply } from './reply/reply.entity';
 import { Reaction } from './reaction/reaction.entity';
 import { ActivityVote, CommentVote, ReplyVote } from '../vote/vote.entity';
+import { Tag } from './tag/tag.entity';
 
 export enum ActivityType {'discussion', 'proposal', 'poll'}
 
@@ -156,6 +158,10 @@ export class Activity {
       (activity: Activity) => activity.savers,
     )
     public saversIds: number[];
+
+    @ManyToMany(type => Tag)
+    @JoinTable()
+    tags: Tag[];
 }
 
 // Rough example, needs to be fitted to Activity and checked with frontend exposed API,
