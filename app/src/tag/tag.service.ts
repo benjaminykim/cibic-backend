@@ -21,19 +21,34 @@ export class TagService {
 	}
 
         async registerActivity(activityId: number, tagIds: number[]) {
-            console.log(tagIds);
+            //console.log(tagIds);
             return await getRepository(Activity)
                 .createQueryBuilder()
                 .relation(Activity, "tags")
                 .of(activityId)
                 .add(tagIds);
-            /*
-            return await this.repository
+        }
+
+        async incrementTagCount(ids: number[]) {
+            if (!ids || ids.length < 1)
+                return 0;
+            await getRepository(Tag)
                 .createQueryBuilder()
-                .relation(Tag, "activities")
-                .of(activityId)
-                .add(tagIds)
-            */
+                .update(Tag)
+                .set({ count: () => 'count + 1' })
+                .where("tag.id IN (:...list)", { list: ids })
+                .execute();
+        }
+
+        async decrementTagCount(ids: number[]) {
+            if (!ids || ids.length < 1)
+                return 0;
+            await getRepository(Tag)
+                .createQueryBuilder()
+                .update(Tag)
+                .set({ count: () => 'count - 1' })
+                .where("tag.id IN (:...list)", { list: ids })
+                .execute();
         }
 
         async possibleTags(partial: string) {
@@ -41,7 +56,7 @@ export class TagService {
 			.createQueryBuilder()
 			.select("tag")
 			.from(Tag, "tag")
-			.where("tag.label ilike :q", {q: `${partial}`})
+			.where("tag.label ilike :q", {q: `${partial}%`})
                         .limit(10)
                         .orderBy("tag.count", "DESC")
 			.getMany()
@@ -52,11 +67,14 @@ export class TagService {
 		return (userTag);
 	}
 
-        /*
-            matchTagArray is only called by the activity
-            controller, should probably update tag count here
-            -alkozma
-        */
+        async constructTag(label: string) {
+            let n = new Tag();
+            n.label = label;
+            n.count = 1;
+            await this.newTag(n);
+            let ret = this.matchTag(label);
+            return ret;
+        }
 
         async matchTagArray(partials: string[]) {
             let ret = [];
@@ -69,7 +87,7 @@ export class TagService {
                     } else {
                         let n = new Tag();
                         n.label = value;
-                        n.count = 1;
+                        n.count = 0;
                         await self.newTag(n);
                         const ntag = await self.matchTag(value);
                         ret.push(ntag.id);

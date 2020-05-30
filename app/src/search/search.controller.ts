@@ -114,6 +114,9 @@ export class SearchController {
 
         // match query string to Tag and search
         const target = await this.tagService.matchTag(search.query);
+        if (!target)
+            throw new HttpException('No Content', HttpStatus.NO_CONTENT);
+
         const ret = await this.searchService.searchByTag(target, userId);
         if (ret.length == 0)
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);

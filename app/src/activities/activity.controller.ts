@@ -69,6 +69,9 @@ export class ActivityController {
 
         // apply activity id to tags
         await this.tagService.registerActivity(activityId, activity.tagIds);
+
+        // increment tag count
+        await this.tagService.incrementTagCount(activity.tagIds);
         return { id: activityId };
     }
 
@@ -107,6 +110,7 @@ export class ActivityController {
     ) {
         await this.activityService.exists(activityId);
         const activity = await this.activityService.getActivityById(activityId);
+        await this.tagService.decrementTagCount(activity.tagIds);
         activity.commentsIds.forEach(
             async commentId => {
                 await this.activityService.deleteComment(commentId, activityId);

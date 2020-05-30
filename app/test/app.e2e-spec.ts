@@ -13,6 +13,7 @@ import {
     searchA, searchB, searchC,
     badSearchA, badSearchB,
     badSearchC, badSearchD,
+    tagSearchA, tagSearchB,
     reply,
 } from './mockData';
 
@@ -34,7 +35,7 @@ describe('AppController (e2e)', () => {
         let oldTest = false;
         // To turn messsages on and off
         const debug = (s: any) => {
-            //console.error(s);
+            console.error(s);
         }
         // promise callback on document creation
         const idCheck = res => {
@@ -238,6 +239,7 @@ describe('AppController (e2e)', () => {
             actA.activity['cabildoId'] = idCab;
             const idActA = await request(srv).post('/activity').set(authA).send(actA)
                 .expect(201).then(idCheck).catch(done);
+
             debug("made activity");
             // A comment
             comA0.activityId = idActA;
@@ -966,6 +968,37 @@ describe('AppController (e2e)', () => {
 
             //NOTE: Searches that return an empty array seem to do it with a 404 response code as well.
             debug("done with search testing");
+
+            debug("tag testing");
+            // make extra activities for extra testing
+            actB.activity['cabildoId'] = idCab;
+            actC.activity['cabildoId'] = idCab;
+            actD.activity['cabildoId'] = idCab;
+            actE.activity['cabildoId'] = idCab;
+            const resActB = await request(srv).post('/activity').set(authA).send(actB).expect(201).catch(done);
+            const resActC = await request(srv).post('/activity').set(authA).send(actC).expect(201).catch(done);
+            const resActD = await request(srv).post('/activity').set(authA).send(actD).expect(201).catch(done);
+            const resActE = await request(srv).post('/activity').set(authA).send(actE).expect(201).catch(done);
+
+            const getTagsB = await request(srv).get('/tag/wat').set(authA).expect(200).catch(done); // found user A
+            debug(getTagsB.body);
+            const getTagsC = await request(srv).get('/tag/acti').set(authA).expect(200).catch(done); // found user A
+            debug(getTagsC.body);
+            //const getTagsD = await request(srv).get('/tag/').set(authA).expect(200).catch(done); // found user A
+            //debug(getTagsD.body);
+            const getTagsE = await request(srv).get('/tag/lugar').set(authA).expect(200).catch(done); // found user A
+            debug(getTagsE.body);
+
+            debug("tag search endpoint testing")
+            const tagSearchResA = await request(srv).post('/search/tag').set(authA).send(tagSearchA).expect(201).catch(done);
+            const tagSearchResB = await request(srv).post('/search/tag').set(authA).send(tagSearchB).expect(204).catch(done);
+            const tagSearchResC = await request(srv).post('/search/tag').set(authA).send(badSearchA).expect(204).catch(done);
+            const tagSearchResD = await request(srv).post('/search/tag').set(authA).send(badSearchB).expect(204).catch(done);
+            debug(tagSearchResA.body);
+            debug(tagSearchResB.body);
+            debug(tagSearchResC.body);
+            debug(tagSearchResD.body);
+        
             // Goodbye!
             done();
         }
@@ -1026,6 +1059,9 @@ describe('AppController (e2e)', () => {
   x    Post   /search/users
   x    Post   /search/activities
   x    Post   /search/cabildos
+  x    Post   /search/tag
   x    Get    /search
+  x  Tags:
+  x    Get    /tag/:partial
 
 */

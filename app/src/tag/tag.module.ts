@@ -18,4 +18,4 @@ import { TagController } from './tag.controller';
         TypeOrmModule
     ],
 })
-export class SearchModule {}
+export class TagModule {}

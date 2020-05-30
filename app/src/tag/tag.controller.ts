@@ -22,13 +22,13 @@ export class TagController {
         private readonly tagService: TagService,
     ) {}
 
-    @Get()
+    @Get(':partial')
     async reqMatchTags(
         @UserId() userId: number,
         @Param('partial') partial: string,
     ) {
         // take partial string, return array of Tag objects
         // based on provided prefix
-        return await this.tagService.matchTag(partial);
+        return await this.tagService.possibleTags(partial);
     }
 }
