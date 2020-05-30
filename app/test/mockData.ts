@@ -36,6 +36,11 @@ const actA = {
         title: 'Actvidad Uno',
         text: 'Content',
     },
+    tags: [
+        "first",
+        "actividad",
+        "water",
+    ]
 };
 const comA0 = {
     comment: {

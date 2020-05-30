@@ -13,11 +13,11 @@ import {
 
 import { User } from '../users/users.entity';
 import { Cabildo } from '../cabildos/cabildo.entity';
+import { Tag } from '../tag/tag.entity';
 import { Comment } from './comment/comment.entity';
 import { Reply } from './reply/reply.entity';
 import { Reaction } from './reaction/reaction.entity';
 import { ActivityVote, CommentVote, ReplyVote } from '../vote/vote.entity';
-import { Tag } from './tag/tag.entity';
 
 export enum ActivityType {'discussion', 'proposal', 'poll'}
 
@@ -159,9 +159,18 @@ export class Activity {
     )
     public saversIds: number[];
 
-    @ManyToMany(type => Tag)
-    @JoinTable()
-    tags: Tag[];
+    //@Column("int", { array: true, nullable: true })
+    @RelationId(
+        (activity: Activity) => activity.tags,
+    )
+    public tagIds: number[];
+
+    @ManyToMany(
+        () => Tag,
+        (tag: Tag) => tag.activities,
+        { nullable: true }
+    )
+    public tags: Tag[];
 }
 
 // Rough example, needs to be fitted to Activity and checked with frontend exposed API,

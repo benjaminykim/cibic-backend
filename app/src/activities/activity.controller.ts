@@ -17,14 +17,14 @@ import { CommentService } from './comment/comment.service';
 import { ReplyService } from './reply/reply.service';
 import { ReactionService } from './reaction/reaction.service';
 import { ActivityVoteService, CommentVoteService, ReplyVoteService } from '../vote/vote.service';
-import { TagService } from './tag/tag.service';
+import { TagService } from '../tag/tag.service';
 
 import { Activity } from './activity.entity';
 import { Comment } from './comment/comment.entity';
 import { Reply } from './reply/reply.entity';
 import { Reaction } from './reaction/reaction.entity';
 import { CommentVote, ReplyVote, ActivityVote } from '../vote/vote.entity';
-import { Tag } from './tag/tag.entity';
+import { Tag } from '../tag/tag.entity';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UserId } from '../users/users.decorator';
@@ -51,7 +51,11 @@ export class ActivityController {
     async addActivity(
         @UserId() userId: number,
         @Body('activity') activity: Activity,
+        @Body('tags') tags: string[],
     ) {
+
+        // apply tag ids to activity
+        activity.tagIds = await this.tagService.matchTagArray(tags);
         if (activity.cabildoId) {
             await this.cabildoService.exists(activity.cabildoId);
         }
@@ -62,6 +66,9 @@ export class ActivityController {
             const cabildo = await this.cabildoService.pushToFeed(activity.cabildoId, activityId);
         }
         await this.usersService.addPoints(userId, 3);
+
+        // apply activity id to tags
+        await this.tagService.registerActivity(activityId, activity.tagIds);
         return { id: activityId };
     }
 
@@ -427,19 +434,5 @@ export class ActivityController {
     ) {
         await this.activityService.exists(activityId);
         await this.activityService.unsaveActivity(userId, activityId);
-    }
-
-    // Tag flow
-
-    @Post('filter') // http://localhost:3000/activity/filter
-    async filterTags(
-        @UserId() userId: number,
-        @Body('tag') partial: Tag,
-    ) {
-        const ret = await this.tagService.matchTag(partial);
-        if (!ret) {
-            return await this.tagService.newTag(partial);
-        }
-        return await this.tagService.matchTag(partial);
     }
 }

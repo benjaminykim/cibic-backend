@@ -13,8 +13,8 @@ import { Comment } from './comment/comment.entity';
 import { ReplyService } from './reply/reply.service';
 import { Reply } from './reply/reply.entity';
 import { VoteModule } from '../vote/vote.module';
-import { Tag } from './tag/tag.entity';
-import { TagService } from './tag/tag.service';
+import { Tag } from '../tag/tag.entity';
+import { TagService } from '../tag/tag.service';
 
 @Module({
     imports: [
