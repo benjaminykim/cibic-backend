@@ -14,19 +14,38 @@ export class StatisticsService {
     async insertStatisticsTemp() {
         const stat = new Statistics();
         
-        stat.activeUsers = await this.getRandomNumberBetween(20, 400);
-        stat.activeCabildos = await this.getRandomNumberBetween(20, 400);
-        stat.activeActivities = await this.getRandomNumberBetween(20, 400);
-        
+        // stat.activeUsers = await this.getRandomNumberBetween(20, 400);
+        // stat.activeCabildos = await this.getRandomNumberBetween(20, 400);
+        // stat.activeActivities = await this.getRandomNumberBetween(20, 400);
+        stat.activeUsers = 0;
+        stat.activeCabildos = 0;
+        stat.activeActivities = 0;
         await this.repository.save(stat);
-        const statId = this.repository.getId(stat);
 
-        await this.addTrendingUser(statId, 1);
-        await this.addTrendingUser(statId, 2);
-        await this.addTrendingCabildo(statId, 1);
-        await this.addTrendingActivity(statId, 2);
+        const statId = this.repository.getId(stat);
+    
+        stat.activeUsers = (statId * statId) * 111;
+        stat.activeCabildos = ((statId + 1) * statId) * 111;
+        stat.activeActivities = ((statId + 2) * statId) * 111;
+        await this.repository.save(stat);
+
+        let top = statId - 1;
+        for (let i = 0; i < 10; i++) {
+            top += top == 20 ? -17 : 1;
+            await this.addTrendingUser(statId, top);
+        }
+        
+        for (let i = 0; i < 10; i++) {
+            top += top == 20 ? -17 : 1;
+            await this.addTrendingCabildo(statId, top);
+        }
+        
+        for (let i = 0; i < 10; i++) {
+            top += top == 20 ? -17 : 1;
+            await this.addTrendingActivity(statId, top);
+        }
     }
-  
+
     // Random number generator
     async getRandomNumberBetween(min: number, max: number) {
         return Math.floor(Math.random() * (max - min + 1) + min);

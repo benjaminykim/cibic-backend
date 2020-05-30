@@ -31,7 +31,7 @@ describe('AppController (e2e)', () => {
         let oldTest = false;
         // To turn messsages on and off
         const debug = (s: any) => {
-            console.error(s);
+            //console.error(s);
         }
         // promise callback on document creation
         const idCheck = res => {
@@ -872,13 +872,100 @@ describe('AppController (e2e)', () => {
             debug("wrong user")
             const deleteCabildoOkay = await request(srv).delete('/cabildo/' + idCabB).set(authA).expect(200).catch(done); // return ok, cabildo deleted
             debug("cabildo stuff done")
+
+            // 20 users, 20 cabildos and 20 activities
+            
+            // Prepare data in arrays
+            const emails : string [] = ["1@gmail.fake", "2@gmail.fake", "3@gmail.fake", "4@gmail.fake", 
+            "5@gmail.fake", "6@gmail.fake", "7@gmail.fake", "8@gmail.fake", "9@gmail.fake", "10@gmail.fake", 
+            "11@gmail.fake", "12@gmail.fake", "13@gmail.fake", "14@gmail.fake", "15@gmail.fake", "16@gmail.fake", 
+            "17@gmail.fake", "18@gmail.fake", "19@gmail.fake", "20@gmail.fake"]; 
+            
+            const firstNames : string [] = ["Ana", "Beto", "Carla", "Dany", "Elsa", "Fran", "Gloria", "Homero", 
+            "Ines", "Juan", "Karina", "Lorenzo", "Maria", "Nico", "Olga", "Pablo", "Quico", "Roxana", "Sebastian", 
+            "Tania"];
+            
+            const lastNames : string [] = ["Aguilar", "Borga", "Calderon", "Diaz", "Escobar", "Fuentes", "Gomez", 
+            "Hernandez", "Ibarra", "Jasso", "Kuri", "Lopez", "Madero", "Nava", "Ortiz", "Perez", "Quiroga", "Ruiz", 
+            "Salas", "Tellez"];
+            
+            const phones : number [] = [9412340001, 9412340002, 9412340003, 9412300004, 9412340005, 9412340006,
+            9412340007, 9412340008, 9412340009, 9412340010, 9412340011, 9412340012, 9412340013, 9412340014, 
+            9412340015, 9412340016, 9412340017, 9412340018, 9412340019, 9412340020,]; 
+            
+            const cabNames : string [] = ["Agua", "Basura", "Calentamiento", "Debate", "Educacion", "Futbol", 
+            "Gasolina", "Hospitales", "Inmigracion", "Jardines", "Kermes", "Librerias", "Marihuana", "Naturaleza", 
+            "Obreros", "Petroleo", "Querellas", "Reforma", "Salud", "Tiempo"];
+            
+            const locations : string [] = ["Arica", "Biobio", "Cautin", "Diguillin", "Elqui", "Freire", 
+            "General", "Huasco", "Itata", "Jerez", "Kano", "Linares", "Magallanes", "Ninhue", "Osorno", 
+            "Palena", "Quillota", "Ranco", "Santiago", "Toscana"];
+            
+            const titles : string [] = ["Titulo 1", "Titulo 2", "Titulo 3", "Titulo 4", "Titulo 5", "Titulo 6",
+            "Titulo 7", "Titulo 8", "Titulo 9", "Titulo 10", "Titulo 11", "Titulo 12", "Titulo 13", "Titulo 14",
+            "Titulo 15", "Titulo 16", "Titulo 17", "Titulo 18", "Titulo 19", "Titulo 20"];
+
+            const texts : string [] = ["Texto 1", "Texto 2", "Texto 3", "Texto 4", "Texto 5", "Texto 6", "Texto 7", 
+            "Texto 8", "Texto 9", "Texto 10", "Texto 11", "Texto 12", "Texto 13", "Texto 14", "Texto 15", "Texto 16", 
+            "Texto 17", "Texto 18", "Texto 19", "Texto 20"] 
+            
+            // data tranfer objects
+            const userX = {
+                user: {
+                    email: '',
+                    password: 'genpassword',
+                    firstName: 'a',
+                    lastName: 'b',
+                    phone: 0,
+                },
+            };
+
+            const cabX = {
+                cabildo: {
+                    name: '',
+                    location: '',
+                    desc: '',
+                },
+            };
+            
+            const actX = {
+                activity: {
+                    activityType: 0,
+                    title: '',
+                    text: '',
+                },
+            };
+            
+            // creation of 20 users, each one creates a cabildo and an activity in that cabildo
+            for (let i = 0; i < 20; i++) {
+                // users creation
+                userX.user.email = emails[i];
+                userX.user.firstName = firstNames[i];
+                userX.user.lastName = lastNames[i];
+                userX.user.phone = phones[i];
+                await request(srv).post('/user').send(userX).expect(201).then(idCheck).catch(done);
+                // users login
+                const authXRes = await request(srv).post('/auth/login').send({password: userX.user.password, 
+                email: userX.user.email}).expect(201).catch(done);
+                const authX = {'Authorization': `Bearer ${authXRes.body.access_token}`};
+                // cabildos creation
+                cabX.cabildo.name = cabNames[i];
+                cabX.cabildo.location = locations[i];
+                cabX.cabildo.desc = 'cabildo creado por ' + firstNames[i] + ' titulado "' + cabNames[i] + '"';
+                let cabXId = await request(srv).post('/cabildo').set(authX).send(cabX).expect(201).then(idCheck).catch(done);
+                // activities creation
+                actX.activity.title = titles[i];
+                actX.activity.text = texts[i];
+                actX.activity['cabildoId'] = cabXId;
+                await request(srv).post('/activity').set(authX).send(actX).expect(201).then(idCheck).catch(done);
+            }
             
             // Generate three statistics
             await request(srv).post('/statistics').expect(201).catch(done);
             await request(srv).post('/statistics').expect(201).catch(done);
             await request(srv).post('/statistics').expect(201).catch(done);
             debug("three statistics generated");
-
+            
             // Goodbye!
             done();
         }
