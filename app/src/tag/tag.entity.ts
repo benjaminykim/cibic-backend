@@ -15,13 +15,14 @@ export class Tag {
 	@PrimaryGeneratedColumn('increment')
 	public id: number;
 
-        @Column()
+        @Column({
+            default: 0,
+        })
         public count: number;
 
 	@Column()
 	public label: string;
 
-        //@Column("int", { array: true, nullable: true })
         @RelationId(
             (tag: Tag) => tag.activities,
         )

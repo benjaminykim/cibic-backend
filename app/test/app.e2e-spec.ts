@@ -35,7 +35,7 @@ describe('AppController (e2e)', () => {
         let oldTest = false;
         // To turn messsages on and off
         const debug = (s: any) => {
-            console.error(s);
+            //console.error(s);
         }
         // promise callback on document creation
         const idCheck = res => {
@@ -920,13 +920,6 @@ describe('AppController (e2e)', () => {
             debug("get search history while empty")
             const getSearchRes1 = await request(srv).get('/search').set(authA).expect(204).catch(done);
 
-            /*
-              const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-              debug(userFeedA.body);
-              let act = userFeedA.body[0];
-              expect(act.user.firstName).toBe(userA.user.firstName)
-            */
-
             debug("valid activity search")
             const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
             const searchResA2 = await request(srv).post('/search/users').set(authA).send(searchA).expect(204).catch(done);
@@ -994,10 +987,14 @@ describe('AppController (e2e)', () => {
             const tagSearchResB = await request(srv).post('/search/tag').set(authA).send(tagSearchB).expect(204).catch(done);
             const tagSearchResC = await request(srv).post('/search/tag').set(authA).send(badSearchA).expect(204).catch(done);
             const tagSearchResD = await request(srv).post('/search/tag').set(authA).send(badSearchB).expect(204).catch(done);
+            const tagSearchResE = await request(srv).post('/search/tag').set(authA).send(badSearchC).expect(204).catch(done);
+            const tagSearchResF = await request(srv).post('/search/tag').set(authA).send(badSearchD).expect(204).catch(done);
             debug(tagSearchResA.body);
             debug(tagSearchResB.body);
             debug(tagSearchResC.body);
             debug(tagSearchResD.body);
+            debug(tagSearchResE.body);
+            debug(tagSearchResF.body);
         
             // Goodbye!
             done();

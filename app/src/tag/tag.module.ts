@@ -15,7 +15,7 @@ import { TagController } from './tag.controller';
     ],
     exports: [
         TagService,
-        TypeOrmModule
+        TypeOrmModule,
     ],
 })
 export class TagModule {}

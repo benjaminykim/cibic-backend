@@ -27,7 +27,7 @@ export enum SearchTypes {
     Activities = 1,
     Cabildos = 2,
     Users = 4,
-    Tag = 8
+    Tag = 8,
 }
 
 @UseGuards(JwtAuthGuard)

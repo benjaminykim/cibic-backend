@@ -21,7 +21,6 @@ export class TagService {
 	}
 
         async registerActivity(activityId: number, tagIds: number[]) {
-            //console.log(tagIds);
             return await getRepository(Activity)
                 .createQueryBuilder()
                 .relation(Activity, "tags")
@@ -63,18 +62,8 @@ export class TagService {
         }
 
 	async newTag(userTag: Tag) {
-		await this.repository.save(userTag);
-		return (userTag);
+		return await this.repository.save(userTag);
 	}
-
-        async constructTag(label: string) {
-            let n = new Tag();
-            n.label = label;
-            n.count = 1;
-            await this.newTag(n);
-            let ret = this.matchTag(label);
-            return ret;
-        }
 
         async matchTagArray(partials: string[]) {
             let ret = [];
@@ -87,9 +76,7 @@ export class TagService {
                     } else {
                         let n = new Tag();
                         n.label = value;
-                        n.count = 0;
-                        await self.newTag(n);
-                        const ntag = await self.matchTag(value);
+                        const ntag = await self.newTag(n);
                         ret.push(ntag.id);
                     }
                 });
