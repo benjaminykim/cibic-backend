@@ -8,6 +8,7 @@ import { Search } from './search.entity'
 import { User } from '../users/users.entity';
 import { Activity } from '../activities/activity.entity';
 import { Cabildo } from '../cabildos/cabildo.entity';
+import { Tag } from '../tag/tag.entity';
 
 @Injectable()
 export class SearchService {
@@ -15,6 +16,33 @@ export class SearchService {
 
     async saveQuery(s: Search) {
         return await this.repository.save(s);
+    }
+
+    async searchByTag(tag: Tag, userId: number, limit: number = 20, offset: number = 0) {
+        if (!tag.activityIds)
+            return [] as number[];
+        return await getRepository(Activity)
+            .createQueryBuilder()
+            .select("activity")
+            .from(Activity, "activity")
+            .where("activity.id IN (:...ids)", { ids: tag.activityIds })
+            .leftJoinAndSelect("activity.user", "auser")
+            .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId")
+            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
+            .leftJoinAndSelect("comments.user", "cuser")
+            .leftJoinAndSelect("comments.replies", "replies")
+            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
+            .leftJoinAndSelect("replies.user", "ruser")
+            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
+            .orderBy("activity.ping", "DESC")
+            .cache(60000)
+            .skip(offset)
+            .take(limit)
+            .setParameter("q", tag.label)
+            .setParameter("userId", userId)
+            .getMany();
     }
 
     async searchHistory(userId: number, limit: number = 20, offset: number = 0) {

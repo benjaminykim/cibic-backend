@@ -13,6 +13,7 @@ import {
     searchA, searchB, searchC,
     badSearchA, badSearchB,
     badSearchC, badSearchD,
+    tagSearchA, tagSearchB,
     reply,
 } from './mockData';
 
@@ -269,6 +270,7 @@ describe('AppController (e2e)', () => {
             actA.activity['cabildoId'] = idCab;
             const idActA = await request(srv).post('/activity').set(authA).send(actA)
                 .expect(201).then(idCheck).catch(done);
+
             debug("made activity");
             // A comment
             comA0.activityId = idActA;
@@ -949,13 +951,6 @@ describe('AppController (e2e)', () => {
             debug("get search history while empty")
             const getSearchRes1 = await request(srv).get('/search').set(authA).expect(204).catch(done);
 
-            /*
-              const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-              debug(userFeedA.body);
-              let act = userFeedA.body[0];
-              expect(act.user.firstName).toBe(userA.user.firstName)
-            */
-
             debug("valid activity search")
             const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
             const searchResA2 = await request(srv).post('/search/users').set(authA).send(searchA).expect(204).catch(done);
@@ -997,6 +992,47 @@ describe('AppController (e2e)', () => {
 
             //NOTE: Searches that return an empty array seem to do it with a 404 response code as well.
             debug("done with search testing");
+
+            debug("tag testing");
+            // make extra activities for extra testing
+            actB.activity['cabildoId'] = idCab;
+            actC.activity['cabildoId'] = idCab;
+            actD.activity['cabildoId'] = idCab;
+            actE.activity['cabildoId'] = idCab;
+            const resActB = await request(srv).post('/activity').set(authA).send(actB).expect(201).catch(done);
+            const resActC = await request(srv).post('/activity').set(authA).send(actC).expect(201).catch(done);
+            const resActD = await request(srv).post('/activity').set(authA).send(actD).expect(201).catch(done);
+            const resActE = await request(srv).post('/activity').set(authA).send(actE).expect(201).catch(done);
+
+            const getTagsB = await request(srv).get('/tag/wat').set(authA).expect(200).catch(done);
+            debug(getTagsB.body);
+            expect(getTagsB.body[0].label).toBe('water');
+
+            const getTagsC = await request(srv).get('/tag/acti').set(authA).expect(200).catch(done);
+            debug(getTagsC.body);
+            expect(getTagsC.body[0].label).toBe('actividad');
+
+            const getTagsD = await request(srv).get('/tag/').set(authA).expect(404).catch(done);
+            debug(getTagsD.body);
+
+            const getTagsE = await request(srv).get('/tag/lugar').set(authA).expect(200).catch(done); // found user A
+            debug(getTagsE.body);
+            expect(getTagsE.body[0].label).toBe('lugar');
+
+            debug("tag search endpoint testing")
+            const tagSearchResA = await request(srv).post('/search/tag').set(authA).send(tagSearchA).expect(201).catch(done);
+            const tagSearchResB = await request(srv).post('/search/tag').set(authA).send(tagSearchB).expect(204).catch(done);
+            const tagSearchResC = await request(srv).post('/search/tag').set(authA).send(badSearchA).expect(204).catch(done);
+            const tagSearchResD = await request(srv).post('/search/tag').set(authA).send(badSearchB).expect(204).catch(done);
+            const tagSearchResE = await request(srv).post('/search/tag').set(authA).send(badSearchC).expect(204).catch(done);
+            const tagSearchResF = await request(srv).post('/search/tag').set(authA).send(badSearchD).expect(204).catch(done);
+            debug(tagSearchResA.body);
+            debug(tagSearchResB.body);
+            debug(tagSearchResC.body);
+            debug(tagSearchResD.body);
+            debug(tagSearchResE.body);
+            debug(tagSearchResF.body);
+        
             // Goodbye!
             done();
         }
@@ -1058,6 +1094,9 @@ describe('AppController (e2e)', () => {
   x    Post   /search/users
   x    Post   /search/activities
   x    Post   /search/cabildos
+  x    Post   /search/tag
   x    Get    /search
+  x  Tags:
+  x    Get    /tag/:partial
 
 */

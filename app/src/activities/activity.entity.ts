@@ -8,10 +8,12 @@ import {
     CreateDateColumn,
     Entity,
     ManyToMany,
+    JoinTable,
 } from 'typeorm';
 
 import { User } from '../users/users.entity';
 import { Cabildo } from '../cabildos/cabildo.entity';
+import { Tag } from '../tag/tag.entity';
 import { Comment } from './comment/comment.entity';
 import { Reply } from './reply/reply.entity';
 import { Reaction } from './reaction/reaction.entity';
@@ -156,6 +158,18 @@ export class Activity {
       (activity: Activity) => activity.savers,
     )
     public saversIds: number[];
+
+    @RelationId(
+        (activity: Activity) => activity.tags,
+    )
+    public tagIds: number[];
+
+    @ManyToMany(
+        () => Tag,
+        (tag: Tag) => tag.activities,
+        { nullable: true }
+    )
+    public tags: Tag[];
 }
 
 // Rough example, needs to be fitted to Activity and checked with frontend exposed API,
