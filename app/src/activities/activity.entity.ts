@@ -159,7 +159,6 @@ export class Activity {
     )
     public saversIds: number[];
 
-    //@Column("int", { array: true, nullable: true })
     @RelationId(
         (activity: Activity) => activity.tags,
     )

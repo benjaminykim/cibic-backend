@@ -12,12 +12,12 @@ export class TagService {
 	) {}
 
 	async matchTag(partial: string) {
-		return await this.repository
-			.createQueryBuilder()
-			.select("tag")
-			.from(Tag, "tag")
-			.where("tag.label ilike :q", {q: partial})
-			.getOne()
+            return await this.repository
+                .createQueryBuilder()
+                .select("tag")
+                .from(Tag, "tag")
+                .where("tag.label ilike :q", {q: partial})
+                .getOne()
 	}
 
         async registerActivity(activityId: number, tagIds: number[]) {
@@ -62,7 +62,7 @@ export class TagService {
         }
 
 	async newTag(userTag: Tag) {
-		return await this.repository.save(userTag);
+            return await this.repository.save(userTag);
 	}
 
         async matchTagArray(partials: string[]) {

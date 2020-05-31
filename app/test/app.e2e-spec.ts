@@ -35,7 +35,7 @@ describe('AppController (e2e)', () => {
         let oldTest = false;
         // To turn messsages on and off
         const debug = (s: any) => {
-            console.error(s);
+            //console.error(s);
         }
         // promise callback on document creation
         const idCheck = res => {

@@ -22,7 +22,7 @@ import { TagService } from '../tag/tag.service';
     exports: [
         SearchService,
         TagService,
-        TypeOrmModule
+        TypeOrmModule,
     ],
 })
 export class SearchModule {}
