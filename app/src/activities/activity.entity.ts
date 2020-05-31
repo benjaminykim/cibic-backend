@@ -73,6 +73,7 @@ export class Activity {
     @ManyToOne( // select
         () => Cabildo,
         (cabildo: Cabildo) => cabildo.activityFeed,
+        {nullable: true},
     )
     public cabildo: Cabildo;
 

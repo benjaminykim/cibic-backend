@@ -1,15 +1,20 @@
 version: "3.6"
 services:
   api:
-    command: start:populate
+    command: start:prod
     environment:
-      - DEPLOY_ENV: production
+      - DEPLOY_ENV=production
     expose:
       - "3000"
     stdin_open: false
+  db:
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data
   nginx:
     image: nginx:1.17-alpine
-    container_name: nginx
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     ports:
       - "80:80"
       - "443:443"
@@ -32,7 +37,7 @@ services:
         target: /var/www/static
   certbot:
     image: certbot/certbot
-    container_name: cibic_certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     volumes:
       - type: bind
         source: ./data/certbot/conf

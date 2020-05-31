@@ -23,7 +23,7 @@ elif [ $ARG = "certbot" ] # certbot is a hidden option for compatibility with in
 then
     echo ${EXEC} -f $DC_DIR/docker-compose.prod.yml $CMD | bash
     exit 0;
-elif [ $ARG = "test" -o $ARG = "e2e" -o $ARG = "shell" ]
+elif [ $ARG = "test" -o $ARG = "e2e" ]
 then
     if [ $USER = "ubuntu" ]
     then
@@ -36,9 +36,17 @@ then
     then
         docker attach $(docker ps -q | head -n1);
     fi
-elif [ $ARG = "dev" -o $ARG = "prod" ]
+elif [ $ARG = "shell" ]
 then
     ${EXEC} down;
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
+    if [ $? = '0' -a "${CMD}" = "${DEFAULT}" ]
+    then
+        docker attach $(docker ps -q | head -n1);
+    fi
+elif [ $ARG = "dev" -o $ARG = "prod" ]
+then
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml down;
     ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
 elif [ $ARG = "down" ]
 then

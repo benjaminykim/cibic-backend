@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main.js",
     "start:populate": "npm run test:e2e && nest start --watch",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
@@ -19,10 +19,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --detectOpenHandles --forceExit --verbose --expand",
-    "pretypeorm": "npm run build && (rm ormconfig.json || true) && ts-node -r tsconfig-paths/register gen-ormconfig.ts",
+    "pretypeorm": "(rm ormconfig.json || true) && ts-node -r tsconfig-paths/register gen-ormconfig.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "typeorm:migration:generate": "npm run typeorm -- migration:generate -n",
-    "typeorm:migration:run": "npm run typeorm -- migration:run"
+    "typeorm:migration:run": "npm run build && npm run typeorm -- migration:run"
   },
   "dependencies": {
     "@nestjs/common": "^6.11.11",
@@ -42,7 +42,6 @@
     "typeorm": "^0.2.24"
   },
   "devDependencies": {
-    "@nestjs/cli": "^7.1.5",
     "@nestjs/schematics": "^6.7.0",
     "@nestjs/swagger": "^4.5.6",
     "@nestjs/testing": "^6.7.1",
