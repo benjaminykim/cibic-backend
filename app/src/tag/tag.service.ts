@@ -52,11 +52,13 @@ export class TagService {
 
         async possibleTags(partial: string) {
 		return await this.repository
-			.createQueryBuilder("tag")
-			.select(["tag.id", "tag.label"])
-                        .where("tag.label ilike :q")
-                        .setParameter("q", `${partial}%`)
-			.getRawMany()
+			.createQueryBuilder()
+			.select("tag")
+			.from(Tag, "tag")
+			.where("tag.label ilike :q", {q: `${partial}%`})
+                        .limit(10)
+                        .orderBy("tag.count", "DESC")
+			.getMany()
         }
 
 	async newTag(userTag: Tag) {
@@ -72,7 +74,6 @@ export class TagService {
                     if (tag) {
                         ret.push(tag.id);
                     } else {
-                        console.log("NEW TAG " + value);
                         let n = new Tag();
                         n.label = value;
                         const ntag = await self.newTag(n);
