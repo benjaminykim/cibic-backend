@@ -35,7 +35,7 @@ describe('AppController (e2e)', () => {
         let oldTest = false;
         // To turn messsages on and off
         const debug = (s: any) => {
-            //console.error(s);
+            console.error(s);
         }
         // promise callback on document creation
         const idCheck = res => {
@@ -973,14 +973,20 @@ describe('AppController (e2e)', () => {
             const resActD = await request(srv).post('/activity').set(authA).send(actD).expect(201).catch(done);
             const resActE = await request(srv).post('/activity').set(authA).send(actE).expect(201).catch(done);
 
-            const getTagsB = await request(srv).get('/tag/wat').set(authA).expect(200).catch(done); // found user A
+            const getTagsB = await request(srv).get('/tag/wat').set(authA).expect(200).catch(done);
             debug(getTagsB.body);
-            const getTagsC = await request(srv).get('/tag/acti').set(authA).expect(200).catch(done); // found user A
+            expect(getTagsB.body[0].label).toBe('water');
+
+            const getTagsC = await request(srv).get('/tag/acti').set(authA).expect(200).catch(done);
             debug(getTagsC.body);
-            //const getTagsD = await request(srv).get('/tag/').set(authA).expect(200).catch(done); // found user A
-            //debug(getTagsD.body);
+            expect(getTagsC.body[0].label).toBe('actividad');
+
+            const getTagsD = await request(srv).get('/tag/').set(authA).expect(404).catch(done);
+            debug(getTagsD.body);
+
             const getTagsE = await request(srv).get('/tag/lugar').set(authA).expect(200).catch(done); // found user A
             debug(getTagsE.body);
+            expect(getTagsE.body[0].label).toBe('lugar');
 
             debug("tag search endpoint testing")
             const tagSearchResA = await request(srv).post('/search/tag').set(authA).send(tagSearchA).expect(201).catch(done);
