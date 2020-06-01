@@ -52,7 +52,8 @@ class ConfigService {
             cli: {
                 migrationsDir: 'src/migration',
             },
-            runMigrations: this.isProduction(),
+            migrationsRun: this.isProduction(),
+            ssl: false,
             synchronize: !this.isProduction(),
         };
     }

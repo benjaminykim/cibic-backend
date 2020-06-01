@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/src/main.js",
+    "start:prod": "npm run build && node dist/src/main.js",
     "start:populate": "npm run test:e2e && nest start --watch",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json --detectOpenHandles --forceExit --verbose --expand",
     "pretypeorm": "(rm ormconfig.json || true) && ts-node -r tsconfig-paths/register gen-ormconfig.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
-    "typeorm:migration:generate": "npm run typeorm -- migration:generate -n",
+    "typeorm:migration:generate": "npm run build && npm run typeorm -- migration:generate -n",
     "typeorm:migration:run": "npm run build && npm run typeorm -- migration:run"
   },
   "dependencies": {
@@ -77,5 +77,13 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "prettier": {
+    "trailingComma":"all",
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "bracketSpacing": true,
+    "endOfLine": "lf"
   }
 }

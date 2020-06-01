@@ -17,19 +17,6 @@ import { User } from './users.entity';
 export class UserService {
     constructor(@InjectRepository(User) private readonly repository: Repository<User>) {}
 
-    private userView = data => ({
-        id: data.id,
-        email: data.email,
-        firstname: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        desc: data.desc,
-        cabildos: data.cabildos,
-        followers: data.followers,
-        following: data.following,
-        citizenPoints: data.citizenPoints,
-    });
-
     async insertUser(user: User) {
         let collision = await this.repository.count({email: user.email})
             + await this.repository.count({phone: user.phone});
@@ -66,14 +53,14 @@ export class UserService {
             .leftJoinAndSelect("activity.user", "auser")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
             .leftJoinAndSelect("activity.comments", "comments")
-            .leftJoinAndSelect("activity.reactions", "reactions")
-            .leftJoinAndSelect("activity.votes", "activityVotes")
+            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.userId = :userId")
+            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
             .leftJoinAndSelect("comments.user", "cuser")
             .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("comments.votes", "commentVotes")
+            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
             .leftJoinAndSelect("replies.user", "ruser")
-            .leftJoinAndSelect("replies.votes", "replyVotes")
-            .printSql()
+            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
+            .setParameter("userId", userId)
             .getMany();
     }
 
@@ -93,10 +80,11 @@ export class UserService {
             .leftJoinAndSelect("comments.user", "cuser")
             .leftJoinAndSelect("comments.replies", "replies")
             .leftJoinAndSelect("replies.user", "ruser")
-            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
+            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
+            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
+            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
+            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId")
+            .setParameter("userId", userId)
             .orderBy("activity.ping", "DESC")
             .skip(offset)
             .take(limit)
@@ -163,7 +151,7 @@ export class UserService {
             .where("user.email = :email", { email: email })
             .getOne()
       }
-      
+
     async updateDesc(userId: number, newDesc: string) {
         return await this.repository.update(
             {id: userId},

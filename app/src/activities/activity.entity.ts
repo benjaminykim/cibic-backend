@@ -77,7 +77,7 @@ export class Activity {
     )
     public cabildo: Cabildo;
 
-    @Column()
+    @Column({nullable: true})
     public cabildoId: number;
 
     @OneToMany(
