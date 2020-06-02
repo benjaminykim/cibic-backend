@@ -77,4 +77,15 @@ export class StatisticsService {
             .of(statId)
             .add(actId);
     }
+
+    async getCurrentStat(limit: number = 1, offset: number = 0) {
+        return await this.repository
+            .createQueryBuilder()
+            .select('statistics')
+            .from(Statistics, "statistics")
+            .orderBy("statistics.id", "DESC")
+            .skip(offset)
+            .take(limit)
+            .getOne()
+    }
 }

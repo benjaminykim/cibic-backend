@@ -965,7 +965,16 @@ describe('AppController (e2e)', () => {
             await request(srv).post('/statistics').expect(201).catch(done);
             await request(srv).post('/statistics').expect(201).catch(done);
             debug("three statistics generated");
-            
+
+            // Get generated statistics and test each field
+            const userAGetStat = await request(srv).get(`/statistics/`).expect(200).catch(done);
+            expect(userAGetStat.body.activeUsers).toBe(999);
+            expect(userAGetStat.body.activeCabildos).toBe(1332);
+            expect(userAGetStat.body.activeActivities).toBe(1665);
+            expect(userAGetStat.body.trendingUsersIds).toStrictEqual([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+            expect(userAGetStat.body.trendingCabildosIds).toStrictEqual([3, 4, 13, 14, 15, 16, 17, 18, 19, 20]);
+            expect(userAGetStat.body.trendingActivitiesIds).toStrictEqual([5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+
             // Goodbye!
             done();
         }

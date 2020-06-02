@@ -21,4 +21,12 @@ export class StatisticsController {
     ) {
         await this.statisticsService.insertStatisticsTemp();
     }
+
+    @Get() // http://localhost:3000/statistics
+    async getCurrentStat(
+        // @UserId() userId: number,
+    ) {
+        // await this.userService.exists(userId);
+        return await this.statisticsService.getCurrentStat();
+    }
 }
