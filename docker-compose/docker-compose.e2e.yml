@@ -2,6 +2,10 @@ version: "3.6"
 services:
   api:
     command: test:e2e
+    depends_on:
+      - db
+    links:
+      - db
   db:
     image: postgres:12.2-alpine
     expose:
