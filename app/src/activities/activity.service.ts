@@ -45,7 +45,7 @@ export class ActivityService {
         return true;
     }
 
-    async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) {
+    async getPublicFeed(userId: number, limit: number = 5, offset: number = 0) {
         return await this.repository
             .createQueryBuilder()
             .select("activity")
@@ -209,7 +209,7 @@ export class ActivityService {
         }
     }
 
-    async getActivitySaved(userId: number, limit: number = 20, offset: number = 0) {
+    async getActivitySaved(userId: number, limit: number = 5, offset: number = 0) {
         const user = await getRepository(User).findOne({id: userId})
         if (!user.activitySavedIds.length)
             return [];

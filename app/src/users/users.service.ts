@@ -44,7 +44,7 @@ export class UserService {
         return tmp;
     }
 
-    async getFeed(userId: number, limit: number = 20, offset: number = 0) {
+    async getFeed(userId: number, limit: number = 5, offset: number = 0) {
         return await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -64,7 +64,7 @@ export class UserService {
             .getMany();
     }
 
-    async getFollow(userId: number, limit: number = 20, offset: number = 0) {
+    async getFollow(userId: number, limit: number = 5, offset: number = 0) {
         const user = await this.repository.findOne({id: userId})
         const cabIds = user.cabildosIds.length ? user.cabildosIds : [0]
         const folIds = user.followingIds.length ? user.followingIds : [0]

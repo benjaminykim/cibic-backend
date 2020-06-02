@@ -2,3 +2,9 @@ version: "3.6"
 services:
   api:
     command: test
+  db:
+    image: postgres:12.2-alpine
+    expose:
+      - "5432"
+    env_file:
+      - .env

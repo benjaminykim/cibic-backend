@@ -7,11 +7,11 @@ services:
     expose:
       - "3000"
     stdin_open: false
-  db:
-    environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
-    volumes:
-      - ./data/pg:/var/lib/postgresql/data
+#  db:
+#    environment:
+#      - PGDATA=/var/lib/postgresql/data/pgdata
+#    volumes:
+#      - ./data/pg:/var/lib/postgresql/data
   nginx:
     image: nginx:1.17-alpine
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"

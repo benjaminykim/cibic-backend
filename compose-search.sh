@@ -5,10 +5,12 @@ TYPE=$1
 QUERY=$2
 SERVER=www.cibic.app/api
 #SERVER=192.168.8.204:4242
-TOK=$(curl -H 'Content-Type: application/json' -d '{"user":{"email":"smonroe@gmail.fake","password":"arealpassword"}}' $SERVER/auth/login | perl -pe 's/"access_token"://; s/^"//; s/",$//' | sed 's/"//g' | sed 's/{//g' | sed 's/}//g')
+TOK=$(curl -H 'Content-Type: application/json' -d '{"email":"smonroe@gmail.fake","password":"arealpassword"}' $SERVER/auth/login | perl -pe 's/"access_token"://; s/^"//; s/",$//' | sed 's/"//g' | sed 's/{//g' | sed 's/}//g')
 printf -v auth "Authorization: Bearer %s" $TOK
 printf -v search "{\"search\":{\"query\":\"$QUERY\"}}"
-
+echo $auth
+echo $auth
+echo $auth
 if [ -z $QUERY ]
 then
 	echo -e $USAGE
