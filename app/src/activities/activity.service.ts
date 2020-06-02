@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
 import { Activity } from './activity.entity';
+import { Comment } from '../activities/comment/comment.entity';
 import { User } from '../users/users.entity';
 
 @Injectable()
@@ -46,13 +47,21 @@ export class ActivityService {
     }
 
     async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) {
+        const topThree = getRepository(Comment)
+            .createQueryBuilder()
+            .select("comments.id")
+            .from(Comment, "comments")
+            .where("comments.activityId = activity.id")
+            .orderBy("comments.score", "DESC")
+            .take(3)
         return await this.repository
             .createQueryBuilder()
             .select("activity")
             .from(Activity, "activity")
             .leftJoinAndSelect("activity.user", "user")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("activity.comments", "comments",
+                               `comments.id IN (${topThree.getQuery()})`)
             .leftJoinAndSelect("comments.user", "cuser")
             .leftJoinAndSelect("comments.replies", "replies")
             .leftJoinAndSelect("replies.user", "ruser")
@@ -213,6 +222,13 @@ export class ActivityService {
         const user = await getRepository(User).findOne({id: userId})
         if (!user.activitySavedIds.length)
             return [];
+        const topThree = getRepository(Comment)
+            .createQueryBuilder()
+            .select("comments.id")
+            .from(Comment, "comments")
+            .where("comments.activityId = activity.id")
+            .orderBy("comments.score", "DESC")
+            .take(3)
         const savfeed = await this.repository
             .createQueryBuilder()
             .select("activity")
@@ -222,11 +238,8 @@ export class ActivityService {
             .leftJoinAndSelect("activity.cabildo", "cabildo")
             .leftJoinAndSelect("activity.comments", "comments")
             .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("replies.user", "ruser")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
             .skip(offset)

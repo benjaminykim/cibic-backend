@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
 import { Activity } from '../activities/activity.entity';
+import { Comment } from '../activities/comment/comment.entity';
 import { Cabildo } from './cabildo.entity';
 
 @Injectable()
@@ -65,6 +66,13 @@ export class CabildoService {
     }
 
     async getCabildoFeed(cabildoId: number, userId: number) {
+        const topThree = getRepository(Comment)
+            .createQueryBuilder()
+            .select("comments.id")
+            .from(Comment, "comments")
+            .where("comments.activityId = activity.id")
+            .orderBy("comments.score", "DESC")
+            .take(3)
         const feed = await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -72,13 +80,11 @@ export class CabildoService {
             .where("activity.cabildo = :id", {id:cabildoId})
             .leftJoinAndSelect("activity.user", "auser")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("activity.comments", "comments",
+                               `comments.id IN (${topThree.getQuery()})`)
             .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("replies.user", "ruser")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
             .getMany()

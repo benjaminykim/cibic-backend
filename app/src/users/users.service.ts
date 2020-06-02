@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../activities/activity.entity';
+import { Comment } from '../activities/comment/comment.entity';
 import { Repository, getRepository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
@@ -45,6 +46,13 @@ export class UserService {
     }
 
     async getFeed(userId: number, limit: number = 20, offset: number = 0) {
+        const topThree = getRepository(Comment)
+            .createQueryBuilder()
+            .select("comments.id")
+            .from(Comment, "comments")
+            .where("comments.activityId = activity.id")
+            .orderBy("comments.score", "DESC")
+            .take(3)
         return await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -52,14 +60,12 @@ export class UserService {
             .where('activity.user = :id', { id: userId})
             .leftJoinAndSelect("activity.user", "auser")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("activity.comments", "comments",
+                               `comments.id IN (${topThree.getQuery()})`)
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.userId = :userId")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
             .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
             .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
-            .leftJoinAndSelect("replies.user", "ruser")
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
             .setParameter("userId", userId)
             .getMany();
     }
@@ -68,6 +74,13 @@ export class UserService {
         const user = await this.repository.findOne({id: userId})
         const cabIds = user.cabildosIds.length ? user.cabildosIds : [0]
         const folIds = user.followingIds.length ? user.followingIds : [0]
+        const topThree = getRepository(Comment)
+            .createQueryBuilder()
+            .select("comments.id")
+            .from(Comment, "comments")
+            .where("comments.activityId = activity.id")
+            .orderBy("comments.score", "DESC")
+            .take(3)
         return await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -76,19 +89,17 @@ export class UserService {
             .orWhere("activity.user IN (:...following)", {following: folIds})
             .leftJoinAndSelect("activity.user", "user")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("activity.comments", "comments",
+                               `comments.id IN (${topThree.getQuery()})`)
             .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("replies.user", "ruser")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
             .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId")
             .setParameter("userId", userId)
             .orderBy("activity.ping", "DESC")
             .skip(offset)
             .take(limit)
-            .getMany()
+            .getMany();
     }
 
     // update idFollower's activityFeed with query of idFollowed
