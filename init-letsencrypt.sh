@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Nginx and Let's encrypt with docker in less than 5 minutes - Medium
+
 if ! [ -x "$(command -v docker-compose)" ]; then
   echo 'Error: docker-compose is not installed.' >&2
   exit 1
@@ -8,7 +10,7 @@ fi
 # our own script since we have a non trivial docker-compose scenario
 DOCKER_COMPOSE="env USER=ubuntu ./docker-start certbot"
 # localhost for dev testing, remove for prod, argify in the future?
-domains=(cibic.app)
+domains=(www.cibic.app)
 rsa_key_size=4096
 data_path="./data/certbot"
 email="engineering@cibic.app" # Adding a valid address is strongly recommended
@@ -45,6 +47,9 @@ echo "### Starting nginx ..."
 ${DOCKER_COMPOSE} up --force-recreate -d nginx
 echo
 
+# Wait for nginx to get up with the dummy cert before deleting it
+sleep 10
+
 echo "### Deleting dummy certificate for $domains ..."
 ${DOCKER_COMPOSE} "run --rm --entrypoint \"\
   rm -Rf /etc/letsencrypt/live/$domains && \
@@ -80,4 +85,4 @@ ${DOCKER_COMPOSE} "run --rm --entrypoint \"\
 echo
 
 echo "### Reloading nginx ..."
-${DOCKER_COMPOSE} "exec nginx nginx -s reload"
+${DOCKER_COMPOSE} "exec ubuntu_nginx_1 nginx -s reload"

@@ -1,6 +1,7 @@
 import {
     Injectable,
     NotFoundException,
+    UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,6 +20,8 @@ export class ReactionService {
     }
 
     async addReaction(reaction: Reaction) {
+        if (await this.repository.count({userId: reaction.userId, activityId: reaction.activityId}))
+            throw new UnprocessableEntityException();
         const result = await this.repository.save(reaction);
         return result.id as number;
     }
