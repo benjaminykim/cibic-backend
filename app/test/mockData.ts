@@ -33,7 +33,7 @@ const cabB = {
 const actA = {
     activity: {
         activityType: 0,//'discussion', this means frontend changes to int from string
-        title: 'Actvidad Uno',
+        title: 'Actividad Uno',
         text: 'Content',
     },
 };

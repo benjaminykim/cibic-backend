@@ -933,6 +933,7 @@ describe('AppController (e2e)', () => {
                     activityType: 0,
                     title: '',
                     text: '',
+                    publishDate: new Date(),
                 },
             };
             
@@ -956,14 +957,18 @@ describe('AppController (e2e)', () => {
                 // activities creation
                 actX.activity.title = titles[i];
                 actX.activity.text = texts[i];
+                if (i < 4)
+                    actX.activity.publishDate = new Date("2020-06-01");
+                else
+                    actX.activity.publishDate = new Date();
                 actX.activity['cabildoId'] = cabXId;
                 await request(srv).post('/activity').set(authX).send(actX).expect(201).then(idCheck).catch(done);
             }
             
             // Generate three statistics
             await request(srv).post('/statistics').expect(201).catch(done);
-            await request(srv).post('/statistics').expect(201).catch(done);
-            await request(srv).post('/statistics').expect(201).catch(done);
+            //await request(srv).post('/statistics').expect(201).catch(done);
+            //await request(srv).post('/statistics').expect(201).catch(done);
             debug("three statistics generated");
             
             // Goodbye!
