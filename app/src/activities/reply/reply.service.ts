@@ -39,6 +39,7 @@ export class ReplyService {
                     .where("reply.id = :replyId", { replyId: replyId})
                     .leftJoinAndSelect("reply.user", "user")
                     .leftJoinAndSelect("reply.votes", "votes", "votes.userId = :userId", {userId: userId})
+                    .leftJoinAndSelect("reply.taggedUser", "taggedUser")
                     .getOne()
             }
             else {

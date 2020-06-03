@@ -51,14 +51,14 @@ export class TagService {
         }
 
         async possibleTags(partial: string) {
-		return await this.repository
-			.createQueryBuilder()
-			.select("tag")
-			.from(Tag, "tag")
-			.where("tag.label ilike :q", {q: `${partial}%`})
-                        .limit(10)
-                        .orderBy("tag.count", "DESC")
-			.getMany()
+            return await this.repository
+                .createQueryBuilder()
+                .select("tag")
+                .from(Tag, "tag")
+                .where("tag.label ilike :q", {q: `${partial}%`})
+                .limit(10)
+                .orderBy("tag.count", "DESC")
+                .getMany()
         }
 
 	async newTag(userTag: Tag) {

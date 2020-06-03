@@ -263,8 +263,8 @@ describe('AppController (e2e)', () => {
                 .send({userId: idB}).expect(201).catch(done);
             debug("followed user");
             // First user follows cabildo
-            const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
-                .send({cabildoId: idCab}).expect(201).catch(done);
+            //const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
+                //.send({cabildoId: idCab}).expect(201).catch(done);
             debug("followed cabildo");
             // An activity
             actA.activity['cabildoId'] = idCab;
@@ -372,9 +372,14 @@ describe('AppController (e2e)', () => {
             // Check that everything was added properly
             {
                 debug("checking user feed");
-                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
+                const userFeedA = await request(srv).get(`/user/feed/${idA}/0`).set(authA).expect(200).catch(done);
                 debug(userFeedA.body);
-                let act = userFeedA.body[0];
+
+                // get the full data of the first feed activity
+                const dummy = await request(srv).get(`/activity/${userFeedA.body[0].id}`).set(authA).expect(200).catch(done);
+                debug(dummy.body);
+
+                let act = dummy.body;
                 expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(3);
@@ -402,10 +407,15 @@ describe('AppController (e2e)', () => {
             // Check if properties of the activity were saved too
             {
                 debug("getting activity-saved feed");
-                const userASavFeed = await request(srv).get('/activity/save/feed').set(authA).expect(200).catch(done);
+                const userASavFeed = await request(srv).get('/activity/save/feed/0').set(authA).expect(200).catch(done);
                 debug("got activity saved feed");
                 debug(userASavFeed.body);
-                const act = userASavFeed.body[0];
+
+                const dummy2 = await request(srv).get(`/activity/${userASavFeed.body[0].id}`).set(authA).expect(200).catch(done);
+                debug("retrieved full activity");
+                debug(dummy2.body);
+
+                const act = dummy2.body;
                 expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(3);
@@ -435,7 +445,7 @@ describe('AppController (e2e)', () => {
             debug("fake user couldn´t save activity");
 
             // Fake user try to request an activity-saved feed
-            let userXSavFeed = await request(srv).get('/activity/save/feed').set(authX).expect(401).catch(done);
+            let userXSavFeed = await request(srv).get('/activity/save/feed/0').set(authX).expect(401).catch(done);
             debug("fake user couldn´t get activity-saved feed");
 
             // First check of how many savers have the activity
@@ -467,7 +477,7 @@ describe('AppController (e2e)', () => {
             debug("user A unsaved activity");
 
             // Check if user A activity-saved feed is empty
-            const userASavFeed = await request(srv).get(`/activity/save/feed`).set(authA).expect(200).catch(done);
+            const userASavFeed = await request(srv).get(`/activity/save/feed/0`).set(authA).expect(200).catch(done);
             expect(userASavFeed.body).toStrictEqual([]);
             debug("user A activity-saved feed is correctly empty");
 
@@ -529,10 +539,13 @@ describe('AppController (e2e)', () => {
             {
                 debug("getting home");
                 // Make sure everything was updated
-                const userFeedA = await request(srv).get(`/user/home`).set(authA).expect(200).catch(done);
+                const userFeedA = await request(srv).get(`/user/home/0`).set(authA).expect(200).catch(done);
                 debug("got home");
                 debug(userFeedA.body);
-                const act = userFeedA.body[0];
+
+                // get full activity data
+                const dummy3 = await request(srv).get(`/activity/${userFeedA.body[0].id}`).set(authA).expect(200).catch(done);
+                const act = dummy3.body;
                 expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(-3);
@@ -578,9 +591,12 @@ describe('AppController (e2e)', () => {
             {
                 // did ping and score drop?
                 debug("checking post delete feed")
-                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
+                const userFeedA = await request(srv).get(`/user/feed/${idA}/0`).set(authA).expect(200).catch(done);
                 debug("got feed back in test")
-                const act = userFeedA.body[0];
+
+                // get full activity data
+                const dummy4 = await request(srv).get(`/activity/${userFeedA.body[0].id}`).set(authA).expect(200).catch(done);
+                const act = dummy4.body;
                 expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(2);
                 expect(act.score).toBe(0);
@@ -600,8 +616,11 @@ describe('AppController (e2e)', () => {
             {
                 // Did it disappear?
                 debug("checking feed for no replies")
-                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-                const act = userFeedA.body[0];
+                const userFeedA = await request(srv).get(`/user/feed/${idA}/0`).set(authA).expect(200).catch(done);
+
+                // get full activity data
+                const dummy5 = await request(srv).get(`/activity/${userFeedA.body[0].id}`).set(authA).expect(200).catch(done);
+                const act = dummy5.body;
                 expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(1);
                 expect(act.score).toBe(0);
@@ -620,8 +639,11 @@ describe('AppController (e2e)', () => {
             {
                 // Did it disappear?
                 debug("checking feed for no comments")
-                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-                const act = userFeedA.body[0];
+                const userFeedA = await request(srv).get(`/user/feed/${idA}/0`).set(authA).expect(200).catch(done);
+
+                // get full activity data
+                const dummy6 = await request(srv).get(`/activity/${userFeedA.body[0].id}`).set(authA).expect(200).catch(done);
+                const act = dummy6.body;
                 expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.text).toBe('Update');
                 expect(act.comments).toHaveLength(0);
@@ -636,7 +658,7 @@ describe('AppController (e2e)', () => {
             {
                 // Is the feed empty?
                 debug("check for empty feed")
-                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
+                const userFeedA = await request(srv).get(`/user/feed/${idA}/0`).set(authA).expect(200).catch(done);
                 expect(userFeedA.body).toHaveLength(0);
 
             }
@@ -698,8 +720,9 @@ describe('AppController (e2e)', () => {
             debug("voted on stuff, does it get fed?")
             {
                 // Is everything back?
-                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-                const act = userFeedA.body[0];
+                const userFeedA = await request(srv).get(`/user/feed/${idA}/0`).set(authA).expect(200).catch(done);
+                const dummy7 = await request(srv).get(`/activity/${userFeedA.body[0].id}`).set(authA).expect(200).catch(done);
+                const act = dummy7.body;
                 expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(3);
@@ -715,8 +738,9 @@ describe('AppController (e2e)', () => {
                     .send({commentId: RidComA0}).expect(200).catch(done);
                 debug("del com")
                 // Are the votes and reply gone?
-                const qUserFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-                const qAct = qUserFeedA.body[0];
+                const qUserFeedA = await request(srv).get(`/user/feed/${idA}/0`).set(authA).expect(200).catch(done);
+                const dummy8 = await request(srv).get(`/activity/${qUserFeedA.body[0].id}`).set(authA).expect(200).catch(done);
+                const qAct = dummy8.body;
                 expect(qAct.user.firstName).toBe(userA.user.firstName)
                 expect(qAct.comments).toHaveLength(0);
                 expect(qAct.text).toBe('Content');
@@ -771,8 +795,9 @@ describe('AppController (e2e)', () => {
 
             {
                 // Is at all back?
-                const userFeedA = await request(srv).get(`/user/feed/${idA}`).set(authA).expect(200).catch(done);
-                const act = userFeedA.body[0];
+                const userFeedA = await request(srv).get(`/user/feed/${idA}/0`).set(authA).expect(200).catch(done);
+                const dummy9 = await request(srv).get(`/activity/${userFeedA.body[0].id}`).set(authA).expect(200).catch(done);
+                const act = dummy9.body;
                 expect(act.user.firstName).toBe(userA.user.firstName)
                 expect(act.ping).toBe(6);
                 expect(act.score).toBe(3);
@@ -797,28 +822,19 @@ describe('AppController (e2e)', () => {
                                 membersIds: [1, 2], // add second user's id
                             },
                         ),
-                        comments: [
-                            Object.assign(
-                                {}, // dont mutate original
-                                userFeedA.body[0].comments[0],
-                                {
-                                    votes: [],
-                                },
-                            ),
-                        ],
                         reactions: [],
                         votes: [],
                     },
                 );
                 // First, second user follows nothing and sees nothing
-                let userBView = await request(srv).get(`/user/home`).set(authB).expect(200).catch(done);
+                let userBView = await request(srv).get(`/user/home/0`).set(authB).expect(200).catch(done);
                 debug("got user b view")
                 expect(userBView.body).toStrictEqual([]);
                 // Second user follows cabildo and sees a populated home feed
                 const BfollowC = await request(srv).post('/user/followcabildo').set(authB)
                     .send({cabildoId: idCab}).expect(201).catch(done);
                 debug("b followed c")
-                userBView = await request(srv).get(`/user/home`).set(authB).expect(200).catch(done);
+                userBView = await request(srv).get(`/user/home/0`).set(authB).expect(200).catch(done);
                 debug("got user b view again")
                 expect(userBView.body).toStrictEqual([actualBView]);
 
@@ -868,7 +884,7 @@ describe('AppController (e2e)', () => {
                     await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescA}).expect(200).catch(done);
                 }
 
-                const cabFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authB).expect(200).catch(done);
+                const cabFeed = await request(srv).get(`/cabildo/feed/${idCab}/0`).set(authB).expect(200).catch(done);
                 debug("got cab feed")
                 expect(cabFeed.body[0]).toStrictEqual(actualBView);
                 const cabCheck = await request(srv).get(`/cabildo/check/${cabName}`).set(authB)
@@ -882,7 +898,7 @@ describe('AppController (e2e)', () => {
                 const BunFollowC = await request(srv).post('/user/unfollowcabildo').set(authB)
                     .send({cabildoId: idCab}).expect(201).catch(done);
                 debug("b unfollow c")
-                userBView = await request(srv).get(`/user/home`).set(authB).expect(200).catch(done);
+                userBView = await request(srv).get(`/user/home/0`).set(authB).expect(200).catch(done);
                 debug("another home feed")
                 expect(userBView.body).toStrictEqual([]);
                 const unfollowedview = Object.assign(
@@ -902,20 +918,20 @@ describe('AppController (e2e)', () => {
                 const BfollowA = await request(srv).post('/user/followuser').set(authB)
                     .send({userId: idA}).expect(201).catch(done);
                 debug("b followed a")
-                userBView = await request(srv).get(`/user/home`).set(authB).expect(200).catch(done);
+                userBView = await request(srv).get(`/user/home/0`).set(authB).expect(200).catch(done);
                 debug("another home feed")
                 expect(userBView.body[0]).toStrictEqual(unfollowedview);
                 // Second user unfollows first user and sees nothing
                 const BunFollowA = await request(srv).post('/user/unfollowuser').set(authB)
                     .send({userId: idA}).expect(201).catch(done);
                 debug("b unfollowed a")
-                userBView = await request(srv).get(`/user/home`).set(authB).expect(200).catch(done);
+                userBView = await request(srv).get(`/user/home/0`).set(authB).expect(200).catch(done);
                 debug("another home feed, end of block")
                 expect(userBView.body).toStrictEqual([]);
             }
 
             // get activity public
-            const activityPublic = await request(srv).get('/activity/public').set(authA).expect(200).catch(done);
+            const activityPublic = await request(srv).get('/activity/public/0').set(authA).expect(200).catch(done);
             debug("got activityPublic")
 
             // Cabildo to be deleted
@@ -932,37 +948,37 @@ describe('AppController (e2e)', () => {
 
             // Search
             debug("get search history while empty")
-            const getSearchRes1 = await request(srv).get('/search').set(authA).expect(204).catch(done);
+            const getSearchRes1 = await request(srv).get('/search/0').set(authA).expect(204).catch(done);
 
             debug("valid activity search")
-            const searchResA1 = await request(srv).post('/search/activities').set(authA).send(searchA).expect(201).catch(done);
-            const searchResA2 = await request(srv).post('/search/users').set(authA).send(searchA).expect(204).catch(done);
-            const searchResA3 = await request(srv).post('/search/cabildos').set(authA).send(searchA).expect(204).catch(done);
+            const searchResA1 = await request(srv).post('/search/activities/0').set(authA).send(searchA).expect(201).catch(done);
+            const searchResA2 = await request(srv).post('/search/users/0').set(authA).send(searchA).expect(204).catch(done);
+            const searchResA3 = await request(srv).post('/search/cabildos/0').set(authA).send(searchA).expect(204).catch(done);
 
             debug("valid cabildo search")
-            const searchResB1 = await request(srv).post('/search/activities').set(authA).send(searchB).expect(204).catch(done);
-            const searchResB2 = await request(srv).post('/search/users').set(authA).send(searchB).expect(204).catch(done);
-            const searchResB3 = await request(srv).post('/search/cabildos').set(authA).send(searchB).expect(201).catch(done);
+            const searchResB1 = await request(srv).post('/search/activities/0').set(authA).send(searchB).expect(204).catch(done);
+            const searchResB2 = await request(srv).post('/search/users/0').set(authA).send(searchB).expect(204).catch(done);
+            const searchResB3 = await request(srv).post('/search/cabildos/0').set(authA).send(searchB).expect(201).catch(done);
 
             debug("search SQL injection");
-            const badSearchResA1 = await request(srv).post('/search/activities').set(authA).send(badSearchA).expect(204).catch(done);
-            const badSearchResA2 = await request(srv).post('/search/users').set(authA).send(badSearchA).expect(204).catch(done);
-            const badSearchResC2 = await request(srv).post('/search/users').set(authA).send(badSearchC).expect(204).catch(done);
-            const badSearchResD2 = await request(srv).post('/search/users').set(authA).send(badSearchD).expect(204).catch(done);
-            const badSearchResA3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchA).expect(204).catch(done);
+            const badSearchResA1 = await request(srv).post('/search/activities/0').set(authA).send(badSearchA).expect(204).catch(done);
+            const badSearchResA2 = await request(srv).post('/search/users/0').set(authA).send(badSearchA).expect(204).catch(done);
+            const badSearchResC2 = await request(srv).post('/search/users/0').set(authA).send(badSearchC).expect(204).catch(done);
+            const badSearchResD2 = await request(srv).post('/search/users/0').set(authA).send(badSearchD).expect(204).catch(done);
+            const badSearchResA3 = await request(srv).post('/search/cabildos/0').set(authA).send(badSearchA).expect(204).catch(done);
 
             debug("empty searches");
-            const badSearchResB1 = await request(srv).post('/search/activities').set(authA).send(badSearchB).expect(204).catch(done);
-            const badSearchResB2 = await request(srv).post('/search/users').set(authA).send(badSearchB).expect(204).catch(done);
-            const badSearchResB3 = await request(srv).post('/search/cabildos').set(authA).send(badSearchB).expect(204).catch(done);
+            const badSearchResB1 = await request(srv).post('/search/activities/0').set(authA).send(badSearchB).expect(204).catch(done);
+            const badSearchResB2 = await request(srv).post('/search/users/0').set(authA).send(badSearchB).expect(204).catch(done);
+            const badSearchResB3 = await request(srv).post('/search/cabildos/0').set(authA).send(badSearchB).expect(204).catch(done);
 
             debug("valid user search");
-            const searchResC1 = await request(srv).post('/search/activities').set(authA).send(searchC).expect(204).catch(done);
-            const searchResC2 = await request(srv).post('/search/users').set(authA).send(searchC).expect(201).catch(done);
-            const searchResC3 = await request(srv).post('/search/cabildos').set(authA).send(searchC).expect(204).catch(done);
+            const searchResC1 = await request(srv).post('/search/activities/0').set(authA).send(searchC).expect(204).catch(done);
+            const searchResC2 = await request(srv).post('/search/users/0').set(authA).send(searchC).expect(201).catch(done);
+            const searchResC3 = await request(srv).post('/search/cabildos/0').set(authA).send(searchC).expect(204).catch(done);
 
             debug("request populated search history");
-            const getSearchRes2 = await request(srv).get('/search').set(authA).expect(200).catch(done);
+            const getSearchRes2 = await request(srv).get('/search/0').set(authA).expect(200).catch(done);
 
             debug("validate search return data");
 
@@ -988,27 +1004,26 @@ describe('AppController (e2e)', () => {
             const resActE = await request(srv).post('/activity').set(authA).send(actE).expect(201).catch(done);
 
             const getTagsB = await request(srv).get('/tag/wat').set(authA).expect(200).catch(done);
-            debug(getTagsB.body);
-            expect(getTagsB.body[0].label).toBe('water');
+            expect(getTagsB.body.tags[0].label).toBe('water');
 
             const getTagsC = await request(srv).get('/tag/acti').set(authA).expect(200).catch(done);
             debug(getTagsC.body);
-            expect(getTagsC.body[0].label).toBe('actividad');
+            expect(getTagsC.body.tags[0].label).toBe('actividad');
 
             const getTagsD = await request(srv).get('/tag/').set(authA).expect(404).catch(done);
             debug(getTagsD.body);
 
-            const getTagsE = await request(srv).get('/tag/lugar').set(authA).expect(200).catch(done); // found user A
+            const getTagsE = await request(srv).get('/tag/lugar').set(authA).expect(200).catch(done);
             debug(getTagsE.body);
-            expect(getTagsE.body[0].label).toBe('lugar');
+            expect(getTagsE.body.tags[0].label).toBe('lugar');
 
             debug("tag search endpoint testing")
-            const tagSearchResA = await request(srv).post('/search/tag').set(authA).send(tagSearchA).expect(201).catch(done);
-            const tagSearchResB = await request(srv).post('/search/tag').set(authA).send(tagSearchB).expect(204).catch(done);
-            const tagSearchResC = await request(srv).post('/search/tag').set(authA).send(badSearchA).expect(204).catch(done);
-            const tagSearchResD = await request(srv).post('/search/tag').set(authA).send(badSearchB).expect(204).catch(done);
-            const tagSearchResE = await request(srv).post('/search/tag').set(authA).send(badSearchC).expect(204).catch(done);
-            const tagSearchResF = await request(srv).post('/search/tag').set(authA).send(badSearchD).expect(204).catch(done);
+            const tagSearchResA = await request(srv).post('/search/tag/0').set(authA).send(tagSearchA).expect(201).catch(done);
+            const tagSearchResB = await request(srv).post('/search/tag/0').set(authA).send(tagSearchB).expect(204).catch(done);
+            const tagSearchResC = await request(srv).post('/search/tag/0').set(authA).send(badSearchA).expect(204).catch(done);
+            const tagSearchResD = await request(srv).post('/search/tag/0').set(authA).send(badSearchB).expect(204).catch(done);
+            const tagSearchResE = await request(srv).post('/search/tag/0').set(authA).send(badSearchC).expect(204).catch(done);
+            const tagSearchResF = await request(srv).post('/search/tag/0').set(authA).send(badSearchD).expect(204).catch(done);
             debug(tagSearchResA.body);
             debug(tagSearchResB.body);
             debug(tagSearchResC.body);

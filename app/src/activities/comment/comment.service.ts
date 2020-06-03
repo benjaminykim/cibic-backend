@@ -44,7 +44,8 @@ export class CommentService {
                     .leftJoinAndSelect("replies.user", "ruser")
                     .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", {userId: userId})
                     .leftJoinAndSelect("comment.votes", "votes", "votes.userId = :userId", {userId: userId})
-                    .getOne()
+                    .leftJoinAndSelect("replies.taggedUser", "taggedUser")
+                    .getOne();
             }
             else {
                 comment = await this.repository
@@ -55,6 +56,7 @@ export class CommentService {
                     .leftJoinAndSelect("comment.replies", "replies")
                     .leftJoinAndSelect("replies.votes", "rvotes")
                     .leftJoinAndSelect("comment.votes", "votes")
+                    .leftJoinAndSelect("replies.taggedUser", "taggedUser")
                     .getOne()
             }
         } catch (error) {
