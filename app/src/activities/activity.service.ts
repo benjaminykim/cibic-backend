@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
 import { Activity } from './activity.entity';
 import { User } from '../users/users.entity';
+import { configService } from '../config/config.service';
 
 @Injectable()
 export class ActivityService {
@@ -50,7 +51,7 @@ export class ActivityService {
         return true;
     }
 
-    async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) {
+    async getPublicFeed(userId: number, offset: number) {
         return await this.repository
             .createQueryBuilder()
             .select("activity")
@@ -61,11 +62,11 @@ export class ActivityService {
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", {user: userId})
             .skip(offset)
-            .take(limit)
+            .take(configService.getFeedLimit())
             .getMany()
     }
 
-    async getActivitySaved(userId: number, limit: number = 20, offset: number = 0) {
+    async getActivitySaved(userId: number, offset: number) {
         const user = await getRepository(User).findOne({id: userId})
         if (!user.activitySavedIds.length)
             return [];
@@ -81,7 +82,7 @@ export class ActivityService {
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
             .skip(offset)
-            .take(limit)
+            .take(configService.getFeedLimit())
             .getMany()
         return savfeed;
     }

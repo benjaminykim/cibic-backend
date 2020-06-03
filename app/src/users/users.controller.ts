@@ -36,27 +36,23 @@ export class UserController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get('feed/:userId') // http://localhost:3000/user/feed/:userId
+    @Get('feed/:userId/:offset') // http://localhost:3000/user/feed/:userId
     async getUserFeed(
         @Param('userId') userId: number,
+        @Param('offset') offset: number,
     ) {
         await this.userService.exists(userId);
-        //console.log("/user/feed/id")
-        const tmp = await this.userService.getFeed(userId);
-        //console.log(tmp);
-        return tmp;
+        return await this.userService.getFeed(userId, offset);
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get('home') // http://localhost:3000/
+    @Get('home/:offset') // http://localhost:3000/
     async getUserHome(
         @UserId() userId: number,
+        @Param('offset') offset: number,
     ) {
         await this.userService.exists(userId);
-        //console.log("/user/home")
-        const tmp = await this.userService.getFollow(userId);
-        //console.log(tmp)
-        return tmp;
+        return await this.userService.getFollow(userId, offset);
     }
 
     @UseGuards(JwtAuthGuard)

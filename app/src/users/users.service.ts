@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../activities/activity.entity';
 import { Repository, getRepository } from 'typeorm';
+import { configService } from '../config/config.service';
 import * as bcrypt from 'bcrypt';
 
 const saltRounds = 10;
@@ -43,7 +44,7 @@ export class UserService {
         return tmp;
     }
 
-    async getFeed(userId: number, limit: number = 20, offset: number = 0) {
+    async getFeed(userId: number, offset: number) {
         return await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -55,10 +56,12 @@ export class UserService {
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.userId = :userId")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
             .setParameter("userId", userId)
+            .skip(offset)
+            .take(configService.getFeedLimit())
             .getMany();
     }
 
-    async getFollow(userId: number, limit: number = 5, offset: number = 0) {
+    async getFollow(userId: number, offset: number = 0) {
         const user = await this.repository.findOne({id: userId})
         const cabIds = user.cabildosIds.length ? user.cabildosIds : [0]
         const folIds = user.followingIds.length ? user.followingIds : [0]
@@ -76,7 +79,7 @@ export class UserService {
             .setParameter("userId", userId)
             .orderBy("activity.ping", "DESC")
             .skip(offset)
-            .take(limit)
+            .take(configService.getFeedLimit())
             .getMany();
     }
 

@@ -32,6 +32,10 @@ class ConfigService {
         return this.getValue('API_PORT');
     }
 
+    public getFeedLimit() {
+        return 20;
+    }
+
     public isProduction() {
         const mode = this.getValue('DEPLOY_ENV', false);
         return mode != 'development';

@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
 import { Activity } from '../activities/activity.entity';
 import { Cabildo } from './cabildo.entity';
+import { configService } from '../config/config.service.ts';
 
 @Injectable()
 export class CabildoService {
@@ -69,7 +70,7 @@ export class CabildoService {
         return cabildo;
     }
 
-    async getCabildoFeed(cabildoId: number, userId: number) {
+    async getCabildoFeed(cabildoId: number, userId: number, offset: number) {
         const feed = await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -81,6 +82,8 @@ export class CabildoService {
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
+            .skip(offset)
+            .take(configService.getFeedLimit())
             .getMany()
         return feed;
     }
