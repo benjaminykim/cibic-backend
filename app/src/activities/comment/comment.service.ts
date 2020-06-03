@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { 
+    Injectable,
+    NotFoundException,
+    HttpStatus,
+    HttpException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -11,6 +16,9 @@ export class CommentService {
     ) {}
 
     async insertComment(comment: Comment) {
+        // centralize these magic numbers into a config file or smth
+        if (comment && comment.content && comment.content.length > 500)
+            throw new HttpException('Payload Too Large', HttpStatus.PAYLOAD_TOO_LARGE);
         const result = await this.repository.save(comment);
         return result.id as number;
     }
