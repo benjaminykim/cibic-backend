@@ -2,7 +2,7 @@ import {
     Injectable,
     NotFoundException,
     ForbiddenException,
-    InternalServerErrorException,
+    UnprocessableEntityException,
 } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
@@ -33,8 +33,13 @@ export class CabildoService {
     async insertCabildo(cabildo: Cabildo) {
         const collision = await this.checkCabildoName(cabildo.name);
         if (collision)
-            throw new InternalServerErrorException();
+            throw new UnprocessableEntityException();
         const result = await this.repository.save(cabildo);
+        await this.repository
+            .createQueryBuilder()
+            .relation(Cabildo, "members")
+            .of(result.id)
+            .add(result.adminId)
         return result.id as number;
     }
 

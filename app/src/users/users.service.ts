@@ -2,7 +2,6 @@ import {
     Injectable,
     NotFoundException,
     UnprocessableEntityException,
-    InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../activities/activity.entity';
