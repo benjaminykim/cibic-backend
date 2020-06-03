@@ -36,7 +36,7 @@ describe('AppController (e2e)', () => {
         let oldTest = false;
         // To turn messsages on and off
         const debug = (s: any) => {
-            //console.error(s);
+            console.error(s);
         }
         // promise callback on document creation
         const idCheck = res => {
@@ -263,8 +263,8 @@ describe('AppController (e2e)', () => {
                 .send({userId: idB}).expect(201).catch(done);
             debug("followed user");
             // First user follows cabildo
-            const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
-                .send({cabildoId: idCab}).expect(201).catch(done);
+            //const AfollowC = await request(srv).post('/user/followcabildo').set(authA)
+            //    .send({cabildoId: idCab}).expect(201).catch(done);
             debug("followed cabildo");
             // An activity
             actA.activity['cabildoId'] = idCab;

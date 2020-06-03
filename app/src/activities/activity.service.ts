@@ -136,6 +136,7 @@ export class ActivityService {
         if (!activity) {
             throw new NotFoundException('Could not find activity.');
         }
+        console.log(activity.replies);
         return activity;
     }
 

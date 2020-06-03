@@ -147,6 +147,7 @@ export class ActivityController {
 
     @Put('vote')
     async updateVote(
+        @UserId() userId: number,
         @Body('voteId') voteId: number,
         @Body('value') newValue: number,
     ) {

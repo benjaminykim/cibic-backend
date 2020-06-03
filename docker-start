@@ -30,7 +30,7 @@ then
         echo "DO NOT RUN THIS ON EC2 IT WILL DESTROY THE DATABASE"
         exit 1;
     fi
-    ${EXEC} down;
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml down;
     ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
     if [ $? = '0' -a "${CMD}" = "${DEFAULT}" ]
     then
@@ -48,9 +48,6 @@ elif [ $ARG = "dev" -o $ARG = "prod" ]
 then
     ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml down;
     ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
-elif [ $ARG = "down" ]
-then
-    ${EXEC} down;
 else
     echo -e $USAGE;
 fi

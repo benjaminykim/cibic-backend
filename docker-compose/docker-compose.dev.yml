@@ -1,7 +1,7 @@
 version: "3.6"
 services:
   api:
-    command: start:populate
+    command: start
     ports:
       - "${API_PORT}:${API_PORT}"
     depends_on:
@@ -14,3 +14,8 @@ services:
       - "5432"
     env_file:
       - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data
+    
