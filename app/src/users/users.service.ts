@@ -66,6 +66,7 @@ export class UserService {
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
             .leftJoinAndSelect("comments.user", "cuser")
             .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
+            .leftJoinAndSelect("activity.savers", "savers", "savers.id = :userId")
             .setParameter("userId", userId)
             .getMany();
     }
@@ -95,6 +96,7 @@ export class UserService {
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
             .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId")
+            .leftJoinAndSelect("activity.savers", "savers", "savers.id = :userId")
             .setParameter("userId", userId)
             .orderBy("activity.ping", "DESC")
             .skip(offset)

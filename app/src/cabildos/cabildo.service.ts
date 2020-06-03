@@ -86,6 +86,7 @@ export class CabildoService {
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
+            .leftJoinAndSelect("activity.savers", "savers", "savers.id = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
             .getMany()
         return feed;
