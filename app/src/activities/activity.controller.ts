@@ -51,11 +51,11 @@ export class ActivityController {
     async addActivity(
         @UserId() userId: number,
         @Body('activity') activity: Activity,
-        @Body('tags') tags: string[],
+        @Body('tags') tags: { array: string[] },
     ) {
 
         // apply tag ids to activity
-        activity.tagIds = await this.tagService.matchTagArray(tags);
+        activity.tagIds = await this.tagService.matchTagArray(tags.array);
         if (activity.cabildoId) {
             await this.cabildoService.exists(activity.cabildoId);
         }

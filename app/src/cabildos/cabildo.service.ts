@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
 import { Activity } from '../activities/activity.entity';
 import { Cabildo } from './cabildo.entity';
-import { configService } from '../config/config.service.ts';
+import { configService } from '../config/config.service';
 
 @Injectable()
 export class CabildoService {

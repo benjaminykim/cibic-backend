@@ -29,6 +29,6 @@ export class TagController {
     ) {
         // take partial string, return array of Tag objects
         // based on provided prefix
-        return await this.tagService.possibleTags(partial);
+        return { tags: await this.tagService.possibleTags(partial) };
     }
 }
