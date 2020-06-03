@@ -89,7 +89,7 @@ export class ActivityController {
         @Param('activityId') activityId: number,
     ) {
         await this.activityService.exists(activityId);
-        return await this.activityService.getActivityById(userId, activityId);
+        return await this.activityService.getActivityById(activityId, userId);
     }
 
     @Put()

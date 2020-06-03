@@ -77,6 +77,7 @@ export class CabildoService {
             .where("activity.cabildo = :id", {id:cabildoId})
             .leftJoinAndSelect("activity.user", "auser")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.tags", "tags")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
             .orderBy("activity.ping", "DESC")

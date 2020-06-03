@@ -6,12 +6,12 @@ if ! [ -x "$(command -v docker-compose)" ]; then
 fi
 
 # our own script since we have a non trivial docker-compose scenario
-DOCKER_COMPOSE="./docker-start certbot"
+DOCKER_COMPOSE="env USER=ubuntu ./docker-start certbot"
 # localhost for dev testing, remove for prod, argify in the future?
-domains=(www.cibic.app)
+domains=(cibic.app)
 rsa_key_size=4096
 data_path="./data/certbot"
-email="cibic.media@gmail.com" # Adding a valid address is strongly recommended
+email="engineering@cibic.app" # Adding a valid address is strongly recommended
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then

@@ -57,11 +57,33 @@ export class ActivityService {
             .from(Activity, "activity")
             .leftJoinAndSelect("activity.user", "user")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.tags", "tags")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", {user: userId})
             .skip(offset)
             .take(limit)
             .getMany()
+    }
+
+    async getActivitySaved(userId: number, limit: number = 20, offset: number = 0) {
+        const user = await getRepository(User).findOne({id: userId})
+        if (!user.activitySavedIds.length)
+            return [];
+        const savfeed = await this.repository
+            .createQueryBuilder()
+            .select("activity")
+            .from(Activity, "activity")
+            .where("activity.id IN (:...activitySaved)", {activitySaved: user.activitySavedIds})
+            .leftJoinAndSelect("activity.user", "user")
+            .leftJoinAndSelect("activity.cabildo", "cabildo")
+            .leftJoinAndSelect("activity.tags", "tags")
+            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
+            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
+            .orderBy("activity.ping", "DESC")
+            .skip(offset)
+            .take(limit)
+            .getMany()
+        return savfeed;
     }
 
     async getActivityById(activityId: number, userId?: number) {
@@ -76,9 +98,11 @@ export class ActivityService {
                     .leftJoinAndSelect("activity.user", "user")
                     .leftJoinAndSelect("activity.cabildo", "cabildo")
                     .leftJoinAndSelect("activity.comments", "comments")
+                    .leftJoinAndSelect("activity.tags", "tags")
                     .leftJoinAndSelect("comments.user", "cuser")
                     .leftJoinAndSelect("comments.replies", "replies")
                     .leftJoinAndSelect("replies.user", "ruser")
+                    .leftJoinAndSelect("replies.taggedUser", "taggedUser")
                     .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", {userId: userId})
                     .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", {userId: userId})
                     .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
@@ -94,10 +118,12 @@ export class ActivityService {
                     .leftJoinAndSelect("activity.user", "user")
                     .leftJoinAndSelect("activity.cabildo", "cabildo")
                     .leftJoinAndSelect("activity.comments", "comments")
+                    .leftJoinAndSelect("activity.tags", "tags")
                     .leftJoinAndSelect("comments.user", "cuser")
                     .leftJoinAndSelect("comments.replies", "replies")
                     .leftJoinAndSelect("replies.user", "ruser")
                     .leftJoinAndSelect("replies.votes", "rvotes")
+                    .leftJoinAndSelect("replies.taggedUser", "taggedUser")
                     .leftJoinAndSelect("comments.votes", "cvotes")
                     .leftJoinAndSelect("activity.votes", "votes")
                     .leftJoinAndSelect("activity.reactions", "reactions")
@@ -206,26 +232,6 @@ export class ActivityService {
         else {
             throw new InternalServerErrorException("Cannot save same activity twice");
         }
-    }
-
-    async getActivitySaved(userId: number, limit: number = 20, offset: number = 0) {
-        const user = await getRepository(User).findOne({id: userId})
-        if (!user.activitySavedIds.length)
-            return [];
-        const savfeed = await this.repository
-            .createQueryBuilder()
-            .select("activity")
-            .from(Activity, "activity")
-            .where("activity.id IN (:...activitySaved)", {activitySaved: user.activitySavedIds})
-            .leftJoinAndSelect("activity.user", "user")
-            .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
-            .orderBy("activity.ping", "DESC")
-            .skip(offset)
-            .take(limit)
-            .getMany()
-        return savfeed;
     }
 
     async unsaveActivity(userId: number, activityId: number) {
