@@ -81,6 +81,7 @@ export class CabildoService {
             .leftJoinAndSelect("activity.tags", "tags")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
+            .leftJoinAndSelect("activity.savers", "savers", "savers.id = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
             .skip(offset)
             .take(configService.getFeedLimit())
