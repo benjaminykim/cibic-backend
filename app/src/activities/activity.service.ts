@@ -2,6 +2,8 @@ import {
     Injectable,
     NotFoundException,
     InternalServerErrorException,
+    HttpStatus,
+    HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
@@ -22,6 +24,9 @@ export class ActivityService {
     // Activity Flow
 
     async insertActivity(activity: Activity) {
+        // centralize these magic numbers to a config file or something
+        if (activity && activity.text && activity.text.length > 1500 || activity.title.length > 80)
+            throw new HttpException('Payload Too Large', HttpStatus.PAYLOAD_TOO_LARGE);
         const result = await this.repository.save(activity);
         return result.id as number;
     }

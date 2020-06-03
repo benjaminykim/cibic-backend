@@ -60,6 +60,12 @@ const comA2 = {
     },
     activityId: null,
 };
+const comLong = {
+    comment: {
+        content: 'Agregada la cobertura.ethwouqfhieufdbqoefqwoeiufgqwoeufigqwoeiufgqoweiufgqwoeiufgqwoeiufgqwoieufgqowiuefgqowiuegfqowiuegfqowiuegfqowiuegfoqiwuegfqowiugefqowiuegfqoiwuegfoqwiuegfoqiwugefqoiwugefoqwiugefqoiwuegfoqwugefqoiuwegfqowiuegfqowuegfoqiwugefqoiwugefoqwiuegfoqwiuegfqowiuegfoqwiuegfqowiuefgqwoieufgqowieufgqoiwuefgqoweiufgqowiuefgqowiuefgqowiuegfqowiuefgqwoiuegfqowiuefgqowiuefgqwoiuefgqwoiuefgoqwiuefgqwoiuefgqowiuegfqowiuegfoqwiuegfqowiuegfoiqurgfqoirgfwyregefgyr2yrbygryfgqoiuwegfy3rgfqiugwefo23ugefpqoiwugfwioeurgfhqweuiafkiwukybcrgfdbaliuacgerifg2wqieygdfqwieujdgfkuwejgkdfgsaalsiduhfqoiuerwgdsaiutg3fqweuigrtoi3uqwejgsdtiufkeqwjrgshdku',
+    },
+    activityId: null,
+};
 
 const actB = {
     activity: {
@@ -72,6 +78,19 @@ const actB = {
         "water",
     ]
 };
+
+const actLong = {
+    activity: {
+        activityType: 0,
+        title: 'Datos empresas de delivery (Stgo principalmente)',
+        text: 'hice una planillita con datos para pedir productos a domicilio, para el que no pueda salir a abastecerse. Hay que chequear la disponibilidad de entrega en las comunas. Se agradece su aporte con datos para agregarlos o correcciones en alguna info: https://docs.google.com/spreadsheets/d/1HCgcxJXbxsc7zTGW8UM5TaAC9CtvnjO5aPmXcqAoxaE/para el que no pueda salir a abastecerse. Hay que         chequear la disponibilidad de entrega en las comunas. Se agrade        ce su aporte con datos para agregarlos o correcciones en alguna         info: https://docs.google.com/spreadsheets/d/1HCgcxJXbxsc7zTGW8U        M5TaAC9CtvnjO5aPmXcqAoxaE/para el que no pueda salir a abastecerse. Hay que         chequear la disponibilidad de entrega en las comunas. Se agrade        ce su aporte con datos para agregarlos o correcciones en alguna         info: https://docs.google.com/spreadsheets/d/1HCgcxJXbxsc7zTGW8U        M5TaAC9CtvnjO5aPmXcqAoxaE/para el que no pueda salir a abastecerse. Hay que         chequear la disponibilidad de entrega en las comunas. Se agrade        ce su aporte con datos para agregarlos o correcciones en alguna         info: https://docs.google.com/spreadsheets/d/1HCgcxJXbxsc7zTGW8U        M5TaAC9CtvnjO5aPmXcqAoxaE/para el que no pueda salir a abastecerse. Hay que         chequear la disponibilidad de entrega en las comunas. Se agrade        ce su aporte con datos para agregarlos o correcciones en alguna         info: https://docs.google.com/spreadsheets/d/1HCgcxJXbxsc7zTGW8U        M5TaAC9CtvnjO5aPmXcqAoxaE/',
+    },
+    tags: [
+        "actividad",
+        "water",
+    ]
+};
+
 const comB0 = {
     comment: {
         content: 'Igual tiene que agregar un dato importante que es la cobertura.',
@@ -250,4 +269,5 @@ export {
     badSearchC, badSearchD,
     tagSearchA, tagSearchB,
     reply,
+    comLong, actLong,
 };

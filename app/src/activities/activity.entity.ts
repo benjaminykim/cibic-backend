@@ -53,10 +53,14 @@ export class Activity {
     @CreateDateColumn() // select
     public publishDate: Date;
 
-    @Column() // select
+    @Column({
+        length: 80,
+    }) // select
     public title: string;
 
-    @Column() // select
+    @Column({
+        length: 1500,
+    })
     public text: string;
 
     //// Relations ////
