@@ -8,6 +8,7 @@ import {
     Controller,
     Post,
     Body,
+    Param,
     Get,
     UseGuards,
     NotFoundException,
@@ -38,20 +39,22 @@ export class SearchController {
         private readonly tagService: TagService,
     ) {}
 
-    @Get()
+    @Get(':offset')
     async reqSearchHistory(
         @UserId() userId: number,
+        @Param('offset') offset: number,
     ) {
-        const ret = await this.searchService.searchHistory(userId);
+        const ret = await this.searchService.searchHistory(userId, offset);
         if (ret.length == 0)
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
         return (ret);
     }
 
-    @Post('users')
+    @Post('users/:offset')
     async reqSearchUsers(
         @UserId() userId: number,
         @Body('search') search: Search,
+        @Param('offset') offset: number,
     ) {
         if (!search.query || search.query == "") {
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
@@ -59,16 +62,17 @@ export class SearchController {
         search.userId = userId;
         search.qtype = SearchTypes.Users;
         await this.searchService.saveQuery(search);
-        const ret = await this.searchService.searchUsers(search);
+        const ret = await this.searchService.searchUsers(search, offset);
         if (ret.length == 0)
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
         return ret;
     }
 
-    @Post('activities')
+    @Post('activities/:offset')
     async reqSearchActivities(
         @UserId() userId: number,
         @Body('search') search: Search,
+        @Param('offset') offset: number,
     ) {
         if (!search.query || search.query == "") {
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
@@ -76,16 +80,17 @@ export class SearchController {
         search.userId = userId;
         search.qtype = SearchTypes.Activities;
         await this.searchService.saveQuery(search);
-        const ret = await this.searchService.searchActivities(search);
+        const ret = await this.searchService.searchActivities(search, offset);
         if (ret.length == 0)
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
         return ret;
     }
 
-    @Post('cabildos')
+    @Post('cabildos/:offset')
     async reqSearchCabildos(
         @UserId() userId: number,
         @Body('search') search: Search,
+        @Param('offset') offset: number,
     ) {
         if (!search.query || search.query == "") {
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
@@ -93,16 +98,17 @@ export class SearchController {
         search.userId = userId;
         search.qtype = SearchTypes.Cabildos;
         await this.searchService.saveQuery(search);
-        const ret = await this.searchService.searchCabildos(search);
+        const ret = await this.searchService.searchCabildos(search, offset);
         if (ret.length == 0)
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
         return ret;
     }
 
-    @Post('tag')
+    @Post('tag/:offset')
     async reqSearchByTag(
         @UserId() userId: number,
         @Body('search') search: Search,
+        @Param('offset') offset: number,
     ) {
 
         // save query to history
@@ -117,7 +123,7 @@ export class SearchController {
         if (!target)
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
 
-        const ret = await this.searchService.searchByTag(target, userId);
+        const ret = await this.searchService.searchByTag(target, userId, offset);
         if (ret.length == 0)
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
         return ret;

@@ -2,14 +2,14 @@ import {
     Injectable,
     NotFoundException,
     ForbiddenException,
-    InternalServerErrorException,
+    UnprocessableEntityException,
 } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
 import { Activity } from '../activities/activity.entity';
-import { Comment } from '../activities/comment/comment.entity';
 import { Cabildo } from './cabildo.entity';
+import { configService } from '../config/config.service';
 
 @Injectable()
 export class CabildoService {
@@ -34,8 +34,13 @@ export class CabildoService {
     async insertCabildo(cabildo: Cabildo) {
         const collision = await this.checkCabildoName(cabildo.name);
         if (collision)
-            throw new InternalServerErrorException();
+            throw new UnprocessableEntityException();
         const result = await this.repository.save(cabildo);
+        await this.repository
+            .createQueryBuilder()
+            .relation(Cabildo, "members")
+            .of(result.id)
+            .add(result.adminId)
         return result.id as number;
     }
 
@@ -65,14 +70,7 @@ export class CabildoService {
         return cabildo;
     }
 
-    async getCabildoFeed(cabildoId: number, userId: number) {
-        const topThree = getRepository(Comment)
-            .createQueryBuilder()
-            .select("comments.id")
-            .from(Comment, "comments")
-            .where("comments.activityId = activity.id")
-            .orderBy("comments.score", "DESC")
-            .take(3)
+    async getCabildoFeed(cabildoId: number, userId: number, offset: number) {
         const feed = await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -80,14 +78,13 @@ export class CabildoService {
             .where("activity.cabildo = :id", {id:cabildoId})
             .leftJoinAndSelect("activity.user", "auser")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments",
-                               `comments.id IN (${topThree.getQuery()})`)
-            .leftJoinAndSelect("comments.user", "cuser")
+            .leftJoinAndSelect("activity.tags", "tags")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
             .leftJoinAndSelect("activity.savers", "savers", "savers.id = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
+            .skip(offset)
+            .take(configService.getFeedLimit())
             .getMany()
         return feed;
     }

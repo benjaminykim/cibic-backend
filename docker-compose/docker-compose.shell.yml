@@ -6,3 +6,13 @@ services:
       - DEPLOY_ENV=production
     ports:
       - "${API_PORT}:${API_PORT}"
+    depends_on:
+      - db
+    links:
+      - db
+  db:
+    image: postgres:12.2-alpine
+    expose:
+      - "5432"
+    env_file:
+      - .env

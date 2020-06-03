@@ -51,11 +51,11 @@ export class ActivityController {
     async addActivity(
         @UserId() userId: number,
         @Body('activity') activity: Activity,
-        @Body('tags') tags: string[],
+        @Body('tags') tags: { array: string[] },
     ) {
 
         // apply tag ids to activity
-        activity.tagIds = await this.tagService.matchTagArray(tags);
+        activity.tagIds = await this.tagService.matchTagArray(tags.array);
         if (activity.cabildoId) {
             await this.cabildoService.exists(activity.cabildoId);
         }
@@ -75,12 +75,12 @@ export class ActivityController {
         return { id: activityId };
     }
 
-    @Get('public')
+    @Get('public/:offset')
     async getPublicFeed(
         @UserId() userId: number,
+        @Param('offset') offset: number,
     ) {
-        const tmp = await this.activityService.getPublicFeed(userId);
-        return tmp;
+        return await this.activityService.getPublicFeed(userId, offset);
     }
 
     @Get(':activityId')
@@ -89,7 +89,7 @@ export class ActivityController {
         @Param('activityId') activityId: number,
     ) {
         await this.activityService.exists(activityId);
-        return await this.activityService.getActivityById(userId, activityId);
+        return await this.activityService.getActivityById(activityId, userId);
     }
 
     @Put()
@@ -401,11 +401,12 @@ export class ActivityController {
         await this.activityService.saveActivity(userId, activityId);
     }
 
-    @Get('save/feed') // http://localhost:3000/activity/save/feed
+    @Get('save/feed/:offset') // http://localhost:3000/activity/save/feed
     async getActSaved(
         @UserId() userId: number,
+        @Param('offset') offset: number,
     ) {
-        return await this.activityService.getActivitySaved(userId);
+        return await this.activityService.getActivitySaved(userId, offset);
     }
 
     @Post('unsave') // http://localhost:3000/activity/unsave

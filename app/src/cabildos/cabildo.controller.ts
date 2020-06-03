@@ -44,12 +44,13 @@ export class CabildoController {
         return "Could not find ${cabildoName}";
     }
 
-    @Get('feed/:cabildoId') // http://localhost:3000/cabildo/feed/:id
+    @Get('feed/:cabildoId/:offset') // http://localhost:3000/cabildo/feed/:id
     async getCabildoFeed(
         @UserId() userId: number,
         @Param('cabildoId') cabildoId: number,
+        @Param('offset') offset: number,
     ) {
-        return this.cabildoService.getCabildoFeed(cabildoId, userId);
+        return this.cabildoService.getCabildoFeed(cabildoId, userId, offset);
     }
 
     @Get('profile/:cabildoId') // http://localhost:3000/cabildo/profile/:id

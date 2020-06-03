@@ -9,6 +9,7 @@ import { User } from '../users/users.entity';
 import { Activity } from '../activities/activity.entity';
 import { Cabildo } from '../cabildos/cabildo.entity';
 import { Tag } from '../tag/tag.entity';
+import { configService } from '../config/config.service';
 
 @Injectable()
 export class SearchService {
@@ -18,7 +19,7 @@ export class SearchService {
         return await this.repository.save(s);
     }
 
-    async searchByTag(tag: Tag, userId: number, limit: number = 20, offset: number = 0) {
+    async searchByTag(tag: Tag, userId: number, offset: number) {
         if (!tag.activityIds)
             return [] as number[];
         return await getRepository(Activity)
@@ -28,24 +29,19 @@ export class SearchService {
             .where("activity.id IN (:...ids)", { ids: tag.activityIds })
             .leftJoinAndSelect("activity.user", "auser")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("activity.tags", "tags")
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
-            .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
-            .leftJoinAndSelect("replies.user", "ruser")
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
             .orderBy("activity.ping", "DESC")
             .cache(60000)
             .skip(offset)
-            .take(limit)
+            .take(configService.getFeedLimit())
             .setParameter("q", tag.label)
             .setParameter("userId", userId)
             .getMany();
     }
 
-    async searchHistory(userId: number, limit: number = 20, offset: number = 0) {
+    async searchHistory(userId: number, offset: number) {
         return await getRepository(Search)
             .createQueryBuilder()
             .select("search")
@@ -54,12 +50,12 @@ export class SearchService {
             .orderBy("search.date", "DESC")
             .cache(60000)
             .skip(offset)
-            .take(limit)
+            .take(configService.getFeedLimit())
             .setParameter("id", userId)
             .getMany();
     }
 
-    async searchUsers(s: Search, limit: number = 20, offset: number = 0) {
+    async searchUsers(s: Search, offset: number) {
         return await getRepository(User)
             .createQueryBuilder()
             .select("user")
@@ -68,13 +64,13 @@ export class SearchService {
             .orWhere("user.lastName ilike :q")
             .cache(60000)
             .skip(offset)
-            .take(limit)
+            .take(configService.getFeedLimit())
             .setParameter("q", `%${s.query}%`)
             .printSql()
             .getMany();
     }
 
-    async searchActivities(s: Search,  limit: number = 20, offset: number = 0) {
+    async searchActivities(s: Search, offset: number) {
         return await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -85,25 +81,20 @@ export class SearchService {
             .orWhere("to_tsvector(activity.title) @@ to_tsquery(concat(quote_literal(quote_literal(:q)), ':*'))")
             .leftJoinAndSelect("activity.user", "auser")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
+            .leftJoinAndSelect("activity.tags", "tags")
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
-            .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
-            .leftJoinAndSelect("replies.user", "ruser")
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
             .orderBy("activity.ping", "DESC")
             .cache(60000)
             .skip(offset)
-            .take(limit)
+            .take(configService.getFeedLimit())
         //.setParameter("q", `%${s.query}%`)
             .setParameter("q", s.query)
             .setParameter("userId", s.userId)
             .getMany();
     }
 
-    async searchCabildos(s: Search, limit: number = 20, offset: number = 0) {
+    async searchCabildos(s: Search, offset: number) {
         return await getRepository(Cabildo)
             .createQueryBuilder()
             .select("cabildo")
@@ -114,7 +105,7 @@ export class SearchService {
             .orWhere("to_tsvector(cabildo.name) @@ to_tsquery(concat(quote_literal(quote_literal(:tq)), ':*'))")
             .cache(60000)
             .skip(offset)
-            .take(limit)
+            .take(configService.getFeedLimit())
         //.setParameter("q", `%${s.query}%`)
             .setParameter("tq", s.query)
             .getMany();
