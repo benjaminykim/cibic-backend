@@ -217,6 +217,15 @@ export class ActivityService {
                 .relation(User, 'activitySaved')
                 .of(userId)
                 .add(activityId);
+
+            //find a better/faster way to do this
+            await getRepository(Activity)
+                .createQueryBuilder()
+                .update(Activity)
+                .set({ isSaved: true })
+                .where("activity.id = :id")
+                .setParameter("id", activityId)
+                .execute();
         }
         else {
             throw new InternalServerErrorException("Cannot save same activity twice");

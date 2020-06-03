@@ -63,6 +63,12 @@ export class Activity {
     })
     public text: string;
 
+    @Column({
+        type: 'boolean',
+        default: false,
+    })
+    public isSaved: boolean;
+
     //// Relations ////
 
     @ManyToOne( // select
