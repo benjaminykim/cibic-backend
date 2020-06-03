@@ -45,19 +45,13 @@ export class ActivityService {
         return true;
     }
 
-    async getPublicFeed(userId: number, limit: number = 5, offset: number = 0) {
+    async getPublicFeed(userId: number, limit: number = 20, offset: number = 0) {
         return await this.repository
             .createQueryBuilder()
             .select("activity")
             .from(Activity, "activity")
             .leftJoinAndSelect("activity.user", "user")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
-            .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("replies.user", "ruser")
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", {userId: userId})
-            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", {userId: userId})
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", {user: userId})
             .skip(offset)
@@ -209,7 +203,7 @@ export class ActivityService {
         }
     }
 
-    async getActivitySaved(userId: number, limit: number = 5, offset: number = 0) {
+    async getActivitySaved(userId: number, limit: number = 20, offset: number = 0) {
         const user = await getRepository(User).findOne({id: userId})
         if (!user.activitySavedIds.length)
             return [];
@@ -220,13 +214,7 @@ export class ActivityService {
             .where("activity.id IN (:...activitySaved)", {activitySaved: user.activitySavedIds})
             .leftJoinAndSelect("activity.user", "user")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
-            .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("replies.user", "ruser")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", { userId: userId})
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
             .skip(offset)

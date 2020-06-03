@@ -151,8 +151,8 @@ describe('AppController (e2e)', () => {
                     {
                         reply: {
                             content: `This is reply ${i}`,
-                        commentId: idComE2,
-                        activityId: idActE,
+                            commentId: idComE2,
+                            activityId: idActE,
                         },
 
                     }
@@ -161,7 +161,7 @@ describe('AppController (e2e)', () => {
             debug("posted replies")
             const reactDos = {
                 reaction: {
-                activityId: idActD,
+                    activityId: idActD,
                     value: 2,
                 }
             };
@@ -193,7 +193,7 @@ describe('AppController (e2e)', () => {
                 .send({vote:{activityId: idActA,commentId: idComA0,userId:idB,value:1}})
                 .expect(201).catch(done);
             debug("comment voted")
-            done();
+            done()
         } else {
 
             // First user
@@ -228,7 +228,7 @@ describe('AppController (e2e)', () => {
                 const defaultUserDesc = "Ciudadano Nuevo";
                 getUserA =  await request(srv).get('/user/' + idA).set(authA).expect(200).catch(done);
                 expect(getUserA.body.desc).toBe(defaultUserDesc);
-              
+
                 // Update user A description with a new string; check if user description is updated
                 const userDescNew = "this is the new description";
                 await request(srv).put(`/user/description`).set(authA).send({newDesc: userDescNew}).expect(200).catch(done);
@@ -309,8 +309,8 @@ describe('AppController (e2e)', () => {
                         userId: idA,
                         content: 'This is a reply with an invalid ID',
                         taggedUserId: 12345,
-                    commentId: idComA0,
-                    activityId: idActA,
+                        commentId: idComA0,
+                        activityId: idActA,
                     },
                 }
             ).expect(404).then(idCheck).catch(done);
@@ -327,7 +327,7 @@ describe('AppController (e2e)', () => {
             // A Reaction
             const react = {
                 reaction: {
-                activityId: idActA,
+                    activityId: idActA,
                     value: 2,
                 }
             };
@@ -363,12 +363,7 @@ describe('AppController (e2e)', () => {
                 let com = act.comments[0];
                 expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(1);
-                expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Comment');
-                let rep = com.replies[0];
-                expect(rep.user.firstName).toBe(userA.user.firstName)
-                expect(rep.score).toBe(1);
-                expect(rep.content).toBe('This is a reply');
                 debug("user feed is good");
             }
 
@@ -399,12 +394,7 @@ describe('AppController (e2e)', () => {
                 const com = act.comments[0];
                 expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(1);
-                expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Comment');
-                const rep = com.replies[0];
-                expect(rep.user.firstName).toBe(userA.user.firstName)
-                expect(rep.score).toBe(1);
-                expect(rep.content).toBe('This is a reply');
                 debug("activity-saved feed is good");
             }
 
@@ -530,9 +520,10 @@ describe('AppController (e2e)', () => {
                 const com = act.comments[0];
                 expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(-1);
-                expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Update');
-                const rep = com.replies[0];
+
+                const fullAct = await request(srv).get(`/activity/${act.id}`).set(authA).expect(200).catch(done)
+                    const rep = fullAct.body.comments[0].replies[0];
                 expect(rep.user.firstName).toBe(userA.user.firstName)
                 expect(rep.score).toBe(-1);
                 expect(rep.content).toBe('Update');
@@ -544,11 +535,7 @@ describe('AppController (e2e)', () => {
                 debug("getting comment")
                 const gCheckCom = await request(srv).get(`/activity/comment/${idComA0}`).set(authA).expect(200).catch(done);
                 const gCom = gCheckCom.body;
-                expect(gCom).toStrictEqual(com);
-                debug("getting activity")
-                const gCheckAct = await request(srv).get(`/activity/${idActA}`).set(authA).expect(200).catch(done);
-                const gAct = gCheckAct.body;
-                expect(gAct).toStrictEqual(act);
+                expect(gCom).toStrictEqual(fullAct.body.comments[0]);
             }
             debug("made it through /user/home")
             // Delete votes and reactions
@@ -580,12 +567,7 @@ describe('AppController (e2e)', () => {
                 const com = act.comments[0];
                 expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(0);
-                expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Update');
-                const rep = com.replies[0];
-                expect(rep.user.firstName).toBe(userA.user.firstName)
-                expect(rep.score).toBe(0);
-                expect(rep.content).toBe('Update');
                 debug("made it through post-delete feed")
             }
 
@@ -606,7 +588,6 @@ describe('AppController (e2e)', () => {
                 const com = act.comments[0];
                 expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(0);
-                expect(com.replies).toHaveLength(0);
                 expect(com.content).toBe('Update');
             }
 
@@ -706,12 +687,7 @@ describe('AppController (e2e)', () => {
                 const com = act.comments[0];
                 expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(1);
-                expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Comment');
-                const rep = com.replies[0];
-                expect(rep.user.firstName).toBe(userA.user.firstName)
-                expect(rep.score).toBe(1);
-                expect(rep.content).toBe('This is a reply');
                 debug("got fed")
                 const RdelCom = await request(srv).delete('/activity/comment').set(authA)
                     .send({commentId: RidComA0}).expect(200).catch(done);
@@ -727,7 +703,7 @@ describe('AppController (e2e)', () => {
                 expect(qAct.ping).toBe(2);
                 debug("del com good")
                 const gCom = await request(srv).get(`/activity/comment/${com.id}`).set(authA).expect(404).catch(done);
-                const gRep = await request(srv).get(`/activity/reply/${rep.id}`).set(authA).expect(404).catch(done);
+                const gRep = await request(srv).get(`/activity/reply/${RreplyId}`).set(authA).expect(404).catch(done);
             }
 
             // Delete a comment
@@ -784,12 +760,7 @@ describe('AppController (e2e)', () => {
                 const com = act.comments[0];
                 expect(com.user.firstName).toBe(userA.user.firstName)
                 expect(com.score).toBe(1);
-                expect(com.replies).toHaveLength(1);
                 expect(com.content).toBe('Comment');
-                const rep = com.replies[0];
-                expect(rep.user.firstName).toBe(userA.user.firstName)
-                expect(rep.score).toBe(1);
-                expect(rep.content).toBe('This is a reply');
 
                 debug("feed still good")
                 // This is what the second user will see
@@ -809,15 +780,6 @@ describe('AppController (e2e)', () => {
                                 {}, // dont mutate original
                                 userFeedA.body[0].comments[0],
                                 {
-                                    replies: [
-                                        Object.assign(
-                                            {},
-                                            userFeedA.body[0].comments[0].replies[0],
-                                            {
-                                                votes: [],
-                                            },
-                                        ),
-                                    ],
                                     votes: [],
                                 },
                             ),
@@ -846,7 +808,7 @@ describe('AppController (e2e)', () => {
                 let cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
                 debug("got cab profile")
                 expect(cabProfile.body.name).toStrictEqual(cabName);
-                
+
                 {
                     // Check the default cabildo description
                     const cabDescA = cabA.cabildo.desc;
@@ -864,14 +826,14 @@ describe('AppController (e2e)', () => {
                     cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
                     expect(cabProfile.body.desc).toStrictEqual(cabDescA);
                     debug("cabildo description authentication is good")
-                    
+
                     // User A (admin) update cabildo description
                     await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescB}).expect(200).catch(done);
                     // Check if cabildo description was updated
                     cabProfile = await request(srv).get(`/cabildo/profile/${idCab}`).set(authB).expect(200).catch(done);
                     expect(cabProfile.body.desc).toStrictEqual(cabDescB);
                     debug("cabildo description properly updated by admin")
-                    
+
                     // Update cabildo description with an empty string
                     const cabDescC = "";
                     await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescC}).expect(200).catch(done);
@@ -882,8 +844,8 @@ describe('AppController (e2e)', () => {
 
                     // Update cabildo description to the default
                     await request(srv).put(`/cabildo/description/${idCab}`).set(authA).send({newDesc:cabDescA}).expect(200).catch(done);
-                }   
-                
+                }
+
                 const cabFeed = await request(srv).get(`/cabildo/feed/${idCab}`).set(authB).expect(200).catch(done);
                 debug("got cab feed")
                 expect(cabFeed.body[0]).toStrictEqual(actualBView);
@@ -1031,7 +993,7 @@ describe('AppController (e2e)', () => {
             debug(tagSearchResD.body);
             debug(tagSearchResE.body);
             debug(tagSearchResF.body);
-        
+
             // Goodbye!
             done();
         }

@@ -43,7 +43,7 @@ export class UserService {
         return tmp;
     }
 
-    async getFeed(userId: number, limit: number = 5, offset: number = 0) {
+    async getFeed(userId: number, limit: number = 20, offset: number = 0) {
         return await getRepository(Activity)
             .createQueryBuilder()
             .select("activity")
@@ -51,14 +51,8 @@ export class UserService {
             .where('activity.user = :id', { id: userId})
             .leftJoinAndSelect("activity.user", "auser")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.userId = :userId")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
-            .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
-            .leftJoinAndSelect("replies.user", "ruser")
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
             .setParameter("userId", userId)
             .getMany();
     }
@@ -75,19 +69,13 @@ export class UserService {
             .orWhere("activity.user IN (:...following)", {following: folIds})
             .leftJoinAndSelect("activity.user", "user")
             .leftJoinAndSelect("activity.cabildo", "cabildo")
-            .leftJoinAndSelect("activity.comments", "comments")
-            .leftJoinAndSelect("comments.user", "cuser")
-            .leftJoinAndSelect("comments.replies", "replies")
-            .leftJoinAndSelect("replies.user", "ruser")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId")
-            .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId")
-            .leftJoinAndSelect("replies.votes", "rvotes", "rvotes.userId = :userId")
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :userId")
             .setParameter("userId", userId)
             .orderBy("activity.ping", "DESC")
             .skip(offset)
             .take(limit)
-            .getMany()
+            .getMany();
     }
 
     // update idFollower's activityFeed with query of idFollowed
