@@ -15,6 +15,7 @@ import {
     badSearchC, badSearchD,
     tagSearchA, tagSearchB,
     reply,
+    comLong, actLong,
 } from './mockData';
 
 Error.stackTraceLimit=100;
@@ -270,12 +271,21 @@ describe('AppController (e2e)', () => {
             const idActA = await request(srv).post('/activity').set(authA).send(actA)
                 .expect(201).then(idCheck).catch(done);
 
+            // Long activity
+            actLong.activity['cabildoId'] = idCab;
+            const longActRes = await request(srv).post('/activity').set(authA).send(actLong).expect(413).catch(done);
+
             debug("made activity");
             // A comment
-            comA0.activityId = idActA;
+            comLong.activityId = comA0.activityId = idActA;
             const idComA0 = await request(srv).post('/activity/comment').set(authA).send(comA0)
                 .expect(201).then(idCheck).catch(done);
             debug("made comment");
+
+            //long comment
+            const resLongCom = await request(srv).post('/activity/comment').set(authA).send(comLong).expect(413).catch(done);
+            debug("verified response of too-long comment");
+
             // A Reply
             const replyId = await request(srv).post('/activity/reply').set(authA).send(
                 {
@@ -288,6 +298,18 @@ describe('AppController (e2e)', () => {
                 }
             ).expect(201).then(idCheck).catch(done);
             debug("made reply");
+
+            // long reply
+            const resLongReply = await request(srv).post('/activity/reply').set(authA).send(
+                {
+                    reply: {
+                        userId: idA,
+                        content: 'this is a really long reply, far too long for any person to reasonably put in our app. its so long that if i were reading it i would just stop reading, like tl;dr right? like its actually hard to fill up even just this space with text. ffffffffffffffff see that took a whole second like wow gosh darn diggity holy god dang. still typing. hoping that this is long enough to trigger the Payload Too Large (413) error that im hoping to see after this test. if you see this you owe alex a pizza. this is a legally binding contract and youve signed already see look? -yourname look there it is right there its your name fufufufu~ aaaaaaaaa why am i still typing is this 500 characters yet? probably. this is done.',
+                        commentId: idComA0,
+                        activityId: idActA,
+                    },
+                }
+            ).expect(413).catch(done);
 
             // Post reply with valid Id tag
             const replyTagValid = await request(srv).post('/activity/reply').set(authA).send(

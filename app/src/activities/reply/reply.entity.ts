@@ -23,7 +23,9 @@ export class Reply {
     @CreateDateColumn()
     public publishDate: Date;
 
-    @Column() // select
+    @Column({
+        length: 500,
+    }) // select
     public content: string;
 
     @Column({default: 0}) // select
