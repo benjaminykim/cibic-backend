@@ -131,6 +131,17 @@ export class StatisticsService {
             .add(actId);
     }
 
+    async getCurrentStat(limit: number = 1, offset: number = 0) {
+        return await this.repository
+            .createQueryBuilder()
+            .select('statistics')
+            .from(Statistics, "statistics")
+            .orderBy("statistics.id", "DESC")
+            .skip(offset)
+            .take(limit)
+            .getOne()
+    }
+    
     // stat.activeUsers = await this.getRandomNumberBetween(20, 400);
     // stat.activeCabildos = await this.getRandomNumberBetween(20, 400);
     // stat.activeActivities = await this.getRandomNumberBetween(20, 400);
