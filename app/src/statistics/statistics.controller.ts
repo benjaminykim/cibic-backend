@@ -19,7 +19,6 @@ export class StatisticsController {
     @Post() // http;//localhost:3000/statistics
     async addStatistics(
     ) {
-        //await this.statisticsService.insertStatisticsTemp();
         await this.statisticsService.insertStatistics();
     }
 
