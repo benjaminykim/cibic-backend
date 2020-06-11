@@ -875,9 +875,9 @@ describe('AppController (e2e)', () => {
             const deleteCabildoOkay = await request(srv).delete('/cabildo/' + idCabB).set(authA).expect(200).catch(done); // return ok, cabildo deleted
             debug("cabildo stuff done")
 
-            // 20 users, 20 cabildos and 20 activities
+            // 20 users, 7 cabildos and 18 activities.
             
-            // Prepare data in arrays
+            // Prepare data in arrays.
             const emails : string [] = ["1@gmail.fake", "2@gmail.fake", "3@gmail.fake", "4@gmail.fake", 
             "5@gmail.fake", "6@gmail.fake", "7@gmail.fake", "8@gmail.fake", "9@gmail.fake", "10@gmail.fake", 
             "11@gmail.fake", "12@gmail.fake", "13@gmail.fake", "14@gmail.fake", "15@gmail.fake", "16@gmail.fake", 
@@ -909,9 +909,18 @@ describe('AppController (e2e)', () => {
 
             const texts : string [] = ["Texto 1", "Texto 2", "Texto 3", "Texto 4", "Texto 5", "Texto 6", "Texto 7", 
             "Texto 8", "Texto 9", "Texto 10", "Texto 11", "Texto 12", "Texto 13", "Texto 14", "Texto 15", "Texto 16", 
-            "Texto 17", "Texto 18", "Texto 19", "Texto 20"] 
+            "Texto 17", "Texto 18", "Texto 19", "Texto 20"]; 
             
-            // data tranfer objects
+            const pings : number [] = [10203, 9193, 8183, 7173, 6163, 5153, 4143, 3133, 2123, 1113, 103, 93, 83, 73, 63, 53, 43, 33];  
+            
+            const today : number = new Date().getTime();
+            
+            const day : number = 86400000;
+            
+            const dates : number [] = [today - (day * 10), today - (day * 9), today - (day * 8), today - (day * 7), today - (day * 6),
+            today - (day * 5), today - (day * 4), today - (day * 3), today - (day * 2), today - (day * 1),];   
+
+	        // Data tranfer objects.
             const userX = {
                 user: {
                     email: '',
@@ -936,30 +945,31 @@ describe('AppController (e2e)', () => {
                     title: '',
                     text: '',
                     publishDate: new Date(),
+		            ping: 0,
                 },
             };
             
-            // creation of 20 users, 7 cabildos and 18 activities,
-            // every cabildo has a different author,
-            // every author creates one or two activities on his own cabildo,
-            // some users that didnt create any cabildo create one activity.
+            // Creation of 20 users, 7 cabildos and 18 activities.
+            // Every cabildo has a different author.
+            // Every author creates one or two activities on his own cabildo.
+            // Some users who didn't create any cabildo create one activity.
             
             let i = 0;
             let j = 0;
             let k = 0;
             while (i < 20) {
-                // cabildo-admin-user creation
+                // Cabildo-admin-user creation.
                 userX.user.email = emails[i];
                 userX.user.firstName = firstNames[i];
                 userX.user.lastName = lastNames[i];
                 userX.user.phone = phones[i];
                 await request(srv).post('/user').send(userX).expect(201).then(idCheck).catch(done);
-                // user login
+                // User login.
                 let authXRes = await request(srv).post('/auth/login').send({password: userX.user.password, 
                 email: userX.user.email}).expect(201).catch(done);
                 let authX = {'Authorization': `Bearer ${authXRes.body.access_token}`};
 
-                // cabildo creation
+                // Cabildo creation.
                 if (i % 3 == 0) {
                     cabX.cabildo.name = cabNames[j];
                     cabX.cabildo.location = locations[j];
@@ -967,63 +977,117 @@ describe('AppController (e2e)', () => {
                     let cabXId = await request(srv).post('/cabildo').set(authX).send(cabX).expect(201).then(idCheck).catch(done);
                     j += 1;
                     
-                    // activity creation by cabildo-admin
+                    // Activity creation by cabildo-admin.
                     let loop = i % 3 == 0 && i % 2 == 0 ? 2 : 1;
                     while (loop) {
                         actX.activity.title = titles[k];
                         actX.activity.text = texts[k];
+			            actX.activity.ping = pings[k];
                         if (k < 10)
-                            actX.activity.publishDate = new Date("2020-06-01");
+                            actX.activity.publishDate = new Date(dates[k]);
                         else
-                            actX.activity.publishDate = new Date();
+                            actX.activity.publishDate = new Date(today);
                         actX.activity['cabildoId'] = cabXId;
                         await request(srv).post('/activity').set(authX).send(actX).expect(201).then(idCheck).catch(done);
                         k += 1;
                         loop -= 1;
                     }
                     
-                    // non-cabildo-admin-user creation
+                    // Non-cabildo-admin-user creation.
                     i += 1;
                     userX.user.email = emails[i];
                     userX.user.firstName = firstNames[i];
                     userX.user.lastName = lastNames[i];
                     userX.user.phone = phones[i];
                     await request(srv).post('/user').send(userX).expect(201).then(idCheck).catch(done);
-                    // user login
+                    // User login.
                     authXRes = await request(srv).post('/auth/login').send({password: userX.user.password, 
                     email: userX.user.email}).expect(201).catch(done);
                     authX = {'Authorization': `Bearer ${authXRes.body.access_token}`};
                     
-                    // activity creation by non-cabildo-admin
+                    // Activity creation by non-cabildo-admin.
                     actX.activity.title = titles[k];
                     actX.activity.text = texts[k];
+		            actX.activity.ping = pings[k];
                     if (k < 10)
-                        actX.activity.publishDate = new Date("2020-06-01");
+                        actX.activity.publishDate = new Date(dates[k]);
                     else
-                        actX.activity.publishDate = new Date();
+                        actX.activity.publishDate = new Date(today);
                     actX.activity['cabildoId'] = cabXId;
                     await request(srv).post('/activity').set(authX).send(actX).expect(201).then(idCheck).catch(done);
                     k += 1;
                 }
                 i += 1;
             }
+            debug("database populated with 20 more users, 7 more cabildos and 18 more activities");
 
-            // Generate three statistics
-            // active Users: 7, active Cabildos: 4, active Activities: 9.
+            // Generate three statistics. 
+            // Active Users: 7, active Cabildos: 4, active Activities: 9.
+            // Trending Users: 15, 16, 18, 19, 21. Trending Cabildos: 7, 8, 6, 9, 5. Trending Activities: 13, 14, 15, 16, 17, 18, 12, 11, 19, 10.
             await request(srv).post('/statistics').expect(201).catch(done);
             await request(srv).post('/statistics').expect(201).catch(done);
             await request(srv).post('/statistics').expect(201).catch(done);
             debug("three statistics generated");
 
-            // Get generated statistics and test each field
-            const userAGetStat = await request(srv).get(`/statistics/`).expect(200).catch(done);
+            // Fake user try to get statistics.
+            const authFake = {'Authorization': `9999`};
+            await request(srv).get(`/statistics`).set(authFake).expect(401).catch(done);
+            debug("fake user can't get statistics");
+
+            // UserA get the last generated statistics, and test each field.
+            const userAGetStat = await request(srv).get(`/statistics`).set(authA).expect(200).catch(done);
             expect(userAGetStat.body.id).toBe(3);
+            // Check the active users, cabildos and activities.
             expect(userAGetStat.body.activeUsers).toBe(7);
             expect(userAGetStat.body.activeCabildos).toBe(4);
             expect(userAGetStat.body.activeActivities).toBe(9);
-            //expect(userAGetStat.body.trendingUsersIds).toStrictEqual([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-            //expect(userAGetStat.body.trendingCabildosIds).toStrictEqual([3, 4, 13, 14, 15, 16, 17, 18, 19, 20]);
-            //expect(userAGetStat.body.trendingActivitiesIds).toStrictEqual([5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+            // Check the 5 trending users.
+            expect(userAGetStat.body.trendingUsers[0].id).toStrictEqual(15);
+            expect(userAGetStat.body.trendingUsers[1].id).toStrictEqual(16);
+            expect(userAGetStat.body.trendingUsers[2].id).toStrictEqual(18);
+            expect(userAGetStat.body.trendingUsers[3].id).toStrictEqual(19);
+            expect(userAGetStat.body.trendingUsers[4].id).toStrictEqual(21);
+            // Check the 5 trending cabildos.
+            expect(userAGetStat.body.trendingCabildos[0].id).toStrictEqual(7);
+            expect(userAGetStat.body.trendingCabildos[1].id).toStrictEqual(8);
+            expect(userAGetStat.body.trendingCabildos[2].id).toStrictEqual(6);
+            expect(userAGetStat.body.trendingCabildos[3].id).toStrictEqual(9);
+            expect(userAGetStat.body.trendingCabildos[4].id).toStrictEqual(5);
+            // Check the 10 trending activities, and the user and cabildo related to them.
+            expect(userAGetStat.body.trendingActivities[0].id).toStrictEqual(13);
+            expect(userAGetStat.body.trendingActivities[0].user.id).toStrictEqual(15);
+            expect(userAGetStat.body.trendingActivities[0].cabildo.id).toStrictEqual(7);
+            expect(userAGetStat.body.trendingActivities[0].id).toStrictEqual(13);
+            expect(userAGetStat.body.trendingActivities[0].user.id).toStrictEqual(15);
+            expect(userAGetStat.body.trendingActivities[0].cabildo.id).toStrictEqual(7);
+            expect(userAGetStat.body.trendingActivities[1].id).toStrictEqual(14);
+            expect(userAGetStat.body.trendingActivities[1].user.id).toStrictEqual(15);
+            expect(userAGetStat.body.trendingActivities[1].cabildo.id).toStrictEqual(7);
+            expect(userAGetStat.body.trendingActivities[2].id).toStrictEqual(15);
+            expect(userAGetStat.body.trendingActivities[2].user.id).toStrictEqual(16);
+            expect(userAGetStat.body.trendingActivities[2].cabildo.id).toStrictEqual(7);
+            expect(userAGetStat.body.trendingActivities[3].id).toStrictEqual(16);
+            expect(userAGetStat.body.trendingActivities[3].user.id).toStrictEqual(18);
+            expect(userAGetStat.body.trendingActivities[3].cabildo.id).toStrictEqual(8);
+            expect(userAGetStat.body.trendingActivities[4].id).toStrictEqual(17);
+            expect(userAGetStat.body.trendingActivities[4].user.id).toStrictEqual(19);
+            expect(userAGetStat.body.trendingActivities[4].cabildo.id).toStrictEqual(8);
+            expect(userAGetStat.body.trendingActivities[5].id).toStrictEqual(18);
+            expect(userAGetStat.body.trendingActivities[5].user.id).toStrictEqual(21);
+            expect(userAGetStat.body.trendingActivities[5].cabildo.id).toStrictEqual(9);
+            expect(userAGetStat.body.trendingActivities[6].id).toStrictEqual(12);
+            expect(userAGetStat.body.trendingActivities[6].user.id).toStrictEqual(13);
+            expect(userAGetStat.body.trendingActivities[6].cabildo.id).toStrictEqual(6);
+            expect(userAGetStat.body.trendingActivities[7].id).toStrictEqual(11);
+            expect(userAGetStat.body.trendingActivities[7].user.id).toStrictEqual(12);
+            expect(userAGetStat.body.trendingActivities[7].cabildo.id).toStrictEqual(6);
+            expect(userAGetStat.body.trendingActivities[8].id).toStrictEqual(19);
+            expect(userAGetStat.body.trendingActivities[8].user.id).toStrictEqual(21);
+            expect(userAGetStat.body.trendingActivities[8].cabildo.id).toStrictEqual(9);
+            expect(userAGetStat.body.trendingActivities[9].id).toStrictEqual(10);
+            expect(userAGetStat.body.trendingActivities[9].user.id).toStrictEqual(10);
+            expect(userAGetStat.body.trendingActivities[9].cabildo.id).toStrictEqual(5);
+            debug("get statistics is good");
 
             // Goodbye!
             done();

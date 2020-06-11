@@ -3,30 +3,32 @@ import {
     Controller,
     Post,
     Get,
-    UnprocessableEntityException,
 } from '@nestjs/common';
 
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { StatisticsService } from './statistics.service';
+import { UserService } from '../users/users.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UserId } from '../users/users.decorator';
 
-//@UseGuards(JwtAuthGuard)
 @Controller('statistics') // http://localhost:3000/statistics
 export class StatisticsController {
     constructor(
-        private readonly statisticsService: StatisticsService
+        private readonly statisticsService: StatisticsService,
+        private readonly usersService: UserService
     ) {}
 
-    @Post() // http;//localhost:3000/statistics
+    @Post() // http://localhost:3000/statistics
     async addStatistics(
     ) {
         await this.statisticsService.insertStatistics();
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get() // http://localhost:3000/statistics
     async getCurrentStat(
-        // @UserId() userId: number,
+        @UserId() userId: number,
     ) {
-        // await this.userService.exists(userId);
+        await this.usersService.exists(userId);
         return await this.statisticsService.getCurrentStat();
     }
 }
