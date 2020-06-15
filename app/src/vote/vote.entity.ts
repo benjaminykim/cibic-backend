@@ -3,6 +3,7 @@ import {
     RelationId,
     Entity,
     Column,
+    CreateDateColumn,
     PrimaryGeneratedColumn,
     Check,
 } from 'typeorm';
@@ -21,6 +22,9 @@ export abstract class BaseVote { // select these
     @ApiProperty()
     @PrimaryGeneratedColumn()
     public id: number;
+
+    @CreateDateColumn()
+    public publishDate: Date;
 
     @ApiProperty()
     @Column()

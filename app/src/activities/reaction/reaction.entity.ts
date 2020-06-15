@@ -3,6 +3,7 @@ import {
     PrimaryGeneratedColumn,
     ManyToOne,
     Column,
+    CreateDateColumn,
     Entity,
     Check,
 } from 'typeorm';
@@ -16,6 +17,9 @@ export class Reaction {
 
     @PrimaryGeneratedColumn()
     public id: number; // select
+
+    @CreateDateColumn()
+    public publishDate: Date;
 
     @ManyToOne(
         () => User,
