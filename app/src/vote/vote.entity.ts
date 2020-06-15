@@ -23,9 +23,6 @@ export abstract class BaseVote { // select these
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @CreateDateColumn()
-    public publishDate: Date;
-
     @ApiProperty()
     @Column()
     public value: number;
