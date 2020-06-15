@@ -8,6 +8,7 @@ import {
     OneToMany,
     JoinColumn,
     Entity,
+    CreateDateColumn
 } from 'typeorm';
 
 import { User } from '../users/users.entity';
@@ -18,6 +19,9 @@ export class Cabildo {
 
     @PrimaryGeneratedColumn() // select with
     public id: number;
+
+    @CreateDateColumn()
+    public publishDate: Date;
 
     @Column() // select with
     @Index({unique: true})
