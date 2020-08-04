@@ -29,6 +29,9 @@ export class TagController {
     ) {
         // take partial string, return array of Tag objects
         // based on provided prefix
-        return { tags: await this.tagService.possibleTags(partial) };
+        //return await this.tagService.possibleTags(partial);
+        var tagList = await this.tagService.possibleTags(partial);
+        console.log(tagList);
+        return { 'tags': tagList };
     }
 }

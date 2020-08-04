@@ -57,7 +57,9 @@ export class CabildoController {
     async getCabildoProfile(
         @Param('cabildoId') cabildoId: number,
     ) {
-        return this.cabildoService.getCabildoProfile(cabildoId);
+        const ret = await this.cabildoService.getCabildoProfile(cabildoId);
+        console.log(ret);
+        return ret;
     }
 
     @Put('description/:cabildoId') // http://localhost:3000/cabildo/description/:id

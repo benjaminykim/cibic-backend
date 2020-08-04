@@ -61,6 +61,7 @@ export class ActivityService {
             .leftJoinAndSelect("activity.tags", "tags")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", {user: userId})
+            .leftJoinAndSelect("activity.savers", "savers", "savers.id = :user", {user: userId})
             .skip(offset)
             .take(configService.getFeedLimit())
             .getMany()
@@ -80,6 +81,7 @@ export class ActivityService {
             .leftJoinAndSelect("activity.tags", "tags")
             .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", { userId: userId})
             .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", { user: userId })
+            .leftJoinAndSelect("activity.savers", "savers", "savers.id = :user", { user: userId })
             .orderBy("activity.ping", "DESC")
             .skip(offset)
             .take(configService.getFeedLimit())
@@ -108,6 +110,7 @@ export class ActivityService {
                     .leftJoinAndSelect("comments.votes", "cvotes", "cvotes.userId = :userId", {userId: userId})
                     .leftJoinAndSelect("activity.votes", "votes", "votes.userId = :userId", {userId: userId})
                     .leftJoinAndSelect("activity.reactions", "reactions", "reactions.user = :user", {user: userId})
+                    .leftJoinAndSelect("activity.savers", "savers", "savers.id = :user", {user: userId})
                     .getOne()
             }
             else {
@@ -128,6 +131,7 @@ export class ActivityService {
                     .leftJoinAndSelect("comments.votes", "cvotes")
                     .leftJoinAndSelect("activity.votes", "votes")
                     .leftJoinAndSelect("activity.reactions", "reactions")
+                    .leftJoinAndSelect("activity.savers", "savers")
                     .getOne()
             }
         } catch (error) {

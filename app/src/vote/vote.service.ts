@@ -1,9 +1,10 @@
 import {
     Injectable,
     NotFoundException,
+    UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getRepository } from 'typeorm';
 import { ActivityVote, CommentVote, ReplyVote } from './vote.entity';
 
 @Injectable()
@@ -19,6 +20,8 @@ export class ActivityVoteService {
     }
 
     async addVote(vote: ActivityVote) {
+        if (await this.repository.count({userId: vote.userId, activityId: vote.activityId}))
+            throw new UnprocessableEntityException();
         const result = await this.repository.save(vote);
         return result.id as number;
     }
@@ -54,6 +57,8 @@ export class CommentVoteService {
     }
 
     async addVote(vote: CommentVote) {
+        if (await this.repository.count({userId: vote.userId, commentId: vote.commentId}))
+            throw new UnprocessableEntityException();
         const result = await this.repository.save(vote);
         return result.id as number;
     }
@@ -89,6 +94,8 @@ export class ReplyVoteService {
     }
 
     async addVote(vote: ReplyVote) {
+        if (await this.repository.count({userId: vote.userId, replyId: vote.replyId}))
+            throw new UnprocessableEntityException();
         const result = await this.repository.save(vote);
         return result.id as number;
     }

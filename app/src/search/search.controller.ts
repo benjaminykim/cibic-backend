@@ -83,6 +83,7 @@ export class SearchController {
         const ret = await this.searchService.searchActivities(search, offset);
         if (ret.length == 0)
             throw new HttpException('No Content', HttpStatus.NO_CONTENT);
+        console.log(ret);
         return ret;
     }
 
