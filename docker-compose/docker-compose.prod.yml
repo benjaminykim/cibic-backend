@@ -1,0 +1,42 @@
+version: "3.6"
+services:
+  api:
+    command: start:prod
+    environment:
+      - DEPLOY_ENV=production
+    expose:
+      - "3000"
+    stdin_open: false
+  nginx:
+    image: nginx:1.17-alpine
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+    links:
+      - api
+    volumes:
+      - type: bind
+        source: ./data/nginx
+        target: /etc/nginx/conf.d
+      - type: bind
+        source: ./data/certbot/conf
+        target: /etc/letsencrypt
+      - type: bind
+        source: ./data/certbot/www
+        target: /var/www/certbot
+      - type: bind
+        source: ./cibic-web
+        target: /var/www/static
+  certbot:
+    image: certbot/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - type: bind
+        source: ./data/certbot/conf
+        target: /etc/letsencrypt
+      - type: bind
+        source: ./data/certbot/www
+        target: /var/www/certbot

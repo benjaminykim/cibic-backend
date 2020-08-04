@@ -1,5 +1,6 @@
 # compiled output
-/dist
+dist
+ormconfig.json
 /node_modules
 
 # Logs
@@ -25,6 +26,9 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
+*~
+\#*\#
+.\#*
 
 # IDE - VSCode
 .vscode/*
@@ -36,4 +40,7 @@ lerna-debug.log*
 package-lock.json
 
 tsconfig.build.code-workspace
-tsconfig*
+
+# Security
+*.env
+/data/certbot/conf

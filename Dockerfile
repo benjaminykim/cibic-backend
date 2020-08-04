@@ -1,8 +1,6 @@
-FROM node:12-buster
+FROM node:12.16.1-alpine
 WORKDIR /app
-
-COPY . /app
+COPY ./app/package.* .
 RUN npm install
-
-EXPOSE 3000
-CMD [ "npm", "run", "start:dev" ]
+COPY ./PostgresDriver.js ./node_modules/typeorm/driver/postgres/PostgresDriver.js
+ENTRYPOINT [ "npm", "run" ]

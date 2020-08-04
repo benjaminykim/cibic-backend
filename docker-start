@@ -1,0 +1,53 @@
+#!/bin/bash
+USAGE=\
+"Usage: ./docker-start [ test | e2e | shell | dev | prod | down ] [ CMD ]?\n\n"\
+"\ttest: run jest test watcher on backend unit tests\n"\
+"\te2e: run jest/supertest end to end test on application\n"\
+"\tshell: opens a shell on the backend container\n"\
+"\tdev: spin up backend in development mode\n"\
+"\tprod: spin up backend in production mode\n"\
+"\tdown: spin down all running containers and network\n"\
+"\n\tGo Cibic!\n"
+
+DC_DIR=docker-compose
+EXEC="docker-compose -p ${USER} -f docker-compose.yml"
+ARG=$1
+shift
+DEFAULT='up -d'
+CMD=${@:-$DEFAULT}
+
+if [ -z $ARG ]
+then
+    echo -e $USAGE;
+elif [ $ARG = "certbot" ] # certbot is a hidden option for compatibility with init-letsencrypt.sh
+then
+    echo ${EXEC} -f $DC_DIR/docker-compose.prod.yml $CMD | bash
+    exit 0;
+elif [ $ARG = "test" -o $ARG = "e2e" ]
+then
+    if [ $USER = "ubuntu" ]
+    then
+        echo "DO NOT RUN THIS ON EC2 IT WILL DESTROY THE DATABASE"
+        exit 1;
+    fi
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml down;
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
+    if [ $? = '0' -a "${CMD}" = "${DEFAULT}" ]
+    then
+        docker attach $(docker ps -q | head -n1);
+    fi
+elif [ $ARG = "shell" ]
+then
+    ${EXEC} down;
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
+    if [ $? = '0' -a "${CMD}" = "${DEFAULT}" ]
+    then
+        docker attach $(docker ps -q | head -n1);
+    fi
+elif [ $ARG = "dev" -o $ARG = "prod" ]
+then
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml down;
+    ${EXEC} -f $DC_DIR/docker-compose.$ARG.yml $CMD;
+else
+    echo -e $USAGE;
+fi

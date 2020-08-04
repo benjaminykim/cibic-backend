@@ -1,6 +1,61 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
+  <a href="https://www.cibic.app/" target="blank"><img src="https://www.cibic.app/assets/logo.png" width="320" alt="Cibic Logo" /></a>
 </p>
+
+## Description
+
+[Cibic's](https://www.cibic.app) backend server. [Docker Compose](https://github.com/docker/compose), [MongoDB](https://github.com/mongodb/mongo) with [Mongoose](https://github.com/nestjs/mongoose), [Nest](https://github.com/nestjs/nest) with [Typescript](https://github.com/Microsoft/TypeScript) on [Node.js](https://nodejs.org), being served up by [Nginx](https://nginx.org/) currently if [this](https://www.cibic.app/api/) is working.
+
+## Installation
+
+### Production
+
+We currently use [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security) in production.
+For a first time install, edit ./init-letsencrypt.sh to contain your machine's public url and your own email, and edit ./data/nginx/app.conf in the same manner, then run the following command:
+
+```bash
+$ sudo ./init-letsencrypt.sh
+```
+
+This will create a dummy certificate, spin up nginx, complete an acme-challenge, and give you a real Lets Encrypt certificate.
+
+```bash
+# to turn everything on
+$ ./docker-start prod
+# and after a few seconds
+$ curl https://your-chosen-domain/api/
+```
+You should get a Hello World! response once it's running.
+
+### Development
+
+We are fully dockerized, use the docker-start script to launch the app in your mode of choice.
+We run development without https, with the container ports exposed directly on the host machine.
+
+```bash
+# to spin up the server
+$ ./docker-start dev
+# and after a few seconds
+$ curl localhost:3000
+```
+
+You should get a Hello World! response once it's running.
+
+### Testing
+
+```bash
+# unit tests
+$ ./docker-start test
+
+# e2e test
+$ ./docker-start e2e
+```
+
+## Contact
+
+We take email at [cibic.media@gmail.com](mailto:cibic.media@gmail.com), and our site is [here](https://www.cibic.app) if our server is working.
+
+## Nest.js Things
 
 [travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
 [travis-url]: https://travis-ci.org/nestjs/nest
@@ -24,52 +79,10 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
 
 - Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
 - Website - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
-
-  Nest is [MIT licensed](LICENSE).
+Nest is [MIT licensed](LICENSE).
